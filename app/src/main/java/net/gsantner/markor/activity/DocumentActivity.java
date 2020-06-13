@@ -11,6 +11,7 @@ package net.gsantner.markor.activity;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -67,9 +68,13 @@ public class DocumentActivity extends AppActivityBase {
 
     private static boolean nextLaunchTransparentBg = false;
 
-    public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
+    public static Intent prepIntent(Context context, File path, Boolean isFolder) {
+       return prepIntent(context, path, isFolder, false, null);
+    }
+
+    public static Intent prepIntent(Context context, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
         if (intent == null) {
-            intent = new Intent(activity, DocumentActivity.class);
+            intent = new Intent(context, DocumentActivity.class);
         }
         if (path != null) {
             intent.putExtra(DocumentIO.EXTRA_PATH, path);
@@ -80,11 +85,15 @@ public class DocumentActivity extends AppActivityBase {
         if (doPreview != null) {
             intent.putExtra(DocumentActivity.EXTRA_DO_PREVIEW, doPreview);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && new AppSettings(activity.getApplicationContext()).isMultiWindowEnabled()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && new AppSettings(context).isMultiWindowEnabled()) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         }
+        return intent;
+    }
+
+    public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
         nextLaunchTransparentBg = (activity instanceof MainActivity);
-        activity.startActivity(intent);
+        activity.startActivity(prepIntent(activity, path, isFolder, doPreview, intent));
     }
 
     public static Object[] checkIfLikelyTextfileAndGetExt(File file) {
