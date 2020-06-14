@@ -22,6 +22,7 @@ import android.widget.RemoteViews;
 import net.gsantner.markor.R;
 import net.gsantner.markor.activity.DocumentActivity;
 import net.gsantner.markor.activity.MainActivity;
+import net.gsantner.markor.model.Document;
 import net.gsantner.markor.util.AppSettings;
 import net.gsantner.markor.util.DocumentIO;
 
@@ -29,11 +30,6 @@ import java.io.File;
 
 public class WrMarkorWidgetProvider extends AppWidgetProvider {
     public static final String WIDGET_PATH = "WIDGET_PATH";
-    private int requestCode = 0;
-
-    private int nextCode() {
-        return requestCode++;
-    }
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
@@ -65,6 +61,8 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
 
         final int N = appWidgetIds.length;
 
+        int requestCode = 0;
+
         // Perform this loop procedure for each App Widget that belongs to this provider
         for (int appWidgetId : appWidgetIds) {
             // Get the layout for the App Widget and attach an on-click listener to the button
@@ -79,29 +77,36 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
 
 
             // ~~~Create new File~~~ Share empty text into markor, easier to access from widget than new file dialog
-            Intent openShare = DocumentActivity.prepIntent(context, directoryF, true)
+            Intent openShare = DocumentActivity.makeIndent(context, directoryF, true)
                     .setAction(Intent.ACTION_SEND);
-            views.setOnClickPendingIntent(R.id.widget_new_note, PendingIntent.getActivity(context, nextCode(), openShare, 0));
+            views.setOnClickPendingIntent(R.id.widget_new_note, PendingIntent.getActivity(context, requestCode++, openShare, 0));
 
             // Open Markor
             Intent goToMain = new Intent(context, MainActivity.class);
-            views.setOnClickPendingIntent(R.id.widget_header, PendingIntent.getActivity(context, nextCode(), goToMain, 0));
+            views.setOnClickPendingIntent(R.id.widget_header, PendingIntent.getActivity(context, requestCode++, goToMain, 0));
 
             // Open To-do
             AppSettings appSettings = new AppSettings(context);
-            Intent openTodo = DocumentActivity.prepIntent(context, appSettings.getTodoFile(), false)
-                    .setAction(Intent.ACTION_EDIT);
-            views.setOnClickPendingIntent(R.id.widget_todo, PendingIntent.getActivity(context, nextCode(), openTodo, 0));
+            Intent openTodo = new Intent(Intent.ACTION_EDIT);
+            openTodo.setClass(context, MainActivity.class);
+            openTodo.putExtra(DocumentIO.EXTRA_PATH, appSettings.getTodoFile());
+            openTodo.putExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
+
+            // Intent openTodo = DocumentActivity.makeIndent(context, appSettings.getTodoFile(), false)
+            //         .setAction(Intent.ACTION_EDIT)
+            //         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+            views.setOnClickPendingIntent(R.id.widget_todo, PendingIntent.getActivity(context, requestCode++, openTodo, 0));
 
             // Open QuickNote
-            Intent openQuickNote = DocumentActivity.prepIntent(context, appSettings.getTodoFile(), false)
+            Intent openQuickNote = DocumentActivity.makeIndent(context, appSettings.getTodoFile(), false)
                     .setAction(Intent.ACTION_EDIT);
-            views.setOnClickPendingIntent(R.id.widget_quicknote, PendingIntent.getActivity(context, nextCode(), openQuickNote, 0));
+            views.setOnClickPendingIntent(R.id.widget_quicknote, PendingIntent.getActivity(context, requestCode++, openQuickNote, 0));
 
             // Open Favourites
             Intent openApp = new Intent(context, MainActivity.class)
                     .setAction(Intent.ACTION_VIEW);
-            views.setOnClickPendingIntent(R.id.widget_main, PendingIntent.getActivity(context, nextCode(), openApp, 0));
+            views.setOnClickPendingIntent(R.id.widget_main, PendingIntent.getActivity(context, requestCode++, openApp, 0));
 
 
             // ListView
@@ -115,7 +120,7 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
             views.setRemoteAdapter(R.id.widget_notes_list, notesListIntent);
 
             Intent openNoteIntent = new Intent(context, DocumentActivity.class);
-            PendingIntent openNotePendingIntent = PendingIntent.getActivity(context, nextCode(),
+            PendingIntent openNotePendingIntent = PendingIntent.getActivity(context, requestCode++,
                     openNoteIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setPendingIntentTemplate(R.id.widget_notes_list, openNotePendingIntent);
 

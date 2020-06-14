@@ -68,11 +68,11 @@ public class DocumentActivity extends AppActivityBase {
 
     private static boolean nextLaunchTransparentBg = false;
 
-    public static Intent prepIntent(Context context, File path, Boolean isFolder) {
-       return prepIntent(context, path, isFolder, false, null);
+    public static Intent makeIndent(Context context, File path, Boolean isFolder) {
+       return makeIndent(context, path, isFolder, false, null);
     }
 
-    public static Intent prepIntent(Context context, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
+    public static Intent makeIndent(Context context, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
         if (intent == null) {
             intent = new Intent(context, DocumentActivity.class);
         }
@@ -93,7 +93,7 @@ public class DocumentActivity extends AppActivityBase {
 
     public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
         nextLaunchTransparentBg = (activity instanceof MainActivity);
-        activity.startActivity(prepIntent(activity, path, isFolder, doPreview, intent));
+        activity.startActivity(makeIndent(activity, path, isFolder, doPreview, intent));
     }
 
     public static Object[] checkIfLikelyTextfileAndGetExt(File file) {

@@ -40,11 +40,13 @@ import com.pixplicity.generate.Rate;
 import net.gsantner.markor.BuildConfig;
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.TextFormat;
+import net.gsantner.markor.model.Document;
 import net.gsantner.markor.ui.FilesystemViewerCreator;
 import net.gsantner.markor.ui.NewFileDialog;
 import net.gsantner.markor.util.ActivityUtils;
 import net.gsantner.markor.util.AppCast;
 import net.gsantner.markor.util.AppSettings;
+import net.gsantner.markor.util.DocumentIO;
 import net.gsantner.markor.util.PermissionChecker;
 import net.gsantner.markor.util.ShareUtil;
 import net.gsantner.opoc.activity.GsFragmentBase;
@@ -56,6 +58,7 @@ import net.gsantner.opoc.util.AndroidSupportMeWrapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.concurrent.TimeUnit;
@@ -260,6 +263,27 @@ public class MainActivity extends AppActivityBase implements FilesystemViewerFra
             }
         }
     };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        handleDocumentIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        handleDocumentIntent(intent);
+    }
+
+    private void handleDocumentIntent(Intent intent) {
+        if (Intent.ACTION_EDIT.equals(intent.getAction())) {
+            Serializable path = intent.getSerializableExtra(DocumentIO.EXTRA_PATH);
+            boolean folder = intent.getBooleanExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
+            if (path != null && path instanceof File) {
+                DocumentActivity.launch(this, (File) path, folder, false, null);
+            }
+        }
+    }
 
     @Override
     @SuppressWarnings("unused")
