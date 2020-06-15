@@ -68,13 +68,9 @@ public class DocumentActivity extends AppActivityBase {
 
     private static boolean nextLaunchTransparentBg = false;
 
-    public static Intent makeIndent(Context context, File path, Boolean isFolder) {
-       return makeIndent(context, path, isFolder, false, null);
-    }
-
-    public static Intent makeIndent(Context context, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
+    public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
         if (intent == null) {
-            intent = new Intent(context, DocumentActivity.class);
+            intent = new Intent(activity, DocumentActivity.class);
         }
         if (path != null) {
             intent.putExtra(DocumentIO.EXTRA_PATH, path);
@@ -85,15 +81,11 @@ public class DocumentActivity extends AppActivityBase {
         if (doPreview != null) {
             intent.putExtra(DocumentActivity.EXTRA_DO_PREVIEW, doPreview);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && new AppSettings(context).isMultiWindowEnabled()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && new AppSettings(activity).isMultiWindowEnabled()) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         }
-        return intent;
-    }
-
-    public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
+        activity.startActivity(intent);
         nextLaunchTransparentBg = (activity instanceof MainActivity);
-        activity.startActivity(makeIndent(activity, path, isFolder, doPreview, intent));
     }
 
     public static Object[] checkIfLikelyTextfileAndGetExt(File file) {
@@ -178,7 +170,8 @@ public class DocumentActivity extends AppActivityBase {
     }
 
     @Override
-    public void onNewIntent(Intent intent) {
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
         handleLaunchingIntent(intent);
     }
 
@@ -278,28 +271,33 @@ public class DocumentActivity extends AppActivityBase {
         }
     }
 
-    public GsFragmentBase showTextEditor(@Nullable Document document, @Nullable File file, boolean fileIsFolder) {
-        return showTextEditor(document, file, fileIsFolder, false);
+    public void showTextEditor(@Nullable Document document, @Nullable File file, boolean fileIsFolder) {
+        showTextEditor(document, file, fileIsFolder, false);
     }
 
-    public GsFragmentBase showTextEditor(@Nullable Document document, @Nullable File file, boolean fileIsFolder, boolean preview) {
+    public void showTextEditor(@Nullable Document document, @Nullable File file, boolean fileIsFolder, boolean preview) {
 
-        GsFragmentBase frag = getCurrentVisibleFragment();
+        GsFragmentBase currentFragment = getCurrentVisibleFragment();
+        File reqFile = (document != null) ? document.getFile() : file;
+
         boolean sameDocumentRequested = false;
-        if (frag instanceof DocumentEditFragment) {
-            File reqFile = (document != null) ? document.getFile() : file;
+        if (currentFragment instanceof DocumentEditFragment) {
             String reqPath = (reqFile != null) ? reqFile.getPath() : "";
-            sameDocumentRequested = reqPath.equals(((DocumentEditFragment) frag).getPath());
+            sameDocumentRequested = reqPath.equals(((DocumentEditFragment) currentFragment).getPath());
         }
 
         if (!sameDocumentRequested) {
-            if (document != null) {
-                frag = showFragment(DocumentEditFragment.newInstance(document).setPreviewFlag(preview));
+            if (currentFragment == null || !_appSettings.isMultiWindowEnabled()) {
+                if (document != null) {
+                    showFragment(DocumentEditFragment.newInstance(document).setPreviewFlag(preview));
+                } else {
+                    showFragment(DocumentEditFragment.newInstance(file, fileIsFolder, true).setPreviewFlag(preview));
+                }
             } else {
-                frag = showFragment(DocumentEditFragment.newInstance(file, fileIsFolder, true).setPreviewFlag(preview));
+                DocumentActivity.launch(DocumentActivity.this, reqFile, fileIsFolder, preview, null);
+                finish();
             }
         }
-        return frag;
     }
 
     public void showShareInto(Intent intent) {

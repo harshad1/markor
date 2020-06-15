@@ -264,26 +264,26 @@ public class MainActivity extends AppActivityBase implements FilesystemViewerFra
         }
     };
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        handleDocumentIntent(getIntent());
-    }
+    // @Override
+    // protected void onStart() {
+    //     super.onStart();
+    //     handleDocumentIntent(getIntent());
+    // }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        handleDocumentIntent(intent);
-    }
+    // @Override
+    // protected void onNewIntent(Intent intent) {
+    //     handleDocumentIntent(intent);
+    // }
 
-    private void handleDocumentIntent(Intent intent) {
-        if (Intent.ACTION_EDIT.equals(intent.getAction())) {
-            Serializable path = intent.getSerializableExtra(DocumentIO.EXTRA_PATH);
-            boolean folder = intent.getBooleanExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
-            if (path != null && path instanceof File) {
-                DocumentActivity.launch(this, (File) path, folder, false, null);
-            }
-        }
-    }
+    // private void handleDocumentIntent(Intent intent) {
+    //     if (Intent.ACTION_EDIT.equals(intent.getAction())) {
+    //         Serializable path = intent.getSerializableExtra(DocumentIO.EXTRA_PATH);
+    //         boolean folder = intent.getBooleanExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
+    //         if (path != null && path instanceof File) {
+    //             DocumentActivity.launch(this, (File) path, folder, false, null);
+    //         }
+    //     }
+    // }
 
     @Override
     @SuppressWarnings("unused")

@@ -75,10 +75,13 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
             File directoryF = new File(directory);
             views.setTextViewText(R.id.widget_header_title, directoryF.getName());
 
+            AppSettings appSettings = new AppSettings(context);
 
             // ~~~Create new File~~~ Share empty text into markor, easier to access from widget than new file dialog
-            Intent openShare = DocumentActivity.makeIndent(context, directoryF, true)
-                    .setAction(Intent.ACTION_SEND);
+            Intent openShare = new Intent(context, DocumentActivity.class)
+                    .setAction(Intent.ACTION_SEND)
+                    .putExtra(DocumentIO.EXTRA_PATH, directoryF)
+                    .putExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, true);
             views.setOnClickPendingIntent(R.id.widget_new_note, PendingIntent.getActivity(context, requestCode++, openShare, 0));
 
             // Open Markor
@@ -86,21 +89,17 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
             views.setOnClickPendingIntent(R.id.widget_header, PendingIntent.getActivity(context, requestCode++, goToMain, 0));
 
             // Open To-do
-            AppSettings appSettings = new AppSettings(context);
-            Intent openTodo = new Intent(Intent.ACTION_EDIT);
-            openTodo.setClass(context, MainActivity.class);
-            openTodo.putExtra(DocumentIO.EXTRA_PATH, appSettings.getTodoFile());
-            openTodo.putExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
-
-            // Intent openTodo = DocumentActivity.makeIndent(context, appSettings.getTodoFile(), false)
-            //         .setAction(Intent.ACTION_EDIT)
-            //         .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
+            Intent openTodo = new Intent(context, DocumentActivity.class)
+                    .setAction(Intent.ACTION_EDIT)
+                    .putExtra(DocumentIO.EXTRA_PATH, appSettings.getTodoFile())
+                    .putExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
             views.setOnClickPendingIntent(R.id.widget_todo, PendingIntent.getActivity(context, requestCode++, openTodo, 0));
 
             // Open QuickNote
-            Intent openQuickNote = DocumentActivity.makeIndent(context, appSettings.getTodoFile(), false)
-                    .setAction(Intent.ACTION_EDIT);
+            Intent openQuickNote = new Intent(context, DocumentActivity.class)
+                    .setAction(Intent.ACTION_EDIT)
+                    .putExtra(DocumentIO.EXTRA_PATH, appSettings.getQuickNoteFile())
+                    .putExtra(DocumentIO.EXTRA_PATH_IS_FOLDER, false);
             views.setOnClickPendingIntent(R.id.widget_quicknote, PendingIntent.getActivity(context, requestCode++, openQuickNote, 0));
 
             // Open Favourites
