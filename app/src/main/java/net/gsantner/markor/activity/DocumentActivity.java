@@ -51,7 +51,6 @@ import other.so.AndroidBug5497Workaround;
 
 public class DocumentActivity extends AppActivityBase {
     public static final String EXTRA_DO_PREVIEW = "EXTRA_DO_PREVIEW";
-    public static final String EXTRA_LAUNCHER_SHORTCUT_PATH = "real_file_path_2";
 
     @BindView(R.id.document__placeholder_fragment)
     FrameLayout _fragPlaceholder;
@@ -68,13 +67,9 @@ public class DocumentActivity extends AppActivityBase {
 
     private static boolean nextLaunchTransparentBg = false;
 
-    public static Intent makeIntent(Context context, File path, Boolean isFolder) {
-        return makeIntent(context, path, isFolder, false, null);
-    }
-
-    public static Intent makeIntent(Context context, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
+    public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
         if (intent == null) {
-            intent = new Intent(context, DocumentActivity.class);
+            intent = new Intent(activity, DocumentActivity.class);
         }
         if (path != null) {
             intent.putExtra(DocumentIO.EXTRA_PATH, path);
@@ -85,14 +80,10 @@ public class DocumentActivity extends AppActivityBase {
         if (doPreview != null) {
             intent.putExtra(DocumentActivity.EXTRA_DO_PREVIEW, doPreview);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && new AppSettings(context).isMultiWindowEnabled()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && new AppSettings(activity).isMultiWindowEnabled()) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         }
-        return intent;
-    }
-
-    public static void launch(Activity activity, File path, Boolean isFolder, Boolean doPreview, Intent intent) {
-        activity.startActivity(makeIntent(activity, path, isFolder, doPreview, intent));
+        activity.startActivity(intent);
         nextLaunchTransparentBg = (activity instanceof MainActivity);
     }
 
