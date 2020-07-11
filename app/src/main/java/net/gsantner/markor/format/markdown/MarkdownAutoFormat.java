@@ -24,10 +24,7 @@ public class MarkdownAutoFormat implements InputFilter {
     @Override
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
         try {
-            if (start < source.length()
-                    && dstart <= dest.length()
-                    && isNewLine(source, start, end)) {
-
+            if (start < source.length() && dstart <= dest.length() && isNewLine(source, start, end)) {
                 return autoIndent(source, dest, dstart, dend);
             }
         } catch (IndexOutOfBoundsException | NullPointerException e) {
@@ -41,46 +38,22 @@ public class MarkdownAutoFormat implements InputFilter {
     }
 
     private CharSequence autoIndent(CharSequence source, Spanned dest, int dstart, int dend) {
-        int iStart = StringUtils.getLineStart(dest, dstart);
+        String suffix = "";
 
-        // append white space of previous line and new indent
-        return source + createIndentForNextLine(dest, dend, iStart);
-    }
-
-    private String createIndentForNextLine(Spanned dest, int dend, int istart) {
-
-        // Determine leading whitespace
-        int iEnd = StringUtils.getNextNonWhitespace(dest, istart);
-
-        // Construct whitespace
-        String indentString = StringUtils.repeatChars(' ', iEnd - istart);
-
-        String previousLine = dest.toString().substring(iEnd, dend);
-
-        Matcher uMatch = MarkdownHighlighterPattern.LIST_UNORDERED.pattern.matcher(previousLine);
-        if (uMatch.find()) {
-            String bullet = uMatch.group() + " ";
-            boolean emptyList = previousLine.equals(bullet);
-            return indentString + (emptyList ? "" : bullet);
+        OrderedListLine oLine = new OrderedListLine(dest, dstart);
+        if (oLine.isOrderedList) {
+            suffix = StringUtils.repeatChars(' ', oLine.indent) + (oLine.value + 1) + oLine.delimiter + " ";
+        } else {
+            UnOrderedListLine uLine = new UnOrderedListLine(dest, dstart);
+            if (uLine.isUnorderedList) {
+                suffix += StringUtils.repeatChars(' ', uLine.indent) + uLine.listChar + " ";
+                if (uLine.isCheckboxList) {
+                    suffix += "[ ] ";
+                }
+            }
         }
 
-        Matcher oMatch = MarkdownHighlighterPattern.LIST_ORDERED.pattern.matcher(previousLine);
-        if (oMatch.find()) {
-            boolean emptyList = previousLine.equals(oMatch.group(1) + ". ");
-            return indentString + (emptyList ? "" : addNumericListItemIfNeeded(oMatch.group(1)));
-        }
-
-        return indentString;
-    }
-
-    private String addNumericListItemIfNeeded(String itemNumStr) {
-        try {
-            int nextC = Integer.parseInt(itemNumStr) + 1;
-            return nextC + ". ";
-        } catch (NumberFormatException e) {
-            // This should never ever happen
-            return "";
-        }
+        return source + suffix;
     }
 
     public static class ListLine {

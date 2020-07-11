@@ -37,14 +37,10 @@ public class ListHandler implements TextWatcher {
         // Detects if enter pressed on empty list (correctly handles indent) and marks line for deletion.
         if (count > 0 && start > -1 && start < s.length() && s.charAt(start) == '\n') {
 
-            int iStart = StringUtils.getLineStart(s, start);
-            int iEnd = StringUtils.getNextNonWhitespace(s, iStart);
-
-            String previousLine = s.subSequence(iEnd, start).toString();
             Spannable sSpan = (Spannable) s;
 
-            Matcher uMatch = MarkdownHighlighterPattern.LIST_UNORDERED.pattern.matcher(previousLine);
-            if (uMatch.find() && previousLine.equals(uMatch.group() + " ")) {
+            MarkdownAutoFormat.UnOrderedListLine uMatch = new MarkdownAutoFormat.UnOrderedListLine(s, start);
+            if (uMatch.isUnorderedList && uMatch.line) {
                 sSpan.setSpan(this, iStart, start + 1, Spanned.SPAN_COMPOSING);
             } else {
                 Matcher oMatch = MarkdownHighlighterPattern.LIST_ORDERED.pattern.matcher(previousLine);
