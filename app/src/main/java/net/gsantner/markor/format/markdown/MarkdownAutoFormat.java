@@ -9,6 +9,7 @@
 #########################################################*/
 package net.gsantner.markor.format.markdown;
 
+import android.annotation.SuppressLint;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spanned;
@@ -37,23 +38,25 @@ public class MarkdownAutoFormat implements InputFilter {
         return ((source.charAt(start) == '\n') || (source.charAt(end - 1) == '\n'));
     }
 
+    @SuppressLint("DefaultLocale")
     private CharSequence autoIndent(CharSequence source, Spanned dest, int dstart, int dend) {
-        String suffix = "";
 
-        OrderedListLine oLine = new OrderedListLine(dest, dstart);
-        if (oLine.isOrderedList) {
-            suffix = StringUtils.repeatChars(' ', oLine.indent) + (oLine.value + 1) + oLine.delimiter + " ";
+        final String result;
+
+        final OrderedListLine oLine = new OrderedListLine(dest, dstart);
+        final UnOrderedListLine uLine = new UnOrderedListLine(dest, dstart);
+        final String indent = source + StringUtils.repeatChars(' ', oLine.indent);
+
+        if (oLine.isOrderedList && oLine.lineEnd != oLine.groupEnd) {
+            result = indent + String.format("%d%c ", oLine.value + 1, oLine.delimiter);
+        } else if (uLine.isUnorderedList && uLine.lineEnd != uLine.groupEnd) {
+            final String checkString = uLine.isCheckboxList ? "[ ] " : "";
+            result = indent + String.format("%c %s", uLine.listChar, checkString);
         } else {
-            UnOrderedListLine uLine = new UnOrderedListLine(dest, dstart);
-            if (uLine.isUnorderedList) {
-                suffix += StringUtils.repeatChars(' ', uLine.indent) + uLine.listChar + " ";
-                if (uLine.isCheckboxList) {
-                    suffix += "[ ] ";
-                }
-            }
+            result = indent;
         }
 
-        return source + suffix;
+        return result;
     }
 
     public static class ListLine {
@@ -96,12 +99,14 @@ public class MarkdownAutoFormat implements InputFilter {
      * Class to parse a line of text and extract useful information
      */
     public static class OrderedListLine extends ListLine {
+        private static final int FULL_GROUP = 2;
         private static final int VALUE_GROUP = 3;
         private static final int DELIM_GROUP = 4;
 
         public final boolean isOrderedList;
         public final char delimiter;
         public final int numStart, numEnd;
+        public final int groupStart, groupEnd;
         public final int value;
 
         public OrderedListLine(CharSequence text, int position) {
@@ -114,8 +119,10 @@ public class MarkdownAutoFormat implements InputFilter {
                 numStart = match.start(VALUE_GROUP) + lineStart;
                 numEnd = match.end(VALUE_GROUP) + lineStart;
                 value = Integer.parseInt(match.group(VALUE_GROUP));
+                groupStart = lineStart + match.start(FULL_GROUP);
+                groupEnd = lineStart + match.end(FULL_GROUP);
             } else {
-                numStart = numEnd = value = -1;
+                groupEnd = groupStart = numStart = numEnd = value = -1;
                 delimiter = 0;
             }
         }

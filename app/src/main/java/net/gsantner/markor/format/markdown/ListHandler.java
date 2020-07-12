@@ -37,20 +37,17 @@ public class ListHandler implements TextWatcher {
         // Detects if enter pressed on empty list (correctly handles indent) and marks line for deletion.
         if (count > 0 && start > -1 && start < s.length() && s.charAt(start) == '\n') {
 
-            Spannable sSpan = (Spannable) s;
+            final Spannable sSpan = (Spannable) s;
 
-            MarkdownAutoFormat.UnOrderedListLine uMatch = new MarkdownAutoFormat.UnOrderedListLine(s, start);
-            if (uMatch.isUnorderedList && uMatch.line) {
-                sSpan.setSpan(this, iStart, start + 1, Spanned.SPAN_COMPOSING);
+            final MarkdownAutoFormat.OrderedListLine oMatch = new MarkdownAutoFormat.OrderedListLine(s, start);
+            final MarkdownAutoFormat.UnOrderedListLine uMatch = new MarkdownAutoFormat.UnOrderedListLine(s, start);
+
+            if (oMatch.isOrderedList && oMatch.lineEnd == oMatch.groupEnd) {
+                sSpan.setSpan(this, oMatch.lineStart, oMatch.lineEnd + 1, Spanned.SPAN_COMPOSING);
+            } else if (uMatch.isUnorderedList && uMatch.lineEnd == uMatch.groupEnd) {
+                sSpan.setSpan(this, uMatch.lineStart, uMatch.lineEnd + 1, Spanned.SPAN_COMPOSING);
             } else {
-                Matcher oMatch = MarkdownHighlighterPattern.LIST_ORDERED.pattern.matcher(previousLine);
-                if (oMatch.find()) {
-                    if (previousLine.equals(oMatch.group(1) + ". ")) {
-                        sSpan.setSpan(this, iStart, start + 1, Spanned.SPAN_COMPOSING);
-                    } else {
-                        reorderPosition = start;
-                    }
-                }
+                reorderPosition = start;
             }
         }
     }
