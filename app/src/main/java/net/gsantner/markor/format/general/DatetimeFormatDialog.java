@@ -58,6 +58,7 @@ public class DatetimeFormatDialog {
         final String LAST_USED_PREF = DatetimeFormatDialog.class.getCanonicalName() + ".lastusedformat";
 
         final String[] PREDEFINED_DATE_TIME_FORMATS = new String[]{
+                "yyyy-MM-dd'T'HH:mm",
                 "hh:mm",
                 "yyyy-MM-dd",
                 "dd.MM.yyyy",
