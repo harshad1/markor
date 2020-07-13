@@ -94,6 +94,12 @@
         android:icon="@drawable/ic_save_black_24dp"
         android:title="@string/save"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/action_wrap_words"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="@string/wrap_words"
+        app:showAsAction="never"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/submenu_share"
