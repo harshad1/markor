@@ -48,6 +48,10 @@ android {
             buildConfigField "boolean", "IS_TEST_BUILD", "true"
         }
         flavorDefault {
+            applicationId "net.gsantner.morkai_test"
+            versionCode = Integer.parseInt(new Date().format('yyMMdd'))
+            versionName = new Date().format('yyMMdd')
+            buildConfigField "boolean", "IS_TEST_BUILD", "false"
         }
         flavorGplay {
             buildConfigField "boolean", "IS_GPLAY_BUILD", "true"
