@@ -40,6 +40,7 @@ public class MarkdownAutoFormat implements InputFilter {
 
     @SuppressLint("DefaultLocale")
     private CharSequence autoIndent(CharSequence source, Spanned dest, int dstart, int dend) {
+        int iStart = StringUtils.getLineStart(dest, dstart);
 
         final String result;
 
