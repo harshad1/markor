@@ -229,8 +229,8 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
             _hlEditor.setText(CoolExperimentalStuff.convertEpubToText(_document.getFile(), getString(R.string.page)));
         }
 
-        setWrapState();
-        setHorizontalScrollMode();
+        // Set initial wrap state
+        initWrapState();
     }
 
 
@@ -617,7 +617,9 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
             updateLauncherWidgets();
 
             if (_document != null && _document.getFile() != null) {
-                new AppSettings(getContext()).setLastEditPosition(_document.getFile(), _hlEditor.getSelectionStart(), _hlEditor.getTop());
+                AppSettings settings = new AppSettings(getContext());
+                settings.setLastEditPosition(_document.getFile(), _hlEditor.getSelectionStart(), _hlEditor.getTop());
+                settings.setDocumentWrapState(getPath(), _appSettings.isEditorLineBreakingEnabled());
             }
         }
         return ret;
@@ -677,8 +679,14 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         }
 
         if (isVisibleToUser) {
-            setHorizontalScrollMode();
+            initWrapState();
         }
+    }
+
+    private void initWrapState() {
+        _appSettings.setEditorLineBreakingEnabled(new AppSettings(getContext()).getDocumentWrapState(getPath()));
+        setWrapState();
+        setHorizontalScrollMode();
     }
 
     private void checkReloadDisk(boolean forceReload) {

@@ -98,6 +98,7 @@ public class MarkdownTextActions extends TextActions {
                 new ActionItem(R.string.tmaid_common_accordion, R.drawable.ic_arrow_drop_down_black_24dp, R.string.accordion),
                 new ActionItem(R.string.tmaid_common_indent, R.drawable.ic_format_indent_increase_black_24dp, R.string.indent),
                 new ActionItem(R.string.tmaid_common_deindent, R.drawable.ic_format_indent_decrease_black_24dp, R.string.deindent),
+                new ActionItem(R.string.tmaid_common_next_line, R.drawable.ic_baseline_keyboard_return_24, R.string.next_line)
         };
 
         return Arrays.asList(TMA_ACTIONS);

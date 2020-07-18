@@ -52,6 +52,7 @@ android {
             versionCode = Integer.parseInt(new Date().format('yyMMdd'))
             versionName = new Date().format('yyMMdd')
             buildConfigField "boolean", "IS_TEST_BUILD", "false"
+            vectorDrawables.useSupportLibrary = true
         }
         flavorGplay {
             buildConfigField "boolean", "IS_GPLAY_BUILD", "true"
