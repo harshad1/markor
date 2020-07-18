@@ -26,7 +26,7 @@ public class MarkdownAutoFormat implements InputFilter {
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
         try {
             if (start < source.length() && dstart <= dest.length() && isNewLine(source, start, end)) {
-                return autoIndent(source, dest, dstart, dend);
+                return autoIndent(source, dest, dstart);
             }
         } catch (IndexOutOfBoundsException | NullPointerException e) {
             e.printStackTrace();
@@ -39,19 +39,19 @@ public class MarkdownAutoFormat implements InputFilter {
     }
 
     @SuppressLint("DefaultLocale")
-    private CharSequence autoIndent(CharSequence source, Spanned dest, int dstart, int dend) {
-        int iStart = StringUtils.getLineStart(dest, dstart);
+    private CharSequence autoIndent(final CharSequence source, final Spanned dest, final int dstart) {
 
-        final String result;
+        final String checkSymbol = "[ ] ";
 
         final OrderedListLine oLine = new OrderedListLine(dest, dstart);
         final UnOrderedListLine uLine = new UnOrderedListLine(dest, dstart);
         final String indent = source + StringUtils.repeatChars(' ', oLine.indent);
 
+        final String result;
         if (oLine.isOrderedList && oLine.lineEnd != oLine.groupEnd) {
             result = indent + String.format("%d%c ", oLine.value + 1, oLine.delimiter);
         } else if (uLine.isUnorderedList && uLine.lineEnd != uLine.groupEnd) {
-            final String checkString = uLine.isCheckboxList ? "[ ] " : "";
+            final String checkString = uLine.isCheckboxList ? checkSymbol : "";
             result = indent + String.format("%c %s", uLine.listChar, checkString);
         } else {
             result = indent;
