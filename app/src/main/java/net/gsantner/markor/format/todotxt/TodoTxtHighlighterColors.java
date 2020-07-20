@@ -44,11 +44,11 @@ public class TodoTxtHighlighterColors {
     }
 
     public int getDoneColor() {
-        return 0x993d3d3d;
+        return 0xFF888888;
     }
 
     public int getDateColor() {
-        return 0xcc6d6d6d;
+        return 0xFF888888;
     }
 
     public int getCategoryColor() {

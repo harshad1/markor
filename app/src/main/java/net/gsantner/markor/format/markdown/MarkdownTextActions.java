@@ -156,7 +156,7 @@ public class MarkdownTextActions extends TextActions {
                     return true;
                 }
                 case R.string.tmaid_markdown_bold: {
-                    runInlineAction("**");
+                    runInlineAction("__");
                     return true;
                 }
                 case R.string.tmaid_markdown_italic: {
