@@ -87,6 +87,14 @@ public class TodoTxtHighlighter extends Highlighter {
             _profiler.restart("done Strike");
             createSpanWithStrikeThroughForMatches(editable, TodoTxtHighlighterPattern.DONE.getPattern());
 
+            // Fix for paragraph padding and horizontal rule
+            /*
+            nprofiler.restart("Single line fix 1");
+            createRelativeSizeSpanForMatches(editable, TodoTxtHighlighterPattern.LINESTART.getPattern(), 0.8f);
+            nprofiler.restart("Single line fix 2");
+            createRelativeSizeSpanForMatches(editable, TodoTxtHighlighterPattern.LINESTART.getPattern(), 1.2f);*/
+            _profiler.restart("Single line fix 1");
+            createRelativeSizeSpanForMatches(editable, TodoTxtHighlighterPattern.LINESTART.getPattern(), 1.00001f);
             _profiler.end();
             _profiler.printProfilingGroup();
         } catch (Exception ex) {
