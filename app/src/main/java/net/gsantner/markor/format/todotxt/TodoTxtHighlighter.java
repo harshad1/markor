@@ -10,6 +10,7 @@
 package net.gsantner.markor.format.todotxt;
 
 import android.content.Context;
+import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -44,7 +45,6 @@ public class TodoTxtHighlighter extends Highlighter {
             createParagraphStyleSpanForMatches(editable, TodoTxtHighlighterPattern.LINE_OF_TEXT.getPattern(),
                     (matcher, iM) -> new FirstLineTopPaddedParagraphSpan(2f));
 
-
             _profiler.restart("Context");
             createColorSpanForMatches(editable, TodoTxtHighlighterPattern.CONTEXT.getPattern(), colors.getContextColor());
             _profiler.restart("Category");
@@ -72,9 +72,6 @@ public class TodoTxtHighlighter extends Highlighter {
             _profiler.restart("Date Color");
             createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DATE.getPattern(), colors.getDateColor());
             createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DUE_DATE.getPattern(), colors.getPriorityColor(1), 1);
-            //createColorSpanForMatches(editable, TodoTxtHighlighterPattern.CREATION_DATE.getPattern(), 0xff00ff00);
-            //createColorSpanForMatches(editable, TodoTxtHighlighterPattern.COMPLETION_DATE.getPattern(), 0xff0000ff);
-
 
             // Paragraph divider
             _profiler.restart("Paragraph divider");
@@ -86,6 +83,9 @@ public class TodoTxtHighlighter extends Highlighter {
             createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DONE.getPattern(), colors.getDoneColor());
             _profiler.restart("done Strike");
             createSpanWithStrikeThroughForMatches(editable, TodoTxtHighlighterPattern.DONE.getPattern());
+
+            // Fix for paragraph padding and horizontal rule
+            createRelativeSizeSpanForMatches(editable, TodoTxtHighlighterPattern.LINE_OF_TEXT.getPattern(), 1.000001f);
 
             _profiler.end();
             _profiler.printProfilingGroup();
