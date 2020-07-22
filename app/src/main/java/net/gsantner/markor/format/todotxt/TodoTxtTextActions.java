@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Pattern;
 
 //TODO
 public class TodoTxtTextActions extends TextActions {
@@ -103,71 +104,52 @@ public class TodoTxtTextActions extends TextActions {
             final SttTaskWithParserInfo origTask = sttcmd.parseTask(origText, origSelectionStart);
             final CommonTextActions commonTextActions = new CommonTextActions(_activity, _hlEditor);
 
-            final Callback.a1<SttTaskWithParserInfo> cbUpdateOrigTask = (updatedTask) -> {
-                if (updatedTask != null) {
-                    SttCommander.SttTasksInTextRange rangeInfo = sttcmd.findTasksBetweenIndex(origText, origTask.getLineOffsetInText(), origTask.getLineOffsetInText());
-                    Editable editable = _hlEditor.getText();
-                    rangeInfo.startIndex = Math.max(rangeInfo.startIndex, 0);
-                    rangeInfo.endIndex = Math.max(rangeInfo.endIndex, 0);
-                    try {
-                        editable.delete(rangeInfo.startIndex, rangeInfo.endIndex);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    sttcmd.regenerateTaskLine(updatedTask);
-                    editable.insert(rangeInfo.startIndex, updatedTask.getTaskLine() + "\n");
-
-                    // Try to figure out new cursor pos
-                    int cursor = rangeInfo.startIndex + origTask.getCursorOffsetInLine();
-                    if (cursor != 0) {
-                        cursor += _hlEditor.getText().length() - origText.length(); // difference
-                    }
-                    if (cursor == _hlEditor.getText().length()) {
-                        cursor--; // Move to last char in text;
-                    }
-                    if (cursor >= 0 && cursor <= _hlEditor.getText().length()) {
-                        _hlEditor.setSelection(cursor);
-                    }
-                }
-            };
-
-
             switch (_action) {
                 case R.string.tmaid_todotxt_toggle_done: {
-                    origTask.setDone(!origTask.isDone());
-                    origTask.setCompletionDate(SttCommander.getToday());
-                    cbUpdateOrigTask.callback(origTask);
+                    final String replaceDone = String.format("x %s ", SttCommander.getToday());
+                    ReplacePattern[] patterns = {
+                            new ReplacePattern(SttCommander.PATTERN_PRIORITY_ANY, replaceDone),
+                            new ReplacePattern(SttCommander.PATTERN_COMPLETION_DATE, ""),
+                            new ReplacePattern("^", replaceDone),
+                    };
+                    runRegexReplaceAction(Arrays.asList(patterns));
+                    trimLeadingWhiteSpace();
                     return;
                 }
                 case R.string.tmaid_todotxt_add_context: {
-                    SearchOrCustomTextDialogCreator.showSttContextDialog(_activity, sttcmd.parseContexts(origText), origTask.getContexts(), (callbackPayload) -> {
-                        int offsetInLine = _appSettings.isTodoAppendProConOnEndEnabled() ? origTask.getTaskLine().length() : origTask.getCursorOffsetInLine();
-                        sttcmd.insertContext(origTask, callbackPayload, offsetInLine);
-                        cbUpdateOrigTask.callback(origTask);
-                        if (_appSettings.isTodoAppendProConOnEndEnabled()) {
-                            int cursor = _hlEditor.getSelectionStart() - callbackPayload.length() - 2;
-                            _hlEditor.setSelection(Math.min(_hlEditor.length(), Math.max(0, cursor)));
+                    SearchOrCustomTextDialogCreator.showSttContextDialog(_activity, sttcmd.parseContexts(origText), origTask.getContexts(), (context) -> {
+                        context = (context.charAt(0) == '@') ? context : "@" + context;
+                        if (insertAtEnd()) {
+                            runRegexReplaceAction("\\s+$", " " + context);
+                        } else {
+                            insertInline(context);
                         }
                     });
                     return;
                 }
                 case R.string.tmaid_todotxt_add_project: {
-                    SearchOrCustomTextDialogCreator.showSttProjectDialog(_activity, sttcmd.parseProjects(origText), origTask.getProjects(), (callbackPayload) -> {
-                        int offsetInLine = _appSettings.isTodoAppendProConOnEndEnabled() ? origTask.getTaskLine().length() : origTask.getCursorOffsetInLine();
-                        sttcmd.insertProject(origTask, callbackPayload, offsetInLine);
-                        cbUpdateOrigTask.callback(origTask);
-                        if (_appSettings.isTodoAppendProConOnEndEnabled()) {
-                            int cursor = _hlEditor.getSelectionStart() - callbackPayload.length() - 2;
-                            _hlEditor.setSelection(Math.min(_hlEditor.length(), Math.max(0, cursor)));
+                    SearchOrCustomTextDialogCreator.showSttProjectDialog(_activity, sttcmd.parseProjects(origText), origTask.getProjects(), (project) -> {
+                        project = (project.charAt(0) == '+') ? project : "+" + project;
+                        if (insertAtEnd()) {
+                            runRegexReplaceAction("\\s+$", " " + project);
+                        } else {
+                            insertInline(project);
                         }
                     });
                     return;
                 }
-
                 case R.string.tmaid_todotxt_priority: {
-                    SearchOrCustomTextDialogCreator.showPriorityDialog(_activity, origTask.getPriority(), (callbackPayload) -> {
-                        origTask.setPriority((callbackPayload.length() == 1) ? callbackPayload.charAt(0) : SttTask.PRIORITY_NONE);
-                        cbUpdateOrigTask.callback(origTask);
+                    SearchOrCustomTextDialogCreator.showPriorityDialog(_activity, origTask.getPriority(), (priority) -> {
+                        ArrayList<ReplacePattern> patterns = new ArrayList<>();
+                        if (priority.charAt(0) == 'N') {
+                            patterns.add(new ReplacePattern(SttCommander.PATTERN_PRIORITY_ANY, ""));
+                        } else {
+                            final String _priority = String.format("(%c) ", priority.charAt(0));
+                            patterns.add(new ReplacePattern(SttCommander.PATTERN_PRIORITY_ANY, _priority));
+                            patterns.add(new ReplacePattern("^\\s*", _priority));
+                        }
+                        runRegexReplaceAction(patterns);
+                        trimLeadingWhiteSpace();
                     });
                     return;
                 }
@@ -176,7 +158,8 @@ public class TodoTxtTextActions extends TextActions {
                     return;
                 }
                 case R.string.tmaid_common_delete_lines: {
-                    removeTasksBetweenIndexes(_hlEditor.getText(), _hlEditor.getSelectionStart(), _hlEditor.getSelectionEnd());
+                    final int[] sel = StringUtils.getSelection(_hlEditor);
+                    _hlEditor.getText().delete(StringUtils.getLineStart(origText, sel[0]), StringUtils.getLineEnd(origText, sel[1]));
                     return;
                 }
                 case R.string.tmaid_todotxt_archive_done_tasks: {
@@ -253,21 +236,6 @@ public class TodoTxtTextActions extends TextActions {
                 default:
                     runAction(_context.getString(_action));
             }
-
-            /*
-            if (_hlEditor.hasSelection()) {
-                String text = _hlEditor.getText().toString();
-                int selectionStart = _hlEditor.getSelectionStart();
-                int selectionEnd = _hlEditor.getSelectionEnd();
-
-                _hlEditor.getText().insert(selectionStart, _action);
-            } else {
-                //Condition for Empty Selection. Should insert the action at the start of the line
-                int cursor = _hlEditor.getSelectionStart();
-                int i = cursor - 1;
-                Editable s = _hlEditor.getText();
-                s.insert(cursor, _action);
-            }*/
         }
 
         @Override
@@ -315,21 +283,33 @@ public class TodoTxtTextActions extends TextActions {
         }
     }
 
+    private void trimLeadingWhiteSpace() {
+        runRegexReplaceAction("^\\s*", "");
+    }
 
-    // Removes all lines that are between first and second index param
-    // These can be anywhere in a line and will expand to line start and ending
-    private static List<SttTaskWithParserInfo> removeTasksBetweenIndexes(Editable editable, int indexSomewhereInLineStart, int indexSomewhereInLineEnd) {
-        int len = editable.length();
-        final SttCommander.SttTasksInTextRange found = SttCommander.get()
-                .findTasksBetweenIndex(editable.toString(), indexSomewhereInLineStart, indexSomewhereInLineEnd);
-
-        // Finally delete
-        if (found.startIndex >= 0 && found.startIndex < len && found.endIndex >= 0 && found.endIndex <= len) {
-            editable.delete(found.startIndex, found.endIndex);
-            return found.tasks;
-        } else {
-            return new ArrayList<>();
+    private void insertInline(String thing) {
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+        final CharSequence text = _hlEditor.getText();
+        if (sel[0] > 0) {
+            final char before = text.charAt(sel[0] - 1);
+            if (before != ' ' && before != '\n') {
+                thing = " " + thing;
+            }
         }
+        if (sel[1] < text.length()) {
+            final char after = text.charAt(sel[1]);
+            if (after != ' ' && after != '\n') {
+                thing = thing + " ";
+            }
+        }
+        _hlEditor.insertOrReplaceTextOnCursor(thing);
+    }
+
+    private boolean insertAtEnd() {
+        final Editable text = _hlEditor.getText();
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+        final boolean multiLineSelection = StringUtils.getLineStart(text, sel[0]) != StringUtils.getLineStart(text, sel[1]);
+        return multiLineSelection || _appSettings.isTodoAppendProConOnEndEnabled();
     }
 
     private static Calendar parseDateString(String dateString, Calendar fallback) {

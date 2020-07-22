@@ -64,13 +64,6 @@ public class SttCommander {
     public static final Pattern PATTERN_COMPLETION_DATE = Pattern.compile("(?:^|\\n)(?:[Xx] )(" + PT_DATE + ")");
     public static final Pattern PATTERN_CREATION_DATE = Pattern.compile("(?:^|\\n)(?:\\([A-Za-z]\\)\\s)?(?:[Xx] " + PT_DATE + " )?(" + PT_DATE + ")");
 
-    // Tasks from inside full text
-    public static class SttTasksInTextRange {
-        public final List<SttTaskWithParserInfo> tasks = new ArrayList<>();
-        public int startIndex = -1;
-        public int endIndex = -1;
-    }
-
     //
     // Singleton
     //
@@ -138,7 +131,6 @@ public class SttCommander {
         return parseAllUniqueMatchesWithOneValue(text, PATTERN_PROJECTS);
     }
 
-
     private boolean parseDone(String line) {
         return isPatternFindable(line, PATTERN_DONE);
     }
@@ -181,87 +173,6 @@ public class SttCommander {
         return values;
     }
 
-
-    //
-    // Applying methods
-    //
-    public void insertProject(SttTaskWithParserInfo task, String project, int atIndex) {
-        String text = task.getTaskLine();
-        project = project.startsWith("+") ? project.substring(1) : project;
-        String[] split = splitAtIndexFailsafe(text, atIndex);
-
-        String left = split[0];
-        String right = split[1];
-        left = (!left.endsWith(" ") && !left.isEmpty()) ? (left + " ") : left;
-        right = (!right.startsWith(" ") && !right.isEmpty()) ? (" " + right) : right;
-        task.setTaskLine(left + "+" + project + right);
-        List<String> projects = task.getProjects();
-        if (!projects.contains(project)) {
-            projects.add(project);
-        }
-        task.setDescription(parseDescription(task.getTaskLine()));
-    }
-
-    public void insertContext(SttTaskWithParserInfo task, String context, int atIndex) {
-        String text = task.getTaskLine();
-        context = context.startsWith("@") ? context.substring(1) : context;
-        String[] split = splitAtIndexFailsafe(text, atIndex);
-
-        String left = split[0];
-        String right = split[1];
-        left = (!left.endsWith(" ") && !left.isEmpty()) ? (left + " ") : left;
-        right = (!right.startsWith(" ") && !right.isEmpty()) ? (" " + right) : right;
-        task.setTaskLine(left + "@" + context + right);
-        List<String> contexts = task.getContexts();
-        if (!contexts.contains(context)) {
-            contexts.add(context);
-        }
-        task.setDescription(parseDescription(task.getTaskLine()));
-    }
-
-    //
-    // More Stt Methods
-    //
-    public SttCommander regenerateTaskLine(SttTaskWithParserInfo task) {
-        StringBuilder sb = new StringBuilder(task.getTaskLine().length() + 5);
-        String tmp;
-        if (task.isDone()) {
-            sb.append("x ");
-            if (!nz(task.getCompletionDate())) {
-                task.setCompletionDate(getToday());
-            }
-            sb.append(task.getCompletionDate());
-            sb.append(" ");
-            if (nz(tmp = task.getCreationDate())) {
-                sb.append(tmp);
-                sb.append(" ");
-            }
-        } else if (task.getPriority() != SttTask.PRIORITY_NONE) {
-            sb.append("(");
-            sb.append(task.getPriority());
-            sb.append(") ");
-        }
-        if (!task.isDone() && nz(tmp = task.getCreationDate())) {
-            sb.append(tmp);
-            sb.append(" ");
-        }
-
-        // Make sure there is no more than one trailing space
-        tmp = sb.toString().trim();
-        tmp += tmp.isEmpty() ? "" : " ";
-        sb.setLength(0);
-        sb.append(tmp);
-        sb.append(task.getDescription().trim());
-
-        task.setTaskLine(sb.toString());
-        return this;
-    }
-
-    public String regenerateText(String text, SttTaskWithParserInfo task) {
-        regenerateTaskLine(task);
-        return replaceTillEndOfLineFromIndex(task.getLineOffsetInText(), text, task.getTaskLine());
-    }
-
     //
     // General methods
     //
@@ -281,46 +192,8 @@ public class SttCommander {
             right = text.substring(atIndex);
         }
 
-
         return new String[]{left, right};
     }
-
-    // Find all lines that are between first and second index param
-    // These can be anywhere in a line and will expand to line start and ending
-    public SttTasksInTextRange findTasksBetweenIndex(String text, int indexSomewhereInLineStart, int indexSomewhereInLineEnd) {
-        final SttTasksInTextRange found = new SttTasksInTextRange();
-        final SttCommander sttcmd = SttCommander.get();
-        int i = indexSomewhereInLineStart;
-
-        // Special case: Cursor position on file ending -> go back by one char
-        if (i == text.length()) {
-            i--;
-        }
-
-        while (i >= 0 && i <= indexSomewhereInLineEnd && i < text.length()) {
-            final SttTaskWithParserInfo task = sttcmd.parseTask(text, i);
-            found.tasks.add(task);
-            if (found.startIndex == -1) {
-                found.startIndex = task.getLineOffsetInText();
-                i = found.startIndex;
-            }
-            i += task.getTaskLine().length() + 1; // +1 for linefeed
-            found.endIndex = i;
-        }
-
-        // Delete till the end of file if we are over the end
-        if (!text.isEmpty() && found.endIndex > text.length()) {
-            found.endIndex = text.length();
-        }
-
-        // Finally delete
-        if (found.startIndex >= 0 && found.startIndex < text.length() && found.endIndex >= 0 && found.endIndex <= text.length()) {
-            return found;
-        } else {
-            return new SttTasksInTextRange();
-        }
-    }
-
 
     // Replace till the end of the line, starting from index
     public static String replaceTillEndOfLineFromIndex(int index, String text, String replacementLine) {

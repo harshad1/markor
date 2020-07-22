@@ -315,6 +315,10 @@ public abstract class TextActions {
         runRegexReplaceAction(patterns, false);
     }
 
+    protected void runRegexReplaceAction(final String pattern, final String replace) {
+        runRegexReplaceAction(Arrays.asList(new ReplacePattern(pattern, replace)), false);
+    }
+
     /**
      * Runs through a sequence of regex-search-and-replace actions on each selected line.
      *
