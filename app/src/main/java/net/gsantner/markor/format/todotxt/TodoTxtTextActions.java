@@ -29,9 +29,6 @@ import net.gsantner.markor.util.AppSettings;
 import net.gsantner.markor.util.DocumentIO;
 import net.gsantner.markor.util.ShareUtil;
 import net.gsantner.opoc.format.todotxt.SttCommander;
-import net.gsantner.opoc.format.todotxt.SttTask;
-import net.gsantner.opoc.format.todotxt.extension.SttTaskWithParserInfo;
-import net.gsantner.opoc.util.Callback;
 import net.gsantner.opoc.util.FileUtils;
 import net.gsantner.opoc.util.StringUtils;
 
@@ -40,7 +37,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 //TODO
@@ -98,10 +98,8 @@ public class TodoTxtTextActions extends TextActions {
         @Override
         public void onClick(View view) {
             view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
-            final SttCommander sttcmd = SttCommander.get();
             final String origText = _hlEditor.getText().toString();
             final int origSelectionStart = _hlEditor.getSelectionStart();
-            final SttTaskWithParserInfo origTask = sttcmd.parseTask(origText, origSelectionStart);
             final CommonTextActions commonTextActions = new CommonTextActions(_activity, _hlEditor);
 
             switch (_action) {
@@ -214,6 +212,7 @@ public class TodoTxtTextActions extends TextActions {
                     });
                     return;
                 }
+                /*
                 case R.string.tmaid_todotxt_sort_todo: {
                     SearchOrCustomTextDialogCreator.showSttSortDialogue(_activity, (orderBy, descending) -> new Thread() {
                         @Override
@@ -225,6 +224,7 @@ public class TodoTxtTextActions extends TextActions {
                     }.start());
                     break;
                 }
+                 */
                 case R.string.tmaid_common_open_link_browser: {
                     commonTextActions.runAction(CommonTextActions.ACTION_OPEN_LINK_BROWSER);
                     break;
@@ -243,13 +243,10 @@ public class TodoTxtTextActions extends TextActions {
             if (_hlEditor.getText() == null) {
                 return false;
             }
-            final SttCommander sttcmd = SttCommander.get();
-            final String origText = _hlEditor.getText().toString();
-            final int origSelectionStart = _hlEditor.getSelectionStart();
-            final SttTaskWithParserInfo origTask = sttcmd.parseTask(origText, origSelectionStart);
             final CommonTextActions commonTextActions = new CommonTextActions(_activity, _hlEditor);
 
             switch (_action) {
+                /*
                 case R.string.tmaid_todotxt_add_context: {
                     SearchOrCustomTextDialogCreator.showSttContextListDialog(_activity, sttcmd.parseContexts(origText), origTask.getContexts(), origText, (callbackPayload) -> {
                         int cursor = origText.indexOf(callbackPayload);
@@ -264,6 +261,7 @@ public class TodoTxtTextActions extends TextActions {
                     });
                     return true;
                 }
+                 */
                 case R.string.tmaid_common_special_key: {
                     commonTextActions.runAction(CommonTextActions.ACTION_JUMP_BOTTOM_TOP);
                     return true;
@@ -275,7 +273,7 @@ public class TodoTxtTextActions extends TextActions {
                 }
                 case R.string.tmaid_todotxt_current_date: {
 
-                    setDueDate(origTask, 3);
+                    setDueDate(3);
                     return true;
                 }
             }
@@ -305,11 +303,24 @@ public class TodoTxtTextActions extends TextActions {
         _hlEditor.insertOrReplaceTextOnCursor(thing);
     }
 
-    private boolean insertAtEnd() {
+    private boolean selIsSingleLine() {
         final Editable text = _hlEditor.getText();
         final int[] sel = StringUtils.getSelection(_hlEditor);
-        final boolean multiLineSelection = StringUtils.getLineStart(text, sel[0]) != StringUtils.getLineStart(text, sel[1]);
-        return multiLineSelection || _appSettings.isTodoAppendProConOnEndEnabled();
+        return StringUtils.getLineStart(text, sel[0]) != StringUtils.getLineStart(text, sel[1]);
+    }
+
+    private boolean insertAtEnd() {
+        return selIsSingleLine() || _appSettings.isTodoAppendProConOnEndEnabled();
+    }
+
+    private String[] getLines() {
+        final CharSequence text = _hlEditor.getText();
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+        final CharSequence selLines = text.subSequence(
+                StringUtils.getLineStart(text, sel[0]),
+                StringUtils.getLineStart(text, sel[1])
+        );
+        return selLines.toString().split("\n");
     }
 
     private static Calendar parseDateString(String dateString, Calendar fallback) {
@@ -348,8 +359,8 @@ public class TodoTxtTextActions extends TextActions {
     }
 
 
-    private void setDueDate(SttTaskWithParserInfo task, int offset) {
-        String dueString = task.getDueDate();
+    private void setDueDate(int offset) {
+        final String dueString = SttCommander.parseDueDate(getLines()[0], SttCommander.getToday());
         Calendar initDate = parseDateString(dueString, Calendar.getInstance());
         initDate.add(Calendar.DAY_OF_MONTH, dueString == null ? offset : 0);
 

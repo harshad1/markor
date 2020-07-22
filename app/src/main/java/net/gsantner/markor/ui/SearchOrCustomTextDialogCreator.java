@@ -200,6 +200,7 @@ public class SearchOrCustomTextDialogCreator {
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
+    /*
     public static void showSttSortDialogue(Activity activity, final Callback.a2<String, Boolean> callback) {
         SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
         baseConf(activity, dopt);
@@ -253,6 +254,7 @@ public class SearchOrCustomTextDialogCreator {
         dopt.isSearchEnabled = false;
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
+     */
 
     public static void showSttContextDialog(Activity activity, List<String> availableData, List<String> highlightedData, Callback.a1<String> callback) {
         SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();

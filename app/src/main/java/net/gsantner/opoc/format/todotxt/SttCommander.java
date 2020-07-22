@@ -10,9 +10,6 @@
 #########################################################*/
 package net.gsantner.opoc.format.todotxt;
 
-import net.gsantner.opoc.format.todotxt.extension.SttTaskParserInfoExtension;
-import net.gsantner.opoc.format.todotxt.extension.SttTaskWithParserInfo;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -64,9 +61,79 @@ public class SttCommander {
     public static final Pattern PATTERN_COMPLETION_DATE = Pattern.compile("(?:^|\\n)(?:[Xx] )(" + PT_DATE + ")");
     public static final Pattern PATTERN_CREATION_DATE = Pattern.compile("(?:^|\\n)(?:\\([A-Za-z]\\)\\s)?(?:[Xx] " + PT_DATE + " )?(" + PT_DATE + ")");
 
+    public static String getToday() {
+        return DATEF_YYYY_MM_DD.format(new Date());
+    }
+
+    public static List<String> parseContexts(String text) {
+        return parseAllUniqueMatchesWithOneValue(text, PATTERN_CONTEXTS);
+    }
+
+    public static List<String> parseProjects(String text) {
+        return parseAllUniqueMatchesWithOneValue(text, PATTERN_PROJECTS);
+    }
+
+    private static boolean parseDone(String line) {
+        return isPatternFindable(line, PATTERN_DONE);
+    }
+
+    private static String parseCompletionDate(String line) {
+        return parseOneValueOrDefault(line, PATTERN_COMPLETION_DATE, "");
+    }
+
+    private static String parseCreationDate(String line) {
+        return parseOneValueOrDefault(line, PATTERN_CREATION_DATE, "");
+    }
+
+    public static String parseDueDate(final String line, final String def) {
+        return parseOneValueOrDefault(line, PATTERN_DUE_DATE, def);
+    }
+
+    private static Character parsePriority(String line) {
+        String ret = parseOneValueOrDefault(line, PATTERN_PRIORITY_ANY, "");
+        if (ret.length() == 1) {
+            return ret.charAt(0);
+        } else {
+            return null;
+        }
+    }
+
+    public static boolean isTodoFile(String filepath) {
+        return filepath != null && SttCommander.TODOTXT_FILE_PATTERN.matcher(filepath).matches() && (filepath.endsWith(".txt") || filepath.endsWith(".text"));
+    }
+
+    // Only captures the first group of each match
+    private static List<String> parseAllUniqueMatchesWithOneValue(String text, Pattern pattern) {
+        List<String> ret = new ArrayList<>();
+        for (Matcher m = pattern.matcher(text); m.find(); ) {
+            if (m.groupCount() > 0) {
+                String found = m.group(1);
+                if (!ret.contains(found)) {
+                    ret.add(found);
+                }
+            }
+        }
+        return ret;
+    }
+
+    private static String parseOneValueOrDefault(String text, Pattern pattern, String defaultValue) {
+        for (Matcher m = pattern.matcher(text); m.find(); ) {
+            // group / group(0) => everything, including non-capturing. group 1 = first capturing group
+            if (m.groupCount() > 0) {
+                return m.group(1);
+            }
+        }
+        return defaultValue;
+    }
+
+    private static boolean isPatternFindable(String text, Pattern pattern) {
+        return pattern.matcher(text).find();
+    }
+
     //
     // Singleton
     //
+    /*
     private static SttCommander __instance;
 
     public static SttCommander get() {
@@ -83,78 +150,6 @@ public class SttCommander {
 
     }
 
-    //
-    // Parsing Methods
-    //
-
-    public SttTaskWithParserInfo parseTask(String text, int cursorPosInText) {
-        int iOffsetInLine = 0;
-        int iLineStart = 0;
-        String line = "";
-        if (text != null && cursorPosInText <= text.length()) {
-            iLineStart = text.lastIndexOf('\n', cursorPosInText - 1);
-            iLineStart = iLineStart == -1 ? 0 : iLineStart + 1;
-            if (iLineStart < text.length()) {
-                int lineEnd = text.indexOf('\n', iLineStart);
-                lineEnd = lineEnd == -1 ? text.length() : (lineEnd);
-                line = text.substring(iLineStart, lineEnd);
-            }
-            iOffsetInLine = cursorPosInText - iLineStart;
-        }
-
-        SttTaskWithParserInfo ret = parseTask(line);
-        ret.setLineOffsetInText(iLineStart);
-        ret.setCursorOffsetInLine(iOffsetInLine);
-        return ret;
-    }
-
-    public SttTaskWithParserInfo parseTask(final String line) {
-        SttTaskWithParserInfo task = new SttTaskWithParserInfo();
-        task.setTaskLine(line);
-        task.setDescription(parseDescription(line));
-        task.setProjects(parseProjects(line));
-        task.setContexts(parseContexts(line));
-        task.setDone(parseDone(line));
-        task.setCompletionDate(parseCompletionDate(line));
-        task.setCreationDate(parseCreationDate(line));
-        task.setPriority(parsePriority(line));
-        task.setKeyValuePairs(parseKeyValuePairs(line));
-        task.setDueDate(parseDueDate(line));
-        return task;
-    }
-
-    public List<String> parseContexts(String text) {
-        return parseAllUniqueMatchesWithOneValue(text, PATTERN_CONTEXTS);
-    }
-
-    public List<String> parseProjects(String text) {
-        return parseAllUniqueMatchesWithOneValue(text, PATTERN_PROJECTS);
-    }
-
-    private boolean parseDone(String line) {
-        return isPatternFindable(line, PATTERN_DONE);
-    }
-
-    private String parseCompletionDate(String line) {
-        return parseOneValueOrDefault(line, PATTERN_COMPLETION_DATE, "");
-    }
-
-    private String parseCreationDate(String line) {
-        return parseOneValueOrDefault(line, PATTERN_CREATION_DATE, "");
-    }
-
-    private String parseDueDate(String line) {
-        return parseOneValueOrDefault(line, PATTERN_DUE_DATE, "");
-    }
-
-    private char parsePriority(String line) {
-        String ret = parseOneValueOrDefault(line, PATTERN_PRIORITY_ANY, "");
-        if (ret.length() == 1) {
-            return ret.charAt(0);
-        } else {
-            return SttTask.PRIORITY_NONE;
-        }
-    }
 
     private String parseDescription(String line) {
         String d = parseOneValueOrDefault(line, PATTERN_DESCRIPTION, "");
@@ -207,47 +202,13 @@ public class SttCommander {
         return str != null && !str.isEmpty();
     }
 
-    public static String getToday() {
-        return DATEF_YYYY_MM_DD.format(new Date());
-    }
-
     public static String getDaysFromToday(int days) {
         Calendar cal = new GregorianCalendar();
         cal.add(Calendar.DATE, days);
         return DATEF_YYYY_MM_DD.format(cal.getTime());
     }
 
-    public static boolean isTodoFile(String filepath) {
-        return filepath != null && SttCommander.TODOTXT_FILE_PATTERN.matcher(filepath).matches() && (filepath.endsWith(".txt") || filepath.endsWith(".text"));
-    }
 
-    // Only captures the first group of each match
-    private static List<String> parseAllUniqueMatchesWithOneValue(String text, Pattern pattern) {
-        List<String> ret = new ArrayList<>();
-        for (Matcher m = pattern.matcher(text); m.find(); ) {
-            if (m.groupCount() > 0) {
-                String found = m.group(1);
-                if (!ret.contains(found)) {
-                    ret.add(found);
-                }
-            }
-        }
-        return ret;
-    }
-
-    private static String parseOneValueOrDefault(String text, Pattern pattern, String defaultValue) {
-        for (Matcher m = pattern.matcher(text); m.find(); ) {
-            // group / group(0) => everything, including non-capturing. group 1 = first capturing group
-            if (m.groupCount() > 0) {
-                return m.group(1);
-            }
-        }
-        return defaultValue;
-    }
-
-    private static boolean isPatternFindable(String text, Pattern pattern) {
-        return pattern.matcher(text).find();
-    }
 
     // Parse all tasks in (newline separated) tasks
     public static ArrayList<SttTaskWithParserInfo> parseTasksFromTextWithParserInfo(String text) {
@@ -370,4 +331,5 @@ public class SttCommander {
             }
         }
     }
+     */
 }
