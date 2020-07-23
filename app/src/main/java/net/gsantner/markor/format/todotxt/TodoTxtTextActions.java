@@ -155,9 +155,17 @@ public class TodoTxtTextActions extends TextActions {
                         final ArrayList<SttTask> move = new ArrayList<>();
                         final SttTask[] allTasks = SttTask.getAllTasks(_hlEditor);
 
-                        for (SttTask task : allTasks) {
+                        final int[] sel = StringUtils.getSelection(_hlEditor);
+                        final CharSequence text = _hlEditor.getText();
+                        final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
+                        final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
+
+                        for (int i = 0; i < allTasks.length; i++) {
+                            final SttTask task = allTasks[i];
                             if (task.isDone()) {
                                 move.add(task);
+                                if (i <= selStart[0]) selStart[0]--;
+                                if (i <= selEnd[0]) selEnd[0]--;
                             } else {
                                 keep.add(task);
                             }
@@ -175,8 +183,12 @@ public class TodoTxtTextActions extends TextActions {
 
                                 // Write to do done file
                                 if (DocumentIO.saveDocument(new Document(doneFile), doneFileContents, new ShareUtil(_activity), getContext())) {
-                                    _hlEditor.setText(SttTask.tasksToString(keep));
-                                    _hlEditor.setSelection(_hlEditor.getText().length());
+                                    final String tasksString = SttTask.tasksToString(keep);
+                                    _hlEditor.setText(tasksString);
+                                    _hlEditor.setSelection(
+                                            StringUtils.getIndexFromLineOffset(tasksString, selStart),
+                                            StringUtils.getIndexFromLineOffset(tasksString, selEnd)
+                                    );
                                 }
                             }
                         }
@@ -263,8 +275,12 @@ public class TodoTxtTextActions extends TextActions {
     }
 
     private boolean selectionIsSingleTask() {
-        final int[] sel = StringUtils.getLineSelection(_hlEditor);
-        return sel[0] == sel[1];
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+        if (sel[0] != sel[1]) {
+            final CharSequence text = _hlEditor.getText();
+            return StringUtils.getLineStart(text, sel[0]) == StringUtils.getLineStart(text, sel[1]);
+        }
+        return true;
     }
 
     private void trimLeadingWhiteSpace() {
