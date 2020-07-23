@@ -176,7 +176,7 @@ public class DocumentActivity extends AppActivityBase {
                 return true;
         }
 
-        return(super.onOptionsItemSelected(item));
+        return (super.onOptionsItemSelected(item));
     }
 
     private void handleLaunchingIntent(Intent intent) {

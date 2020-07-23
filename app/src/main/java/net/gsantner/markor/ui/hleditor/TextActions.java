@@ -311,6 +311,10 @@ public abstract class TextActions {
         }
     }
 
+    protected void runRegexReplaceAction(ReplacePattern ... patterns) {
+        runRegexReplaceAction(Arrays.asList(patterns), false);
+    }
+
     protected void runRegexReplaceAction(List<ReplacePattern> patterns) {
         runRegexReplaceAction(patterns, false);
     }

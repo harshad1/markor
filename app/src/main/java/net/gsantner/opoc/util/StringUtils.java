@@ -11,9 +11,10 @@ package net.gsantner.opoc.util;
 
 import android.widget.TextView;
 
-import com.vladsch.flexmark.util.sequence.CharSubSequence;
-
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public final class StringUtils {
 
@@ -67,7 +68,7 @@ public final class StringUtils {
         return i;
     }
 
-    public static int[] getSelection(TextView text) {
+    public static int[] getSelection(final TextView text) {
 
         int selectionStart = text.getSelectionStart();
         int selectionEnd = text.getSelectionEnd();
@@ -77,7 +78,16 @@ public final class StringUtils {
             selectionStart = text.getSelectionEnd();
         }
 
-        return new int[] {selectionStart, selectionEnd};
+        return new int[]{selectionStart, selectionEnd};
+    }
+
+    public static int[] getLineSelection(final TextView text) {
+        final int[] sel = getSelection(text);
+        final CharSequence s = text.getText();
+        return new int[]{
+                getLineStart(s, sel[0]),
+                getLineEnd(s, sel[1])
+        };
     }
 
     public static String repeatChars(char character, int count) {
@@ -88,6 +98,7 @@ public final class StringUtils {
 
     /**
      * Convert a char index to a line index + offset from end of line
+     *
      * @param s text to parse
      * @param p position in text
      * @return int[2] where index 0 is line and index 1 is position from end of line
@@ -107,6 +118,7 @@ public final class StringUtils {
 
     /**
      * Convert a line index and offset from end of line to absolute position
+     *
      * @param s text to parse
      * @param l line index
      * @param e offset from end of line
@@ -130,10 +142,11 @@ public final class StringUtils {
 
     /**
      * Count instances of char 'c' between start and end
-     * @param s Sequence to count in
-     * @param c Char to count
+     *
+     * @param s     Sequence to count in
+     * @param c     Char to count
      * @param start start of section to count within
-     * @param end end of section to count within
+     * @param end   end of section to count within
      * @return number of instances of c in c between start and end
      */
     public static int countChar(final CharSequence s, final char c, int start, int end) {
@@ -150,5 +163,11 @@ public final class StringUtils {
 
     public static boolean isNewLine(CharSequence source, int start, int end) {
         return ((source.charAt(start) == '\n') || (source.charAt(end - 1) == '\n'));
+    }
+
+    public static <T> ArrayList<T> toArrayList(T[] array) {
+        ArrayList<T> list = new ArrayList<>();
+        Collections.addAll(list, array);
+        return list;
     }
 }

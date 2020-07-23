@@ -14,7 +14,7 @@ import android.text.Spanned;
 
 import net.gsantner.markor.util.AppSettings;
 import net.gsantner.opoc.format.plaintext.PlainTextStuff;
-import net.gsantner.opoc.format.todotxt.SttCommander;
+import net.gsantner.opoc.format.todotxt.SttTask;
 import net.gsantner.opoc.util.StringUtils;
 
 import java.util.Date;
@@ -36,7 +36,7 @@ public class TodoTxtAutoFormat implements InputFilter {
     private CharSequence autoIndent(CharSequence source) {
         String t = "";
         if (AppSettings.get().isTodoStartTasksWithTodaysDateEnabled()) {
-            t += SttCommander.DATEF_YYYY_MM_DD.format(new Date()) + " ";
+            t += SttTask.DATEF_YYYY_MM_DD.format(new Date()) + " ";
         }
         if (AppSettings.get().isTodoNewTaskWithHuuidEnabled()) {
             t += "huuid:" + PlainTextStuff.newHuuid(AppSettings.get().getHuuidDeviceId()) + " ";

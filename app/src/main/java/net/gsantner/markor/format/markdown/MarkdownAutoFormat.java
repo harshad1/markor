@@ -200,7 +200,7 @@ public class MarkdownAutoFormat implements InputFilter {
     /**
      * Find the topmost orderd list item which is a parent of the current
      *
-     * @param text Editable
+     * @param text     Editable
      * @param position Position within current line
      * @return OrderedListLine corresponding to top of current list
      */

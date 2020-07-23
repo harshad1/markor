@@ -14,10 +14,6 @@ import android.text.Spannable;
 import android.text.Spanned;
 import android.text.TextWatcher;
 
-import net.gsantner.opoc.util.StringUtils;
-
-import java.util.regex.Matcher;
-
 public class ListHandler implements TextWatcher {
     private final boolean _reorderEnabled;
     private int reorderPosition;
