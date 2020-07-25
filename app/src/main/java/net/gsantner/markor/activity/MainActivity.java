@@ -134,8 +134,6 @@ public class MainActivity extends AppActivityBase implements FilesystemViewerFra
             e.printStackTrace();
         }
 
-        IntroActivity.optStart(this);
-
         // Setup viewpager
         _viewPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
         _viewPager.setAdapter(_viewPagerAdapter);

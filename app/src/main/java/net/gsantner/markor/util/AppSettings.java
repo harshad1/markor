@@ -646,14 +646,6 @@ public class AppSettings extends SharedPreferencesPropertyBackend {
         setInt(file.getAbsolutePath() + "_rating", value);
     }
 
-    public boolean isEditorLineBreakingEnabled() {
-        return getBool(R.string.pref_key__editor_enable_line_breaking, true);
-    }
-
-    public void setEditorLineBreakingEnabled(boolean value) {
-        setBool(R.string.pref_key__editor_enable_line_breaking, value);
-    }
-
     private List<String> extSettingCache;
 
     public synchronized boolean isExtOpenWithThisApp(String ext) {

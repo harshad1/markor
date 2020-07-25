@@ -276,12 +276,14 @@
                 android:summary="@string/space_between_lines_in_percent"
                 android:title="@string/line_spacing"
                 app:min="50" />
+            <!--
             <CheckBoxPreference
                 android:defaultValue="true"
                 android:icon="@drawable/ic_visibility_black_24dp"
                 android:key="@string/pref_key__editor_enable_line_breaking"
                 android:summary="@string/soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling"
                 android:title="@string/wrap_words" />
+                -->
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:icon="@drawable/ic_filter_center_focus_black_24dp"

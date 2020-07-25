@@ -76,6 +76,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
     private static final String SAVESTATE_CURSOR_POS = "CURSOR_POS";
     private static final String SAVESTATE_PREVIEW_ON = "SAVESTATE_PREVIEW_ON";
 
+    private boolean wrapLines = false;
     private AppSettings _appSettings;
     private MenuItem actionWrapWords;
     private HorizontalScrollView hsView;
@@ -482,7 +483,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
                 return true;
             }
             case R.id.action_wrap_words: {
-                _appSettings.setEditorLineBreakingEnabled(!_appSettings.isEditorLineBreakingEnabled());
+                wrapLines = !wrapLines;
                 setHorizontalScrollMode();
                 setWrapState();
                 return true;
@@ -546,21 +547,27 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         boolean isInMainActivity = getActivity() instanceof MainActivity;
         _hlEditor.setTextSize(TypedValue.COMPLEX_UNIT_SP, _appSettings.getFontSize());
         _hlEditor.setTypeface(FontPreferenceCompat.typeface(getContext(), _appSettings.getFontFamily(), Typeface.NORMAL));
-        setHorizontalScrollMode(!_appSettings.isEditorLineBreakingEnabled());
+        setHorizontalScrollMode(!wrapLines);
 
         _hlEditor.setBackgroundColor(_appSettings.getEditorBackgroundColor());
         _hlEditor.setTextColor(_appSettings.getEditorForegroundColor());
         fragmentView.findViewById(R.id.document__fragment__edit__text_actions_bar__scrolling_parent).setBackgroundColor(_appSettings.getEditorTextactionBarColor());
     }
 
+    private void initWrapState() {
+        wrapLines = _appSettings.getDocumentWrapState(getPath());
+        setWrapState();
+        setHorizontalScrollMode();
+    }
+
     private void setWrapState() {
         if (actionWrapWords != null) {
-            actionWrapWords.setChecked(_appSettings.isEditorLineBreakingEnabled());
+            actionWrapWords.setChecked(wrapLines);
         }
     }
 
     private void setHorizontalScrollMode() {
-        setHorizontalScrollMode(!_appSettings.isEditorLineBreakingEnabled());
+        setHorizontalScrollMode(!wrapLines);
     }
 
     private void setHorizontalScrollMode(final boolean enable) {
@@ -619,7 +626,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
             if (_document != null && _document.getFile() != null) {
                 AppSettings settings = new AppSettings(getContext());
                 settings.setLastEditPosition(_document.getFile(), _hlEditor.getSelectionStart(), _hlEditor.getTop());
-                settings.setDocumentWrapState(getPath(), _appSettings.isEditorLineBreakingEnabled());
+                settings.setDocumentWrapState(getPath(), wrapLines);
             }
         }
         return ret;
@@ -681,12 +688,6 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         if (isVisibleToUser) {
             initWrapState();
         }
-    }
-
-    private void initWrapState() {
-        _appSettings.setEditorLineBreakingEnabled(new AppSettings(getContext()).getDocumentWrapState(getPath()));
-        setWrapState();
-        setHorizontalScrollMode();
     }
 
     private void checkReloadDisk(boolean forceReload) {
@@ -797,5 +798,9 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         if (!_isPreviewVisible) {
             _textFormat.getTextActions().runAction(getString(R.string.tmaid_common_toolbar_title_clicked_edit_action));
         }
+    }
+
+    public boolean isWrapLines() {
+        return isWrapLines();
     }
 }
