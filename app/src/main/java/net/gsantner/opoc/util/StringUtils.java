@@ -23,15 +23,29 @@ public final class StringUtils {
         throw new AssertionError();
     }
 
+    public static boolean isValidIndex(final CharSequence s, final int ... indices) {
+        if (s != null && indices.length > 0) {
+            for (final int i : indices) {
+                if (i < 0 || i >= s.length()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     public static int getLineStart(CharSequence s, int start) {
         return getLineStart(s, start, 0);
     }
 
     public static int getLineStart(CharSequence s, int start, int minRange) {
         int i = start;
-        for (; i > minRange; i--) {
-            if (s.charAt(i - 1) == '\n') {
-                break;
+        if (isValidIndex(s, start - 1, minRange)) {
+            for (; i > minRange; i--) {
+                if (s.charAt(i - 1) == '\n') {
+                    break;
+                }
             }
         }
 
@@ -44,9 +58,11 @@ public final class StringUtils {
 
     public static int getLineEnd(CharSequence s, int start, int maxRange) {
         int i = start;
-        for (; i < maxRange && i < s.length(); i++) {
-            if (s.charAt(i) == '\n') {
-                break;
+        if (isValidIndex(s, start, maxRange - 1)) {
+            for (; i < maxRange; i++) {
+                if (s.charAt(i) == '\n') {
+                    break;
+                }
             }
         }
 
@@ -59,10 +75,12 @@ public final class StringUtils {
 
     public static int getNextNonWhitespace(CharSequence s, int start, int maxRange) {
         int i = start;
-        for (; i < maxRange && i < s.length(); i++) {
-            char c = s.charAt(i);
-            if (c != ' ' && c != '\t') {
-                break;
+        if (isValidIndex(s, start, maxRange - 1)) {
+            for (; i < maxRange; i++) {
+                char c = s.charAt(i);
+                if (c != ' ' && c != '\t') {
+                    break;
+                }
             }
         }
         return i;
@@ -112,7 +130,6 @@ public final class StringUtils {
 
     public static int getIndexFromLineOffset(final CharSequence s, final int[] le) {
         return getIndexFromLineOffset(s, le[0], le[1]);
-
     }
 
     /**
@@ -124,16 +141,18 @@ public final class StringUtils {
      */
     public static int getIndexFromLineOffset(final CharSequence s, final int l, final int e) {
         int i = 0, count = 0;
-        for (; i < s.length(); i++) {
-            if (s.charAt(i) == '\n') {
-                count++;
+        if (s != null) {
+            for (; i < s.length(); i++) {
+                if (s.charAt(i) == '\n') {
+                    count++;
+                }
+                if (count == l) {
+                    break;
+                }
             }
-            if (count == l) {
-                break;
+            if (i < s.length()) {
+                return getLineEnd(s, i + 1) - e;
             }
-        }
-        if (i < s.length()) {
-            return getLineEnd(s, i + 1) - e;
         }
         return i;
     }
@@ -148,18 +167,20 @@ public final class StringUtils {
      */
     public static int countChar(final CharSequence s, final char c, int start, int end) {
         int count = 0;
-        start = Math.max(0, start);
-        end = Math.min(end, s.length());
-        for (int i = start; i < end; i++) {
-            if (s.charAt(i) == c) {
-                count++;
+        if (isValidIndex(s, start, end - 1)) {
+            start = Math.max(0, start);
+            end = Math.min(end, s.length());
+            for (int i = start; i < end; i++) {
+                if (s.charAt(i) == c) {
+                    count++;
+                }
             }
         }
         return count;
     }
 
     public static boolean isNewLine(CharSequence source, int start, int end) {
-        return ((source.charAt(start) == '\n') || (source.charAt(end - 1) == '\n'));
+        return isValidIndex(source, start, end - 1) && (source.charAt(start) == '\n' || source.charAt(end - 1) == '\n');
     }
 
     public static <T> ArrayList<T> toArrayList(T[] array) {
