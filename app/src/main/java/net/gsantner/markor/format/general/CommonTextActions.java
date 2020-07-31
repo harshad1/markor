@@ -55,8 +55,10 @@ public class CommonTextActions {
     public static final String ACTION_JUMP_BOTTOM_TOP = "tmaid_common_jump_to_bottom";
 
     public static final String ACTION_INDENT = "tmaid_common_indent";
-
     public static final String ACTION_DEINDENT = "tmaid_common_deindent";
+
+    public static final String ACTION_MOVE_UP = "tmaid_common_move_text_one_line_up";
+    public static final String ACTION_MOVE_DOWN = "tmaid_common_move_text_one_line_down";
 
     private static final String LINE_SEPARATOR = TextUtils.isEmpty(System.getProperty("line.separator")) ? "\n" : System.getProperty("line.separator");
 
@@ -98,9 +100,9 @@ public class CommonTextActions {
                     } else if (callbackPayload.equals(rstr(R.string.key_pos_1_document))) {
                         _hlEditor.setSelection(0);
                     } else if (callbackPayload.equals(rstr(R.string.move_text_one_line_up))) {
-                        moveLineBy1(true);
+                        moveSelectionBy1(true);
                     } else if (callbackPayload.equals(rstr(R.string.move_text_one_line_down))) {
-                        moveLineBy1(false);
+                        moveSelectionBy1(false);
                     } else if (callbackPayload.equals(rstr(R.string.key_pos_end_document))) {
                         _hlEditor.setSelection(_hlEditor.length());
                     } else if (callbackPayload.equals(rstr(R.string.key_ctrl_a))) {
@@ -127,6 +129,14 @@ public class CommonTextActions {
                 });
                 return true;
             }
+            case ACTION_MOVE_UP: {
+                moveSelectionBy1(true);
+                return true;
+            }
+            case ACTION_MOVE_DOWN: {
+                moveSelectionBy1(false);
+                return true;
+            }
             case ACTION_OPEN_LINK_BROWSER: {
                 String url;
                 if ((url = PlainTextStuff.tryExtractUrlAroundPos(_hlEditor.getText().toString(), _hlEditor.getSelectionStart())) != null) {
@@ -138,10 +148,8 @@ public class CommonTextActions {
                 return true;
             }
             case ACTION_DELETE_LINES: {
-                int[] indexes = PlainTextStuff.getNeighbourLineEndings(_hlEditor.getText().toString(), _hlEditor.getSelectionStart(), _hlEditor.getSelectionEnd());
-                if (indexes != null) {
-                    _hlEditor.getText().delete(indexes[0], indexes[1]);
-                }
+                final int[] sel = StringUtils.getLineSelection(_hlEditor);
+                _hlEditor.getText().delete((sel[0] > 0 ? sel[0] - 1 : sel[0]), sel[1]);
                 return true;
             }
             case ACTION_END_LINE_WITH_TWO_SPACES: {
@@ -162,7 +170,6 @@ public class CommonTextActions {
                 });
                 return true;
             }
-
             case ACTION_JUMP_BOTTOM_TOP: {
                 int pos = _hlEditor.getSelectionStart();
                 _hlEditor.setSelection(pos == 0 ? _hlEditor.getText().length() : 0);
@@ -263,17 +270,38 @@ public class CommonTextActions {
                 StringUtils.getIndexFromLineOffset(text, lEnd));
     }
 
-    public void moveLineBy1(boolean up) {
-        selectWholeLine(true);
-        selectWholeLine(false);
-        String lineToMove = _hlEditor.getText().toString().substring(_hlEditor.getSelectionStart(), _hlEditor.getSelectionEnd());
-        if (!lineToMove.endsWith(LINE_SEPARATOR)) {
-            lineToMove += LINE_SEPARATOR;
+    public void moveSelectionBy1(final boolean up) {
+        try {
+            _hlEditor.disableHighlighterAutoFormat();
+
+            final int[] sel = StringUtils.getSelection(_hlEditor);
+            final Editable text = _hlEditor.getText();
+
+            int lineStart = StringUtils.getLineStart(text, sel[0]);
+            int lineEnd = StringUtils.getLineEnd(text, sel[1]);
+            // Move one line down at end
+            if (!up && lineEnd >= text.length() - 1) {
+                text.insert(lineStart, "\n");
+                _hlEditor.setSelection(sel[0] + 1, sel[1] + 1);
+            } else if (!up || lineStart > 0) {
+                lineEnd += (lineEnd < text.length() - 1) ? 1 : 0; // Include newline at end
+                final int insertAt;
+                if (up) {
+                    insertAt = StringUtils.getLineStart(text, lineStart - 1);
+                } else {
+                    insertAt = StringUtils.getLineEnd(text, lineEnd) + 1;
+                }
+                final CharSequence lines = text.subSequence(lineStart, lineEnd);
+                final int delta = up ? 0 : -lines.length();
+                text.delete(lineStart, lineEnd);
+                text.insert(insertAt + delta, lines);
+                final int selMove = up ? insertAt - lineStart : insertAt - lineEnd;
+                _hlEditor.setSelection(sel[0] + selMove, sel[1] + selMove);
+            }
         }
-        _hlEditor.simulateKeyPress(KeyEvent.KEYCODE_DEL);
-        _hlEditor.simulateKeyPress(up ? KeyEvent.KEYCODE_DPAD_UP : KeyEvent.KEYCODE_DPAD_DOWN);
-        _hlEditor.simulateKeyPress(KeyEvent.KEYCODE_MOVE_HOME);
-        _hlEditor.getText().insert(_hlEditor.getSelectionStart(), lineToMove);
+        finally {
+            _hlEditor.enableHighlighterAutoFormat();
+        }
     }
 
     public void selectWholeLine(boolean toStart) {

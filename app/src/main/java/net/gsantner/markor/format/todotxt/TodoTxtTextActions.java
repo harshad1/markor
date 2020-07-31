@@ -59,10 +59,13 @@ public class TodoTxtTextActions extends TextActions {
     @Override
     public List<ActionItem> getActiveActionList() {
 
+
+        final int projectIcon = _appSettings.isTodoTxtAlternativeNaming() ? R.drawable.ic_local_offer_black_24dp : R.drawable.ic_baseline_add_24;
+
         final ActionItem[] TMA_ACTIONS = {
                 new ActionItem(R.string.tmaid_todotxt_toggle_done, R.drawable.ic_check_box_black_24dp, R.string.toggle_done),
                 new ActionItem(R.string.tmaid_todotxt_add_context, R.drawable.gs_email_sign_black_24dp, R.string.add_context),
-                new ActionItem(R.string.tmaid_todotxt_add_project, R.drawable.ic_local_offer_black_24dp, R.string.add_project),
+                new ActionItem(R.string.tmaid_todotxt_add_project, projectIcon, R.string.add_project),
                 new ActionItem(R.string.tmaid_todotxt_priority, R.drawable.ic_star_border_black_24dp, R.string.priority),
                 new ActionItem(R.string.tmaid_common_delete_lines, CommonTextActions.ACTION_DELETE_LINES_ICON, R.string.delete_lines),
                 new ActionItem(R.string.tmaid_common_open_link_browser, CommonTextActions.ACTION_OPEN_LINK_BROWSER__ICON, R.string.open_link),
@@ -142,12 +145,6 @@ public class TodoTxtTextActions extends TextActions {
                     setDate();
                     return;
                 }
-                case R.string.tmaid_common_delete_lines: {
-                    final int[] sel = StringUtils.getLineSelection(_hlEditor);
-                    _hlEditor.getText().delete(sel[0] > 0 ? sel[0] - 1 : sel[0], sel[1]);
-                    return;
-                }
-
                 case R.string.tmaid_todotxt_archive_done_tasks: {
                     SearchOrCustomTextDialogCreator.showSttArchiveDialog(_activity, (callbackPayload) -> {
                         // Don't do parse tasks in this case, performance wise
