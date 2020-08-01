@@ -275,69 +275,37 @@ public class CommonTextActions {
 
     public void moveSelection(final boolean up) {
 
-        _hlEditor.disableHighlighterAutoFormat();
-
         final Editable text = _hlEditor.getText();
 
         final int[] sel = StringUtils.getSelection(_hlEditor);
-        int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
-        int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
-
         final int lineStart = StringUtils.getLineStart(text, sel[0]);
         final int lineEnd = StringUtils.getLineEnd(text, sel[1]);
 
-        if (up)  {
-            if (moveSelectionUpOne(text, lineStart, lineEnd)) {
-                selStart[0]--;
-                selEnd[0]--;
-            }
-        } else {
-            if (moveSelectionDownOne(text, lineStart, lineEnd)) {
-                selStart[0]++;
-                selEnd[0]++;
-            }
+        if ((up && lineStart > 0) || (!up && lineEnd < text.length())) {
+
+            _hlEditor.disableHighlighterAutoFormat();
+
+            final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
+            final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
+
+            final CharSequence line = text.subSequence(lineStart, lineEnd);
+
+            final int altLineStart = up ? StringUtils.getLineStart(text, lineStart - 1) : lineEnd + 1;
+            final int altLineEnd = StringUtils.getLineEnd(text, altLineStart);
+            final CharSequence altLine = text.subSequence(altLineStart, altLineEnd);
+
+            text.replace(lineStart, lineEnd, altLine);
+            final int replaceDelta = up ? 0 : altLine.length() - line.length();
+            text.replace(altLineStart + replaceDelta, altLineEnd + replaceDelta, line);
+
+            selStart[0] += up ? -1 : 1;
+            selEnd[0] += up ? -1 : 1;
+
+            _hlEditor.setSelection(
+                    StringUtils.getIndexFromLineOffset(text, selStart),
+                    StringUtils.getIndexFromLineOffset(text, selEnd));
+
+            _hlEditor.enableHighlighterAutoFormat();
         }
-
-        _hlEditor.setSelection(
-                StringUtils.getIndexFromLineOffset(text, selStart),
-                StringUtils.getIndexFromLineOffset(text, selEnd));
-
-        _hlEditor.enableHighlighterAutoFormat();
-    }
-
-    public static boolean moveSelectionDownOne(final Editable text, int lineStart, int lineEnd) {
-        final boolean lastLine = lineEnd >= text.length() - 1;
-        if (lineEnd > lineStart && !lastLine) {
-            CharSequence lines = text.subSequence(lineStart, lineEnd);
-            int insertAt = StringUtils.getLineEnd(text, lineEnd + 1) + 1;
-            if (insertAt >= text.length()) {
-                lines = "\n" + lines;
-                insertAt = text.length();
-            }
-            text.delete(lineStart, lineEnd);
-            text.insert(insertAt, lines);
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean moveSelectionUpOne(final Editable text, int lineStart, int lineEnd) {
-        final boolean firstLine = lineStart == 0;
-        final boolean lastLine = lineEnd == text.length();
-        if (lineEnd > lineStart && !firstLine) {
-            CharSequence lines;
-            int delta = 0;
-            if (lastLine) {
-                 lines = text.subSequence(lineStart, lineEnd) + "\n";
-            } else {
-                lines = text.subSequence(lineStart, lineEnd + 1);
-                delta = 1;
-            }
-            int insertAt = StringUtils.getLineStart(text, lineStart - 1);
-            text.delete(lineStart - delta, lineEnd);
-            text.insert(insertAt, lines);
-            return true;
-        }
-        return false;
     }
 }
