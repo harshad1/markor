@@ -100,9 +100,9 @@ public class CommonTextActions {
                     } else if (callbackPayload.equals(rstr(R.string.key_pos_1_document))) {
                         _hlEditor.setSelection(0);
                     } else if (callbackPayload.equals(rstr(R.string.move_text_one_line_up))) {
-                        moveSelectionBy1(true);
+                        moveSelection(true);
                     } else if (callbackPayload.equals(rstr(R.string.move_text_one_line_down))) {
-                        moveSelectionBy1(false);
+                        moveSelection(false);
                     } else if (callbackPayload.equals(rstr(R.string.key_pos_end_document))) {
                         _hlEditor.setSelection(_hlEditor.length());
                     } else if (callbackPayload.equals(rstr(R.string.key_ctrl_a))) {
@@ -130,11 +130,11 @@ public class CommonTextActions {
                 return true;
             }
             case ACTION_MOVE_UP: {
-                moveSelectionBy1(true);
+                moveSelection(true);
                 return true;
             }
             case ACTION_MOVE_DOWN: {
-                moveSelectionBy1(false);
+                moveSelection(false);
                 return true;
             }
             case ACTION_OPEN_LINK_BROWSER: {
@@ -149,7 +149,10 @@ public class CommonTextActions {
             }
             case ACTION_DELETE_LINES: {
                 final int[] sel = StringUtils.getLineSelection(_hlEditor);
-                _hlEditor.getText().delete((sel[0] > 0 ? sel[0] - 1 : sel[0]), sel[1]);
+                final Editable text = _hlEditor.getText();
+                final boolean lastLine = sel[1] == text.length();
+                final boolean firstLine = sel[0] == 0;
+                text.delete(sel[0] - (lastLine && !firstLine ? 1 : 0), sel[1] + ( lastLine ? 0 : 1));
                 return true;
             }
             case ACTION_END_LINE_WITH_TWO_SPACES: {
@@ -270,57 +273,71 @@ public class CommonTextActions {
                 StringUtils.getIndexFromLineOffset(text, lEnd));
     }
 
-    public void moveSelectionBy1(final boolean up) {
-        try {
-            _hlEditor.disableHighlighterAutoFormat();
+    public void moveSelection(final boolean up) {
 
-            final int[] sel = StringUtils.getSelection(_hlEditor);
-            final Editable text = _hlEditor.getText();
+        _hlEditor.disableHighlighterAutoFormat();
 
-            int lineStart = StringUtils.getLineStart(text, sel[0]);
-            int lineEnd = StringUtils.getLineEnd(text, sel[1]);
-            // Move one line down at end
-            if (!up && lineEnd >= text.length() - 1) {
-                text.insert(lineStart, "\n");
-                _hlEditor.setSelection(sel[0] + 1, sel[1] + 1);
-            } else if (!up || lineStart > 0) {
-                lineEnd += (lineEnd < text.length() - 1) ? 1 : 0; // Include newline at end
-                final int insertAt;
-                if (up) {
-                    insertAt = StringUtils.getLineStart(text, lineStart - 1);
-                } else {
-                    insertAt = StringUtils.getLineEnd(text, lineEnd) + 1;
-                }
-                final CharSequence lines = text.subSequence(lineStart, lineEnd);
-                final int delta = up ? 0 : -lines.length();
-                text.delete(lineStart, lineEnd);
-                text.insert(insertAt + delta, lines);
-                final int selMove = up ? insertAt - lineStart : insertAt - lineEnd;
-                _hlEditor.setSelection(sel[0] + selMove, sel[1] + selMove);
+        final Editable text = _hlEditor.getText();
+
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+        int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
+        int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
+
+        final int lineStart = StringUtils.getLineStart(text, sel[0]);
+        final int lineEnd = StringUtils.getLineEnd(text, sel[1]);
+
+        if (up)  {
+            if (moveSelectionUpOne(text, lineStart, lineEnd)) {
+                selStart[0]--;
+                selEnd[0]--;
+            }
+        } else {
+            if (moveSelectionDownOne(text, lineStart, lineEnd)) {
+                selStart[0]++;
+                selEnd[0]++;
             }
         }
-        finally {
-            _hlEditor.enableHighlighterAutoFormat();
-        }
+
+        _hlEditor.setSelection(
+                StringUtils.getIndexFromLineOffset(text, selStart),
+                StringUtils.getIndexFromLineOffset(text, selEnd));
+
+        _hlEditor.enableHighlighterAutoFormat();
     }
 
-    public void selectWholeLine(boolean toStart) {
-        final String content = _hlEditor.getText().toString();
-        if (_hlEditor.getSelectionStart() == content.length()) {
-            _hlEditor.setSelection(_hlEditor.getSelectionStart() - 1, _hlEditor.getSelectionEnd());
-        }
-        if (_hlEditor.getSelectionEnd() == content.length()) {
-            _hlEditor.setSelection(_hlEditor.getSelectionStart(), _hlEditor.getSelectionEnd() - 1);
-        }
-
-        int i = (toStart ? _hlEditor.getSelectionStart() : _hlEditor.getSelectionEnd());
-        for (; i > 0 && i < content.length(); i = toStart ? (i - 1) : (i + 1)) {
-            if (content.charAt(i) == '\n' || content.charAt(i) == '\r') {
-                i = toStart ? i + 1 : i + 1;
-                break;
+    public static boolean moveSelectionDownOne(final Editable text, int lineStart, int lineEnd) {
+        final boolean lastLine = lineEnd >= text.length() - 1;
+        if (lineEnd > lineStart && !lastLine) {
+            CharSequence lines = text.subSequence(lineStart, lineEnd);
+            int insertAt = StringUtils.getLineEnd(text, lineEnd + 1) + 1;
+            if (insertAt >= text.length()) {
+                lines = "\n" + lines;
+                insertAt = text.length();
             }
+            text.delete(lineStart, lineEnd);
+            text.insert(insertAt, lines);
+            return true;
         }
-        _hlEditor.setSelection(toStart ? i : _hlEditor.getSelectionStart(), toStart ? _hlEditor.getSelectionEnd() : i);
+        return false;
     }
 
+    public static boolean moveSelectionUpOne(final Editable text, int lineStart, int lineEnd) {
+        final boolean firstLine = lineStart == 0;
+        final boolean lastLine = lineEnd == text.length();
+        if (lineEnd > lineStart && !firstLine) {
+            CharSequence lines;
+            int delta = 0;
+            if (lastLine) {
+                 lines = text.subSequence(lineStart, lineEnd) + "\n";
+            } else {
+                lines = text.subSequence(lineStart, lineEnd + 1);
+                delta = 1;
+            }
+            int insertAt = StringUtils.getLineStart(text, lineStart - 1);
+            text.delete(lineStart - delta, lineEnd);
+            text.insert(insertAt, lines);
+            return true;
+        }
+        return false;
+    }
 }
