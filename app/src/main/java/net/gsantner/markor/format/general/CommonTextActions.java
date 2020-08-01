@@ -100,9 +100,9 @@ public class CommonTextActions {
                     } else if (callbackPayload.equals(rstr(R.string.key_pos_1_document))) {
                         _hlEditor.setSelection(0);
                     } else if (callbackPayload.equals(rstr(R.string.move_text_one_line_up))) {
-                        moveSelection(true);
+                        moveLineBy1(true);
                     } else if (callbackPayload.equals(rstr(R.string.move_text_one_line_down))) {
-                        moveSelection(false);
+                        moveLineBy1(false);
                     } else if (callbackPayload.equals(rstr(R.string.key_pos_end_document))) {
                         _hlEditor.setSelection(_hlEditor.length());
                     } else if (callbackPayload.equals(rstr(R.string.key_ctrl_a))) {
@@ -130,11 +130,11 @@ public class CommonTextActions {
                 return true;
             }
             case ACTION_MOVE_UP: {
-                moveSelection(true);
+                moveLineBy1(true);
                 return true;
             }
             case ACTION_MOVE_DOWN: {
-                moveSelection(false);
+                moveLineBy1(false);
                 return true;
             }
             case ACTION_OPEN_LINK_BROWSER: {
@@ -273,30 +273,29 @@ public class CommonTextActions {
                 StringUtils.getIndexFromLineOffset(text, lEnd));
     }
 
-    public void moveSelection(final boolean up) {
+    public void moveLineBy1(final boolean up) {
 
         final Editable text = _hlEditor.getText();
 
         final int[] sel = StringUtils.getSelection(_hlEditor);
         final int lineStart = StringUtils.getLineStart(text, sel[0]);
         final int lineEnd = StringUtils.getLineEnd(text, sel[1]);
+        final CharSequence line = text.subSequence(lineStart, lineEnd);
 
         if ((up && lineStart > 0) || (!up && lineEnd < text.length())) {
 
+            // Prevents changes in text from triggering list prefix insert etc
             _hlEditor.disableHighlighterAutoFormat();
 
             final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
             final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
 
-            final CharSequence line = text.subSequence(lineStart, lineEnd);
+            final int altStart = up ? StringUtils.getLineStart(text, lineStart - 1) : lineEnd + 1;
+            final int altEnd = StringUtils.getLineEnd(text, altStart);
+            final CharSequence altLine = text.subSequence(altStart, altEnd);
 
-            final int altLineStart = up ? StringUtils.getLineStart(text, lineStart - 1) : lineEnd + 1;
-            final int altLineEnd = StringUtils.getLineEnd(text, altLineStart);
-            final CharSequence altLine = text.subSequence(altLineStart, altLineEnd);
-
-            text.replace(lineStart, lineEnd, altLine);
-            final int replaceDelta = up ? 0 : altLine.length() - line.length();
-            text.replace(altLineStart + replaceDelta, altLineEnd + replaceDelta, line);
+            final String newPair = String.format("%s\n%s", up ? line : altLine, up ? altLine : line);
+            text.replace(Math.min(lineStart, altStart), Math.max(altEnd, lineEnd), newPair);
 
             selStart[0] += up ? -1 : 1;
             selEnd[0] += up ? -1 : 1;
