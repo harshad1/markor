@@ -292,11 +292,12 @@ public class CommonTextActions {
             // Prevents changes in text from triggering list prefix insert etc
             _hlEditor.disableHighlighterAutoFormat();
 
+            final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
+            final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
+
             final String newPair = String.format("%s\n%s", up ? line : altLine, up ? altLine : line);
             text.replace(Math.min(lineStart, altStart), Math.max(altEnd, lineEnd), newPair);
 
-            final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
-            final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
             selStart[0] += up ? -1 : 1;
             selEnd[0] += up ? -1 : 1;
             _hlEditor.setSelection(
