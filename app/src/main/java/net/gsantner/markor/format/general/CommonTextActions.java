@@ -31,8 +31,6 @@ import net.gsantner.opoc.util.Callback;
 import net.gsantner.opoc.util.ContextUtils;
 import net.gsantner.opoc.util.StringUtils;
 
-import java.util.Arrays;
-
 @SuppressWarnings("WeakerAccess")
 public class CommonTextActions {
     public static final int ACTION_SPECIAL_KEY__ICON = R.drawable.ic_keyboard_black_24dp;
@@ -280,33 +278,32 @@ public class CommonTextActions {
         final Editable text = _hlEditor.getText();
 
         final int[] sel = StringUtils.getSelection(_hlEditor);
-        int start = StringUtils.getLineStart(text, sel[0]);
-        int end = StringUtils.getLineEnd(text, sel[1]);
+        final int lineStart = StringUtils.getLineStart(text, sel[0]);
+        final int lineEnd = StringUtils.getLineEnd(text, sel[1]);
 
-        if (text != null && ((up && start > 0) || (!up && end < text.length()))) {
+        if ((up && lineStart > 0) || (!up && lineEnd < text.length())) {
 
-            if (up) {
-                start = StringUtils.getLineStart(text, start - 1);
-            } else {
-                end = StringUtils.getLineEnd(text, end + 1);
-            }
+            final CharSequence line = text.subSequence(lineStart, lineEnd);
 
-            final String[] pair = text.subSequence(start, end).toString().split("\\r?\\n");
-            if (pair.length == 2) {
-                _hlEditor.disableHighlighterAutoFormat();
+            final int altStart = up ? StringUtils.getLineStart(text, lineStart - 1) : lineEnd + 1;
+            final int altEnd = StringUtils.getLineEnd(text, altStart);
+            final CharSequence altLine = text.subSequence(altStart, altEnd);
 
-                text.replace(start, end, String.format("%s\n%s", pair[1], pair[0]));
+            // Prevents changes in text from triggering list prefix insert etc
+            _hlEditor.disableHighlighterAutoFormat();
 
-                final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
-                final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
-                selStart[0] += up ? -1 : 1;
-                selEnd[0] += up ? -1 : 1;
-                _hlEditor.setSelection(
-                        StringUtils.getIndexFromLineOffset(text, selStart),
-                        StringUtils.getIndexFromLineOffset(text, selEnd));
+            final String newPair = String.format("%s\n%s", up ? line : altLine, up ? altLine : line);
+            text.replace(Math.min(lineStart, altStart), Math.max(altEnd, lineEnd), newPair);
 
-                _hlEditor.enableHighlighterAutoFormat();
-            }
+            final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
+            final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
+            selStart[0] += up ? -1 : 1;
+            selEnd[0] += up ? -1 : 1;
+            _hlEditor.setSelection(
+                    StringUtils.getIndexFromLineOffset(text, selStart),
+                    StringUtils.getIndexFromLineOffset(text, selEnd));
+
+            _hlEditor.enableHighlighterAutoFormat();
         }
     }
 }
