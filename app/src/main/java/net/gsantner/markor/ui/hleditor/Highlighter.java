@@ -41,7 +41,6 @@ import net.gsantner.markor.format.general.HexColorCodeUnderlineSpan;
 import net.gsantner.markor.format.plaintext.PlaintextHighlighter;
 import net.gsantner.markor.model.Document;
 import net.gsantner.markor.util.AppSettings;
-import net.gsantner.opoc.util.NanoProfiler;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -51,8 +50,6 @@ public abstract class Highlighter {
     protected final static int LONG_HIGHLIGHTING_DELAY = 2400;
     protected final static InputFilter AUTOFORMATTER_NONE = (charSequence, i, i1, spanned, i2, i3) -> null;
     protected float _highlightingFactorBasedOnFilesize = 1f;
-
-    protected final NanoProfiler _profiler = new NanoProfiler().setEnabled(BuildConfig.IS_TEST_BUILD || MainActivity.IS_DEBUG_ENABLED);
 
     protected abstract Editable run(final Editable editable);
 
@@ -92,21 +89,15 @@ public abstract class Highlighter {
     public void generalHighlightRun(final Editable editable) {
         final String text = editable.toString();
         _highlightingFactorBasedOnFilesize = Math.max(1, Math.min(Math.max(text.length() - 9000, 10000) / 10000, 4));
-        _profiler.restart("General Highlighter");
         if (_preCalcTabWidth > 0) {
-            _profiler.restart("Tabulator width");
             createReplacementSpanForMatches(editable, Pattern.compile("\t"), _preCalcTabWidth);
         }
         if (_highlightLinks && (text.contains("http://") || text.contains("https://"))) {
-            _profiler.restart("Link Color");
             createColorSpanForMatches(editable, Patterns.WEB_URL, 0xff1ea3fd);
-            _profiler.restart("Link Size");
             createRelativeSizeSpanForMatches(editable, Patterns.WEB_URL, 0.7f);
-            _profiler.restart("Link Italic");
             createStyleSpanForMatches(editable, Patterns.WEB_URL, Typeface.ITALIC);
         }
         if (_highlightHexcolor) {
-            _profiler.restart("RGB Color underline");
             createColoredUnderlineSpanForMatches(editable, HexColorCodeUnderlineSpan.PATTERN, new HexColorCodeUnderlineSpan(), 1);
         }
     }

@@ -35,35 +35,27 @@ public class KeyValueHighlighter extends Highlighter {
                 return editable;
             }
 
-            _profiler.start(true, "KeyValue Highlighting");
             generalHighlightRun(editable);
 
 
-            _profiler.restart("KeyValue: Generic key-value");
             createStyleSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_KEY_VALUE.getPattern(), Typeface.BOLD);
             createStyleSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_KEY_VALUE_QUOTED.getPattern(), Typeface.BOLD);
             createColorSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_UNORDERED_LIST.getPattern(), 0xffef6D00);
-            _profiler.restart("KeyValue: vcard");
             createStyleSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_VCARD_KEY.getPattern(), Typeface.BOLD);
-            _profiler.restart("KeyValue: ini");
             createStyleSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_INI_KEY.getPattern(), Typeface.BOLD);
             createRelativeSizeSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_INI_HEADER.getPattern(), 1.25f);
             createColorSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_INI_HEADER.getPattern(), 0xffef6D00);
             createColorSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_INI_COMMENT.getPattern(), 0xff88b04b);
-            _profiler.restart("KeyValue: comment");
             createColorSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_COMMENT.getPattern(), 0xff88b04b);
 
             /*
             // Too expensive
             if (getFilepath().toLowerCase().endsWith(".csv")) {
-                _profiler.restart("KeyValue: csv");
                 createStyleSpanForMatches(editable, KeyValueHighlighterPattern.PATTERN_CSV.getPattern(), Typeface.BOLD);
             }
             */
 
 
-            _profiler.end();
-            _profiler.printProfilingGroup();
         } catch (Exception ex) {
             // Ignoring errors
         }

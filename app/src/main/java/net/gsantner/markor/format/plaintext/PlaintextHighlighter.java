@@ -31,10 +31,7 @@ public class PlaintextHighlighter extends Highlighter {
                 return editable;
             }
 
-            _profiler.start(true, "Plaintext Highlighting");
             generalHighlightRun(editable);
-            _profiler.end();
-            _profiler.printProfilingGroup();
         } catch (Exception ex) {
             // Ignoring errors
         }
