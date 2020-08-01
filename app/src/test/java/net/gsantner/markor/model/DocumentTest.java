@@ -48,7 +48,7 @@ public class DocumentTest {
     }
 
     public String normalizeTitleForFilename(Document document) {
-        return DocumentIO.normalizeTitleForFilename(document, document.getContent().toString());
+        return DocumentIO.normalizeTitleForFilename(document, document.getContent());
     }
 
     @Test

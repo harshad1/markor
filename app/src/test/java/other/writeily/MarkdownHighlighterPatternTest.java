@@ -26,6 +26,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MarkdownHighlighterPatternTest {
 
 
+    private final Pattern pattern;
+    private final String string;
+    private final int foundCount;
+    public MarkdownHighlighterPatternTest(MarkdownHighlighterPattern pattern, String string, int foundCount) {
+        this.string = string;
+        this.foundCount = foundCount;
+        this.pattern = pattern.pattern;
+    }
+
     @Parameterized.Parameters(name = "{index}: {0} should find text {1} {2} times")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
@@ -86,16 +95,6 @@ public class MarkdownHighlighterPatternTest {
                 {MarkdownHighlighterPattern.ITALICS, "_s_", 1},
                 {MarkdownHighlighterPattern.ITALICS, "_s\n\n_", 0},
         });
-    }
-
-    private final Pattern pattern;
-    private final String string;
-    private final int foundCount;
-
-    public MarkdownHighlighterPatternTest(MarkdownHighlighterPattern pattern, String string, int foundCount) {
-        this.string = string;
-        this.foundCount = foundCount;
-        this.pattern = pattern.pattern;
     }
 
     @Test
