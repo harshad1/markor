@@ -25,6 +25,7 @@ import com.flask.colorpicker.builder.ColorPickerDialogBuilder;
 import net.gsantner.markor.R;
 import net.gsantner.markor.ui.SearchOrCustomTextDialogCreator;
 import net.gsantner.markor.ui.hleditor.HighlightingEditor;
+import net.gsantner.markor.ui.hleditor.TextActions;
 import net.gsantner.markor.util.AppSettings;
 import net.gsantner.opoc.format.plaintext.PlainTextStuff;
 import net.gsantner.opoc.util.Callback;
@@ -234,43 +235,13 @@ public class CommonTextActions {
 
     protected void runIndentLines(Boolean deIndent) {
 
-        Editable text = _hlEditor.getText();
-
-        int[] selection = StringUtils.getSelection(_hlEditor);
-        final int[] lStart = StringUtils.getLineOffsetFromIndex(text, selection[0]);
-        final int[] lEnd = StringUtils.getLineOffsetFromIndex(text, selection[1]);
-
-        int selectionStart = selection[0];
-        int selectionEnd = selection[1];
-
-        int lineStart = StringUtils.getLineStart(text, selectionStart);
-
-        String tabString = StringUtils.repeatChars(' ', _tabWidth);
-
-        while (lineStart <= selectionEnd) {
-
-            if (deIndent) {
-                int textStart = StringUtils.getNextNonWhitespace(text, lineStart, selectionEnd);
-                int spaceCount = textStart - lineStart;
-                int delCount = Math.min(_tabWidth, spaceCount);
-                int delEnd = lineStart + delCount;
-                if (delCount > 0 && delEnd <= text.length()) {
-                    text.delete(lineStart, delEnd);
-                    selectionEnd -= delCount;
-                }
-            } else {
-                text.insert(lineStart, tabString);
-                selectionEnd += _tabWidth;
-            }
-
-            text = _hlEditor.getText();
-            // Get next line
-            lineStart = StringUtils.getLineEnd(text, lineStart, selectionEnd) + 1;
+        if (deIndent) {
+            final String leadingIndentPattern = String.format("^\\s{1,%d}", _tabWidth);
+            TextActions.runRegexReplaceAction(_hlEditor, new TextActions.ReplacePattern(leadingIndentPattern, ""));
+        } else {
+            final String tabString = StringUtils.repeatChars(' ', _tabWidth);
+            TextActions.runRegexReplaceAction(_hlEditor, new TextActions.ReplacePattern("^", tabString));
         }
-
-        _hlEditor.setSelection(
-                StringUtils.getIndexFromLineOffset(text, lStart),
-                StringUtils.getIndexFromLineOffset(text, lEnd));
     }
 
     public void moveLineBy1(final boolean up) {

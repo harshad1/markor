@@ -150,8 +150,11 @@ public final class StringUtils {
                     break;
                 }
             }
-            if (i < s.length()) {
-                return getLineEnd(s, i + 1) - e;
+            if (i < s.length() - 1) {
+                final int start = i + 1;
+                final int end = getLineEnd(s, start);
+                // Prevent selection from moving to previous line
+                return end - Math.min(e, end - start);
             }
         }
         return i;
