@@ -260,7 +260,7 @@ public class TodoTxtTextActions extends TextActions {
     }
 
     private void insertUniqueItem(String item) {
-        item = item.trim();
+        item = item.trim().replace(" ", "_");
         if (!selectionIsSingleTask() || _appSettings.isTodoAppendProConOnEndEnabled()) {
             runRegexReplaceAction(
                     // Replace existing item with itself. i.e. do nothing
