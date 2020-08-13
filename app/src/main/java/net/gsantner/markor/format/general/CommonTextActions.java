@@ -86,6 +86,13 @@ public class CommonTextActions {
         final String origText = _hlEditor.getText().toString();
         switch (action) {
             case ACTION_SPECIAL_KEY: {
+
+                // Needed to prevent selection from being overwritten on refocus
+                final int[] sel = StringUtils.getSelection(_hlEditor);
+                _hlEditor.clearFocus();
+                _hlEditor.requestFocus();
+                _hlEditor.setSelection(sel[0], sel[1]);
+
                 SearchOrCustomTextDialogCreator.showSpecialKeyDialog(_activity, (callbackPayload) -> {
                     if (!_hlEditor.hasSelection() && _hlEditor.length() > 0) {
                         _hlEditor.requestFocus();
@@ -234,7 +241,6 @@ public class CommonTextActions {
     }
 
     protected void runIndentLines(Boolean deIndent) {
-
         if (deIndent) {
             final String leadingIndentPattern = String.format("^\\s{1,%d}", _tabWidth);
             TextActions.runRegexReplaceAction(_hlEditor, new TextActions.ReplacePattern(leadingIndentPattern, ""));
@@ -260,22 +266,26 @@ public class CommonTextActions {
             final int altEnd = StringUtils.getLineEnd(text, altStart);
             final CharSequence altLine = text.subSequence(altStart, altEnd);
 
-            // Prevents changes in text from triggering list prefix insert etc
-            _hlEditor.disableHighlighterAutoFormat();
+            try {
+                // Prevents changes in text from triggering list prefix insert etc
+                _hlEditor.disableHighlighterAutoFormat();
 
-            final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
-            final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
+                final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
+                final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
 
-            final String newPair = String.format("%s\n%s", up ? line : altLine, up ? altLine : line);
-            text.replace(Math.min(lineStart, altStart), Math.max(altEnd, lineEnd), newPair);
+                final String newPair = String.format("%s\n%s", up ? line : altLine, up ? altLine : line);
+                text.replace(Math.min(lineStart, altStart), Math.max(altEnd, lineEnd), newPair);
 
-            selStart[0] += up ? -1 : 1;
-            selEnd[0] += up ? -1 : 1;
-            _hlEditor.setSelection(
-                    StringUtils.getIndexFromLineOffset(text, selStart),
-                    StringUtils.getIndexFromLineOffset(text, selEnd));
+                selStart[0] += up ? -1 : 1;
+                selEnd[0] += up ? -1 : 1;
+                _hlEditor.setSelection(
+                        StringUtils.getIndexFromLineOffset(text, selStart),
+                        StringUtils.getIndexFromLineOffset(text, selEnd)
+                );
 
-            _hlEditor.enableHighlighterAutoFormat();
+            } finally {
+                _hlEditor.enableHighlighterAutoFormat();
+            }
         }
     }
 }
