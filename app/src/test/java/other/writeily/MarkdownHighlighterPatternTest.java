@@ -29,6 +29,7 @@ public class MarkdownHighlighterPatternTest {
     private final Pattern pattern;
     private final String string;
     private final int foundCount;
+
     public MarkdownHighlighterPatternTest(MarkdownHighlighterPattern pattern, String string, int foundCount) {
         this.string = string;
         this.foundCount = foundCount;
