@@ -234,15 +234,15 @@ public class SearchOrCustomTextDialogCreator {
 
         final Callback.a2<String, Integer> addToList = (o_by, iconRes) -> {
             availableData.add(o_by + d_asc);
-            availableData.add(o_by + d_desc);
+            // availableData.add(o_by + d_desc);
             availableDataToIconMap.add(iconRes);
-            availableDataToIconMap.add(iconRes);
+            // availableDataToIconMap.add(iconRes);
         };
         addToList.callback(o_prio, R.drawable.ic_star_border_black_24dp);
+        addToList.callback(o_duedate, R.drawable.ic_date_range_black_24dp);
         addToList.callback(o_project, R.drawable.ic_local_offer_black_24dp);
         addToList.callback(o_context, R.drawable.gs_email_sign_black_24dp);
         addToList.callback(o_date, R.drawable.ic_date_range_black_24dp);
-        addToList.callback(o_duedate, R.drawable.ic_date_range_black_24dp);
         addToList.callback(o_description, R.drawable.ic_text_fields_black_24dp);
         addToList.callback(o_textline, R.drawable.ic_text_fields_black_24dp);
 

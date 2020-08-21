@@ -10,6 +10,7 @@
 #########################################################*/
 package net.gsantner.opoc.format.todotxt;
 
+import android.text.TextUtils;
 import android.widget.TextView;
 
 import net.gsantner.opoc.util.StringUtils;
@@ -190,7 +191,7 @@ public class SttTask {
     }
 
     public String getCreationDate() {
-        return getDueDate("");
+        return getCreationaDate("");
     }
 
     public String getCreationaDate(final String defaultValue) {
@@ -255,8 +256,8 @@ public class SttTask {
     }
 
     public static class SttTaskSimpleComparator implements Comparator<SttTask> {
-        private String _orderBy;
-        private boolean _descending;
+        private final String _orderBy;
+        private final boolean _descending;
 
         public static final String BY_PRIORITY = "priority";
         public static final String BY_CONTEXT = "context";
@@ -266,13 +267,13 @@ public class SttTask {
         public static final String BY_DESCRIPTION = "description";
         public static final String BY_LINE = "line_natural";
 
-        public SttTaskSimpleComparator(String orderBy, Boolean descending) {
+        public SttTaskSimpleComparator(final String orderBy, final Boolean descending) {
             _orderBy = orderBy;
             _descending = descending;
         }
 
         @Override
-        public int compare(SttTask x, SttTask y) {
+        public int compare(final SttTask x, final SttTask y) {
             int difference;
             switch (_orderBy) {
                 case BY_PRIORITY: {
@@ -307,40 +308,42 @@ public class SttTask {
                     return 0;
                 }
             }
+
+            // Always resolve sorts by due date and then priority
+            if (difference == 0) {
+                difference = compare(x.getDueDate(), y.getDueDate());
+            }
+            if (difference == 0) {
+                difference = compare(x.getPriority(), y.getPriority());
+            }
+
             if (_descending) {
                 difference = -1 * difference;
             }
             return difference;
         }
 
-        private int compareNull(Object o1, Object o2) {
-            return ((o1 == null && o2 == null) || (o1 != null && o2 != null))
-                    ? 0
-                    : o1 == null ? -1 : 0;
+        private int compareNull(final String x, final String y) {
+            final int xi = (x == null || x == "") ? 1 : 0;
+            final int yi = (y == null || y == "") ? 1 : 0;
+            return Integer.compare(xi, yi);
         }
 
-        private int compare(Character x, Character y) {
-            return Character.compare(Character.toLowerCase(x), Character.toLowerCase(y));
+        private int compare(final char x, final char y) {
+            return compare(Character.toString(x), Character.toString(y));
         }
 
         private int compare(final String[] x, final String[] y) {
             return compare(Arrays.asList(x), Arrays.asList(y));
         }
 
-        private int compare(List<String> x, List<String> y) {
-            if (x.isEmpty() & y.isEmpty()) {
-                return 0;
-            }
-            if (x.isEmpty()) {
-                return 1;
-            }
-            if (y.isEmpty()) {
-                return -1;
-            }
-            return x.get(0).compareTo(y.get(0));
+        private int compare(final List<String> x, final List<String> y) {
+            Collections.sort(x);
+            Collections.sort(y);
+            return compare(TextUtils.join("", x), TextUtils.join("", y));
         }
 
-        private int compare(String x, String y) {
+        private int compare(final String x, final String y) {
             int n = compareNull(x, y);
             if (n != 0) {
                 return n;
