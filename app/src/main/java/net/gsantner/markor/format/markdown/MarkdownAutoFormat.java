@@ -16,11 +16,17 @@ import android.text.Spanned;
 
 import net.gsantner.opoc.util.StringUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.EmptyStackException;
+import java.util.Locale;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
 public class MarkdownAutoFormat implements InputFilter {
+
+    public static final SimpleDateFormat TIME = new SimpleDateFormat("HH:mm", Locale.ROOT);
+    public static final SimpleDateFormat DATE_TIME = new SimpleDateFormat("yyyy-MM-ddTHH:mm", Locale.ROOT);
 
     @Override
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
@@ -37,18 +43,26 @@ public class MarkdownAutoFormat implements InputFilter {
     @SuppressLint("DefaultLocale")
     private CharSequence autoIndent(final CharSequence source, final Spanned dest, final int dstart, final int dend) {
 
-        final String checkSymbol = "[ ] ";
-
         final OrderedListLine oLine = new OrderedListLine(dest, dstart);
         final UnOrderedListLine uLine = new UnOrderedListLine(dest, dstart);
         final String indent = source + StringUtils.repeatChars(' ', oLine.indent);
 
         final String result;
         if (oLine.isOrderedList && oLine.lineEnd != oLine.groupEnd && dend >= oLine.groupEnd) {
-            result = indent + String.format("%d%c ", oLine.value + 1, oLine.delimiter);
+            result = String.format("%s%d%c ", oLine.value + 1, oLine.delimiter);
         } else if (uLine.isUnorderedList && uLine.lineEnd != uLine.groupEnd && dend >= uLine.groupEnd) {
-            final String checkString = uLine.isCheckboxList ? checkSymbol : "";
-            result = indent + String.format("%c %s", uLine.listChar, checkString);
+            final String uPrefix = String.format("%s%c ", indent, uLine.listChar);
+            final String uSuffix;
+            if (uLine.isCheckboxList) {
+                uSuffix = "[ ]";
+            } else if (uLine.isDateTimeList) {
+                uSuffix = DATE_TIME.format(new Date());
+            } else if (uLine.isTimeList) {
+                uSuffix = TIME.format(new Date());
+            } else {
+                uSuffix = "";
+            }
+            result = String.format("%s %s ", uPrefix, uSuffix);
         } else {
             result = indent;
         }
@@ -168,6 +182,8 @@ public class MarkdownAutoFormat implements InputFilter {
         public final boolean isUnorderedList;
         public final boolean isCheckboxList;
         public final boolean isChecked;
+        public final boolean isDateTimeList;
+        public final boolean isTimeList;
         public final char checkChar;
         public final char listChar;
         public final int groupStart, groupEnd;
@@ -178,8 +194,12 @@ public class MarkdownAutoFormat implements InputFilter {
             final Matcher ucMatch = MarkdownTextActions.PREFIX_UNCHECKED_LIST.matcher(line);
             final Matcher cMatch = MarkdownTextActions.PREFIX_CHECKED_LIST.matcher(line);
             final Matcher uMatch = MarkdownTextActions.PREFIX_UNORDERED_LIST.matcher(line);
+            final Matcher dMatch = MarkdownTextActions.PREFIX_DATETIME_LIST.matcher(line);
+            final Matcher tMatch = MarkdownTextActions.PREFIX_TIME_LIST.matcher(line);
 
             isUnorderedList = uMatch.find(); // Will also detect other unordered list types
+            isDateTimeList = dMatch.find();
+            isTimeList = tMatch.find();
             isChecked = cMatch.find();
             isCheckboxList = isChecked || ucMatch.find();
             checkChar = isChecked ? cMatch.group(CHECK_GROUP).charAt(0) : 0;

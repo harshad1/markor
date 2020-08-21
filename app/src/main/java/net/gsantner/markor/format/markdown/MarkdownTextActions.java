@@ -40,6 +40,8 @@ public class MarkdownTextActions extends TextActions {
     public static final Pattern PREFIX_UNCHECKED_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s\\[\\s]\\s)");
     public static final Pattern PREFIX_UNORDERED_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s)");
     public static final Pattern PREFIX_LEADING_SPACE = Pattern.compile("^(\\s*)");
+    public static final Pattern PREFIX_DATETIME_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}\\s)");
+    public static final Pattern PREFIX_TIME_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s\\d{2}:\\d{2}\\s)");
 
     private static final Pattern[] PREFIX_PATTERNS = {
             PREFIX_ORDERED_LIST,

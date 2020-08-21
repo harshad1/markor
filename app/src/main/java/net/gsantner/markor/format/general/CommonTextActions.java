@@ -258,14 +258,15 @@ public class CommonTextActions {
         final Editable text = _hlEditor.getText();
 
         final int[] sel = StringUtils.getSelection(_hlEditor);
-        final int lineStart = StringUtils.getLineStart(text, sel[0]);
-        final int lineEnd = StringUtils.getLineEnd(text, sel[1]);
 
-        if ((up && lineStart > 0) || (!up && lineEnd < text.length())) {
+        final int linesStart = StringUtils.getLineStart(text, sel[0]);
+        final int linesEnd = StringUtils.getLineEnd(text, sel[1]);
 
-            final CharSequence line = text.subSequence(lineStart, lineEnd);
+        if ((up && linesStart > 0) || (!up && linesEnd < text.length())) {
 
-            final int altStart = up ? StringUtils.getLineStart(text, lineStart - 1) : lineEnd + 1;
+            final CharSequence lines = text.subSequence(linesStart, linesEnd);
+
+            final int altStart = up ? StringUtils.getLineStart(text, linesStart - 1) : linesEnd + 1;
             final int altEnd = StringUtils.getLineEnd(text, altStart);
             final CharSequence altLine = text.subSequence(altStart, altEnd);
 
@@ -276,8 +277,8 @@ public class CommonTextActions {
                 final int[] selStart = StringUtils.getLineOffsetFromIndex(text, sel[0]);
                 final int[] selEnd = StringUtils.getLineOffsetFromIndex(text, sel[1]);
 
-                final String newPair = String.format("%s\n%s", up ? line : altLine, up ? altLine : line);
-                text.replace(Math.min(lineStart, altStart), Math.max(altEnd, lineEnd), newPair);
+                final String newPair = String.format("%s\n%s", up ? lines : altLine, up ? altLine : lines);
+                text.replace(Math.min(linesStart, altStart), Math.max(altEnd, linesEnd), newPair);
 
                 selStart[0] += up ? -1 : 1;
                 selEnd[0] += up ? -1 : 1;

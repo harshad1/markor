@@ -24,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.general.CommonTextActions;
@@ -284,9 +283,9 @@ public abstract class TextActions {
     }
 
     public static class ReplacePattern {
-        public Pattern searchPattern;
-        public String replacePattern;
-        public boolean replaceAll;
+        public final Pattern searchPattern;
+        public final String replacePattern;
+        public final boolean replaceAll;
 
         /**
          * Construct a ReplacePattern
