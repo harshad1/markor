@@ -25,8 +25,8 @@ import java.util.regex.Matcher;
 
 public class MarkdownAutoFormat implements InputFilter {
 
-    public static final SimpleDateFormat TIME = new SimpleDateFormat("HH:mm", Locale.ROOT);
-    public static final SimpleDateFormat DATE_TIME = new SimpleDateFormat("yyyy-MM-ddTHH:mm", Locale.ROOT);
+    public static final SimpleDateFormat TIME = new SimpleDateFormat("HH:mm ", Locale.ROOT);
+    public static final SimpleDateFormat DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm ", Locale.ROOT);
 
     @Override
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
@@ -54,7 +54,7 @@ public class MarkdownAutoFormat implements InputFilter {
             final String uPrefix = String.format("%s%c ", indent, uLine.listChar);
             final String uSuffix;
             if (uLine.isCheckboxList) {
-                uSuffix = "[ ]";
+                uSuffix = "[ ] ";
             } else if (uLine.isDateTimeList) {
                 uSuffix = DATE_TIME.format(new Date());
             } else if (uLine.isTimeList) {
@@ -62,7 +62,7 @@ public class MarkdownAutoFormat implements InputFilter {
             } else {
                 uSuffix = "";
             }
-            result = String.format("%s %s ", uPrefix, uSuffix);
+            result = uPrefix + uSuffix;
         } else {
             result = indent;
         }
