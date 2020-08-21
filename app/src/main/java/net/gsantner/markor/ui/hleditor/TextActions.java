@@ -75,8 +75,6 @@ public abstract class TextActions {
     protected abstract static class ActionCallback implements View.OnLongClickListener, View.OnClickListener {
     }
 
-    ;
-
     /**
      * Factory to generate ActionCallback for given keyId
      *
