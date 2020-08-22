@@ -25,7 +25,6 @@ import android.view.WindowManager;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.util.AppSettings;
-import net.gsantner.opoc.format.todotxt.SttTask;
 import net.gsantner.opoc.ui.SearchOrCustomTextDialog;
 import net.gsantner.opoc.util.Callback;
 
@@ -37,13 +36,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_CONTEXT;
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_CREATION_DATE;
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_DESCRIPTION;
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_DUE_DATE;
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_LINE;
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_PRIORITY;
-import static net.gsantner.opoc.format.todotxt.SttTask.SttTaskSimpleComparator.BY_PROJECT;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_CONTEXT;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_CREATION_DATE;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_DESCRIPTION;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_DUE_DATE;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_LINE;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_PRIORITY;
+import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_PROJECT;
 
 public class SearchOrCustomTextDialogCreator {
     private static boolean isTodoTxtAlternativeNaming(Context context) {
@@ -234,15 +233,15 @@ public class SearchOrCustomTextDialogCreator {
 
         final Callback.a2<String, Integer> addToList = (o_by, iconRes) -> {
             availableData.add(o_by + d_asc);
-            // availableData.add(o_by + d_desc);
+            availableData.add(o_by + d_desc);
             availableDataToIconMap.add(iconRes);
-            // availableDataToIconMap.add(iconRes);
+            availableDataToIconMap.add(iconRes);
         };
         addToList.callback(o_prio, R.drawable.ic_star_border_black_24dp);
-        addToList.callback(o_duedate, R.drawable.ic_date_range_black_24dp);
         addToList.callback(o_project, R.drawable.ic_local_offer_black_24dp);
         addToList.callback(o_context, R.drawable.gs_email_sign_black_24dp);
         addToList.callback(o_date, R.drawable.ic_date_range_black_24dp);
+        addToList.callback(o_duedate, R.drawable.ic_date_range_black_24dp);
         addToList.callback(o_description, R.drawable.ic_text_fields_black_24dp);
         addToList.callback(o_textline, R.drawable.ic_text_fields_black_24dp);
 

@@ -311,11 +311,11 @@ public abstract class TextActions {
         }
     }
 
-    public void runRegexReplaceAction(ReplacePattern ... patterns) {
+    public void runRegexReplaceAction(final ReplacePattern ... patterns) {
         runRegexReplaceAction(Arrays.asList(patterns), false);
     }
 
-    public void runRegexReplaceAction(List<ReplacePattern> patterns) {
+    public void runRegexReplaceAction(final List<ReplacePattern> patterns) {
         runRegexReplaceAction(patterns, false);
     }
 
@@ -327,12 +327,8 @@ public abstract class TextActions {
         runRegexReplaceAction(_hlEditor, patterns, matchAll);
     }
 
-    public static void runRegexReplaceAction(final EditText editor, final ReplacePattern pattern) {
-        runRegexReplaceAction(editor, pattern, false);
-    }
-
-    public static void runRegexReplaceAction(final EditText editor, final ReplacePattern pattern, final boolean matchAll) {
-        runRegexReplaceAction(editor, Collections.singletonList(pattern), matchAll);
+    public void runRegexReplaceAction(final EditText editor, final ReplacePattern ... patterns) {
+        runRegexReplaceAction(Arrays.asList(patterns), false);
     }
 
     /**
