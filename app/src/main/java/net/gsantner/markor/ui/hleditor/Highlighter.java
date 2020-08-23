@@ -180,7 +180,10 @@ public abstract class Highlighter {
             if (span != null) {
                 for (int g : groupsToMatch) {
                     if (g == 0 || g <= m.groupCount()) {
-                        editable.setSpan(span, m.start(g), m.end(g), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        final int start = m.start(g), end = m.end(g);
+                        if (end > start) {
+                            editable.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
                     }
                 }
             }
@@ -207,7 +210,10 @@ public abstract class Highlighter {
             if (span != null) {
                 for (int g : groupsToMatch) {
                     if (g == 0 || g <= m.groupCount()) {
-                        editable.setSpan(span, m.start(g), m.end(g), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        final int start = m.start(g), end = m.end(g);
+                        if (end > start) {
+                            editable.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
                     }
                 }
             }
@@ -233,7 +239,10 @@ public abstract class Highlighter {
             if (span != null) {
                 for (int g : groupsToMatch) {
                     if (g == 0 || g <= m.groupCount()) {
-                        editable.setSpan(span, m.start(g), m.end(g), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        final int start = m.start(g), end = m.end(g);
+                        if (end > start) {
+                            editable.setSpan(span, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        }
                     }
                 }
             }

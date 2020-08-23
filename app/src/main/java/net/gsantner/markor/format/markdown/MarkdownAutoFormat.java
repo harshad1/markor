@@ -49,7 +49,7 @@ public class MarkdownAutoFormat implements InputFilter {
 
         final String result;
         if (oLine.isOrderedList && oLine.lineEnd != oLine.groupEnd && dend >= oLine.groupEnd) {
-            result = String.format("%s%d%c ", oLine.value + 1, oLine.delimiter);
+            result = String.format("%s%d%c ", indent, oLine.value + 1, oLine.delimiter);
         } else if (uLine.isUnorderedList && uLine.lineEnd != uLine.groupEnd && dend >= uLine.groupEnd) {
             final String uPrefix = String.format("%s%c ", indent, uLine.listChar);
             final String uSuffix;
@@ -199,14 +199,21 @@ public class MarkdownAutoFormat implements InputFilter {
 
             isUnorderedList = uMatch.find(); // Will also detect other unordered list types
             isDateTimeList = dMatch.find();
-            isTimeList = tMatch.find();
+            isTimeList = isDateTimeList || tMatch.find();
             isChecked = cMatch.find();
             isCheckboxList = isChecked || ucMatch.find();
             checkChar = isChecked ? cMatch.group(CHECK_GROUP).charAt(0) : 0;
 
             if (isUnorderedList) {
                 listChar = uMatch.group(LIST_LEADER_GROUP).charAt(0);
-                final Matcher match = isCheckboxList ? (isChecked ? cMatch : ucMatch) : uMatch;
+                final Matcher match;
+                if (isCheckboxList) {
+                    match = isChecked ? cMatch : ucMatch;
+                } else if (isTimeList) {
+                    match = isDateTimeList ? dMatch : tMatch;
+                } else {
+                    match = uMatch;
+                }
                 groupStart = lineStart + match.start(FULL_GROUP);
                 groupEnd = lineStart + match.end(FULL_GROUP);
             } else {
