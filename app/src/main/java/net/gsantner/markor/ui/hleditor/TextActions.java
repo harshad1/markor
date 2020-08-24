@@ -38,7 +38,6 @@ import net.gsantner.opoc.util.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,6 +47,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.DATE;
+import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.TIME;
 
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
@@ -513,7 +515,10 @@ public abstract class TextActions {
                 return true;
             }
             case "tmaid_common_accordion": {
-                _hlEditor.insertOrReplaceTextOnCursor("<details markdown='1'><summary>" + _context.getString(R.string.expand_collapse) + "</summary>\n" + HighlightingEditor.PLACE_CURSOR_HERE_TOKEN + "\n\n</details>");
+                // Replaced accordion with my log template
+                final Date d = new Date();
+                final String template = "\n# %s\n\n## Objectives\n- [ ]\n\n## Log\n- %s ";
+                _hlEditor.insertOrReplaceTextOnCursor(String.format(template, DATE.format(d), TIME.format(d)));
                 return true;
             }
             case "tmaid_common_attach_something": {
