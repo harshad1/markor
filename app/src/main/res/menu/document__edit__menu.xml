@@ -100,6 +100,12 @@
         android:title="@string/wrap_words"
         app:showAsAction="never"
         android:checkable="true"/>
+    <item
+        android:id="@+id/action_keep_screen_on"
+        android:icon="@drawable/ic_screen_lock_portrait_black_24dp"
+        android:title="@string/keep_screen_on"
+        app:showAsAction="never"
+        android:checkable="true"/>
 
     <item
         android:id="@+id/submenu_share"

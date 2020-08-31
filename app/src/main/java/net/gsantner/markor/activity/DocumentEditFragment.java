@@ -31,6 +31,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.HorizontalScrollView;
@@ -79,6 +81,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
     private boolean wrapLines = false;
     private AppSettings _appSettings;
     private MenuItem actionWrapWords;
+    private MenuItem actionKeepScreenOn;
     private HorizontalScrollView hsView;
 
     public static DocumentEditFragment newInstance(Document document) {
@@ -300,6 +303,9 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
             }
         });
 
+        actionKeepScreenOn = menu.findItem(R.id.action_keep_screen_on);
+        actionKeepScreenOn.setChecked(_appSettings.isKeepScreenOn());
+
         actionWrapWords = menu.findItem(R.id.action_wrap_words);
         setWrapState();
     }
@@ -486,6 +492,17 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
                 wrapLines = !wrapLines;
                 setHorizontalScrollMode();
                 setWrapState();
+                return true;
+            }
+            case R.id.action_keep_screen_on: {
+                _appSettings.setKeepScreenOn(!_appSettings.isKeepScreenOn());
+                actionKeepScreenOn.setChecked(_appSettings.isKeepScreenOn());
+                final Window window = getActivity().getWindow();
+                if (_appSettings.isKeepScreenOn()) {
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                } else {
+                    window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                }
                 return true;
             }
         }
@@ -801,6 +818,6 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
     }
 
     public boolean isWrapLines() {
-        return isWrapLines();
+        return wrapLines;
     }
 }
