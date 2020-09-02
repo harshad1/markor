@@ -9,6 +9,7 @@
 #########################################################*/
 package net.gsantner.opoc.util;
 
+import android.text.Editable;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -35,15 +36,36 @@ public final class StringUtils {
         return false;
     }
 
-    public static int getLineStart(CharSequence s, int start) {
+    public static int getWordStart(final CharSequence s, final int start) {
+        return getWordStart(s, start, 0);
+    }
+
+    public static int getWordStart(final CharSequence s, final int start, final int minRange) {
+        return getDelimStart(s, " \n", start, minRange);
+    }
+
+    public static int getLineStart(final CharSequence s, final int start) {
         return getLineStart(s, start, 0);
     }
 
-    public static int getLineStart(CharSequence s, int start, int minRange) {
+    public static int getLineStart(final CharSequence s, final int start, final int minRange) {
+        return getDelimStart(s, "\n", start, minRange);
+    }
+
+    public static boolean containsChar(final CharSequence delims, final char c) {
+        for (int i = 0; i < delims.length(); i++) {
+            if (delims.charAt(i) == c) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static int getDelimStart(final CharSequence s, final CharSequence delims, final int start, final int minRange) {
         int i = start;
         if (isValidIndex(s, start - 1, minRange)) {
             for (; i > minRange; i--) {
-                if (s.charAt(i - 1) == '\n') {
+                if (containsChar(delims, s.charAt(i - 1))) {
                     break;
                 }
             }
@@ -52,15 +74,27 @@ public final class StringUtils {
         return i;
     }
 
-    public static int getLineEnd(CharSequence s, int start) {
+    public static int getWordEnd(final CharSequence s, final int start) {
+        return getWordEnd(s, start, s.length());
+    }
+
+    public static int getWordEnd(final CharSequence s, final int start, final int maxRange) {
+        return getDelimEnd(s, " \n", start, s.length());
+    }
+
+    public static int getLineEnd(final CharSequence s, final int start) {
         return getLineEnd(s, start, s.length());
     }
 
-    public static int getLineEnd(CharSequence s, int start, int maxRange) {
+    public static int getLineEnd(final CharSequence s, final int start, final int maxRange) {
+        return getDelimEnd(s, "\n", start, s.length());
+    }
+
+    public static int getDelimEnd(final CharSequence s, final CharSequence delims, final int start, final int maxRange) {
         int i = start;
         if (isValidIndex(s, start, maxRange - 1)) {
             for (; i < maxRange; i++) {
-                if (s.charAt(i) == '\n') {
+                if (containsChar(delims, s.charAt(i))) {
                     break;
                 }
             }
@@ -192,5 +226,14 @@ public final class StringUtils {
         ArrayList<T> list = new ArrayList<>();
         Collections.addAll(list, array);
         return list;
+    }
+
+    public static int[] getWordSel(final TextView editable) {
+        final CharSequence text = editable.getText();
+        int[] sel = getSelection(editable);
+        return new int[] {
+                getWordStart(text, sel[0]),
+                getWordEnd(text, sel[1])
+        };
     }
 }
