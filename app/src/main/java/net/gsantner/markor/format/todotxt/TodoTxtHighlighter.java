@@ -38,6 +38,8 @@ public class TodoTxtHighlighter extends Highlighter {
                 return editable;
             }
 
+            final boolean isDarkBg = _appSettings.isDarkThemeEnabled();
+
             generalHighlightRun(editable);
             createParagraphStyleSpanForMatches(editable, TodoTxtHighlighterPattern.LINE_OF_TEXT.getPattern(),
                     (matcher, iM) -> new FirstLineTopPaddedParagraphSpan(2f));
@@ -57,7 +59,7 @@ public class TodoTxtHighlighter extends Highlighter {
             createColorSpanForMatches(editable, TodoTxtHighlighterPattern.PRIORITY_F.getPattern(), colors.getPriorityColor(6));
 
             // Date: Match Creation date before completition date
-            createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DATE.getPattern(), colors.getDateColor());
+            createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DATE.getPattern(), colors.getDateColor(isDarkBg));
             createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DUE_DATE.getPattern(), colors.getPriorityColor(1), 1);
             //createColorSpanForMatches(editable, TodoTxtHighlighterPattern.CREATION_DATE.getPattern(), 0xff00ff00);
             //createColorSpanForMatches(editable, TodoTxtHighlighterPattern.COMPLETION_DATE.getPattern(), 0xff0000ff);
@@ -68,7 +70,7 @@ public class TodoTxtHighlighter extends Highlighter {
                     (matcher, iM) -> new HorizontalLineBackgroundParagraphSpan(_hlEditor.getCurrentTextColor(), 0.8f, _hlEditor.getTextSize() / 2f));
 
             // Strike out done tasks (apply no other to-do.txt span format afterwards)
-            createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DONE.getPattern(), colors.getDoneColor());
+            createColorSpanForMatches(editable, TodoTxtHighlighterPattern.DONE.getPattern(), colors.getDoneColor(isDarkBg));
             createSpanWithStrikeThroughForMatches(editable, TodoTxtHighlighterPattern.DONE.getPattern());
 
             // Fix for paragraph padding and horizontal rule

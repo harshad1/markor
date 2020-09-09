@@ -43,12 +43,12 @@ public class TodoTxtHighlighterColors {
         }
     }
 
-    public int getDoneColor() {
-        return 0xFF888888;
+    public int getDoneColor(boolean isDarkBg) {
+        return isDarkBg ? 0x999d9d9d :0x993d3d3d;
     }
 
-    public int getDateColor() {
-        return 0xFF888888;
+    public int getDateColor(boolean isDarkBg) {
+        return isDarkBg ? getDoneColor(isDarkBg) : 0xcc6d6d6d;
     }
 
     public int getCategoryColor() {
