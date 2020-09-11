@@ -135,15 +135,12 @@ public class TodoTxtTextActions extends TextActions {
                 case R.string.tmaid_todotxt_priority: {
                     SearchOrCustomTextDialogCreator.showPriorityDialog(_activity, selTasks[0].getPriority(), (priority) -> {
                         ArrayList<ReplacePattern> patterns = new ArrayList<>();
-                        if (priority.length() == 1) {
-                            final String _priority = String.format("(%c) ", priority.charAt(0));
-                            // If existing priority, replace
-                            patterns.add(new ReplacePattern(TodoTxtTask.PATTERN_PRIORITY_ANY, _priority));
-                            // else if no existing priority, insert at start
-                            patterns.add(new ReplacePattern("^\\s*", _priority));
-                        } else if (priority.equals(_activity.getString(R.string.none))) {
-                            // Replace any priority with nothing
+                        if (priority.length() > 1) {
                             patterns.add(new ReplacePattern(TodoTxtTask.PATTERN_PRIORITY_ANY, ""));
+                        } else if (priority.length() == 1) {
+                            final String _priority = String.format("(%c) ", priority.charAt(0));
+                            patterns.add(new ReplacePattern(TodoTxtTask.PATTERN_PRIORITY_ANY, _priority));
+                            patterns.add(new ReplacePattern("^\\s*", _priority));
                         }
                         runRegexReplaceAction(patterns);
                         trimLeadingWhiteSpace();
