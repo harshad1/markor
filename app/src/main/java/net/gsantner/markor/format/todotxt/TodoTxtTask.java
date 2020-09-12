@@ -274,6 +274,10 @@ public class TodoTxtTask {
 
         @Override
         public int compare(final TodoTxtTask x, final TodoTxtTask y) {
+
+            final int doneCompare = Integer.compare(x.isDone()? 1 : 0, y.isDone()? 1 : 0);
+            if (doneCompare != 0) return doneCompare;
+
             int difference;
             switch (_orderBy) {
                 case BY_PRIORITY: {
@@ -305,7 +309,7 @@ public class TodoTxtTask {
                     break;
                 }
                 default: {
-                    return 0;
+                    difference = 0;
                 }
             }
 
@@ -327,6 +331,10 @@ public class TodoTxtTask {
             final int xi = (x == null || x == "") ? 1 : 0;
             final int yi = (y == null || y == "") ? 1 : 0;
             return Integer.compare(xi, yi);
+        }
+
+        private int compareDone(final TodoTxtTask a, TodoTxtTask b) {
+            return Integer.compare(a.isDone()? 1 : 0, b.isDone()? 1 : 0);
         }
 
         private int compare(final char x, final char y) {
