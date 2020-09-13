@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 //TODO
 public class TodoTxtTextActions extends TextActions {
@@ -57,7 +59,6 @@ public class TodoTxtTextActions extends TextActions {
 
     @Override
     public List<ActionItem> getActiveActionList() {
-
 
         final int projectIcon = _appSettings.isTodoTxtAlternativeNaming() ? R.drawable.ic_local_offer_black_24dp : R.drawable.ic_baseline_add_24;
 
@@ -120,17 +121,11 @@ public class TodoTxtTextActions extends TextActions {
                     return;
                 }
                 case R.string.tmaid_todotxt_add_context: {
-                    final List<String> allContexts = StringUtils.toArrayList(TodoTxtTask.getContexts(TodoTxtTask.getAllTasks(_hlEditor)));
-                    SearchOrCustomTextDialogCreator.showSttContextDialog(_activity, allContexts, (context) -> {
-                        insertUniqueItem((context.charAt(0) == '@') ? context : "@" + context);
-                    });
+                    addContext();
                     return;
                 }
                 case R.string.tmaid_todotxt_add_project: {
-                    final List<String> allProjects = StringUtils.toArrayList(TodoTxtTask.getProjects(TodoTxtTask.getAllTasks(_hlEditor)));
-                    SearchOrCustomTextDialogCreator.showSttProjectDialog(_activity, allProjects, (project) -> {
-                        insertUniqueItem((project.charAt(0) == '+') ? project : "+" + project);
-                    });
+                    addProject();
                     return;
                 }
                 case R.string.tmaid_todotxt_priority: {
@@ -219,40 +214,29 @@ public class TodoTxtTextActions extends TextActions {
                     commonTextActions.runAction(CommonTextActions.ACTION_SPECIAL_KEY);
                     break;
                 }
-                default:
+                default: {
                     runAction(_context.getString(_action));
+                }
             }
         }
 
         @Override
         public boolean onLongClick(View v) {
-            String origText = _hlEditor.getText().toString();
-            final CommonTextActions commonTextActions = new CommonTextActions(_activity, _hlEditor);
-
             switch (_action) {
                 case R.string.tmaid_todotxt_add_context: {
-                    final List<String> allContexts = StringUtils.toArrayList(TodoTxtTask.getContexts(TodoTxtTask.getAllTasks(_hlEditor)));
-                    SearchOrCustomTextDialogCreator.showSttContextListDialog(_activity, allContexts, origText, (callbackPayload) -> {
-                        int cursor = origText.indexOf(callbackPayload);
-                        _hlEditor.setSelection(Math.min(_hlEditor.length(), Math.max(0, cursor)));
-                    });
+                    addContext();
                     return true;
                 }
                 case R.string.tmaid_todotxt_add_project: {
-                    final List<String> allProjects = Arrays.asList(TodoTxtTask.getProjects(TodoTxtTask.getAllTasks(_hlEditor)));
-                    SearchOrCustomTextDialogCreator.showSttProjectListDialog(_activity, allProjects, origText, (callbackPayload) -> {
-                        int cursor = origText.indexOf(callbackPayload);
-                        _hlEditor.setSelection(Math.min(_hlEditor.length(), Math.max(0, cursor)));
-                    });
+                    addProject();
                     return true;
                 }
                 case R.string.tmaid_common_special_key: {
-                    commonTextActions.runAction(CommonTextActions.ACTION_JUMP_BOTTOM_TOP);
+                    new CommonTextActions(_activity, _hlEditor).runAction(CommonTextActions.ACTION_JUMP_BOTTOM_TOP);
                     return true;
                 }
-
                 case R.string.tmaid_common_open_link_browser: {
-                    commonTextActions.runAction(CommonTextActions.ACTION_SEARCH);
+                    normalize();
                     return true;
                 }
                 case R.string.tmaid_todotxt_current_date: {
@@ -262,6 +246,42 @@ public class TodoTxtTextActions extends TextActions {
             }
             return false;
         }
+    }
+
+    private void normalize() {
+        CharSequence text = _hlEditor.getText();
+
+        // Case in context and project
+        final StringBuilder builder = new StringBuilder(text);
+        Matcher match = Pattern.compile("(^|\\s)(\\++|@+)(\\w*)(\\s|$)", Pattern.MULTILINE).matcher(text);
+        while (match.find()) {
+            builder.replace(match.start(3), match.end(3), match.group(3).toLowerCase());
+        }
+        text = builder.toString();
+
+        // Trailing space
+        text = Pattern.compile("\\s+$", Pattern.MULTILINE).matcher(text).replaceAll("");
+
+        // Empty lines
+        text = Pattern.compile("^\\s*$", Pattern.MULTILINE).matcher(text).replaceAll("");
+
+        _hlEditor.setText(text);
+    }
+
+    private void addContext() {
+        final List<String> allContexts = StringUtils.toArrayList(TodoTxtTask.getContexts(TodoTxtTask.getAllTasks(_hlEditor)));
+        SearchOrCustomTextDialogCreator.showSttContextDialog(_activity, allContexts, (context) -> {
+            context = context.trim().toLowerCase();
+            insertUniqueItem((context.charAt(0) == '@') ? context : "@" + context);
+        });
+    }
+
+    private void addProject() {
+        final List<String> allProjects = StringUtils.toArrayList(TodoTxtTask.getProjects(TodoTxtTask.getAllTasks(_hlEditor)));
+        SearchOrCustomTextDialogCreator.showSttProjectDialog(_activity, allProjects, (project) -> {
+            project = project.trim().toLowerCase();
+            insertUniqueItem((project.charAt(0) == '+') ? project : "+" + project);
+        });
     }
 
     private void insertUniqueItem(String item) {

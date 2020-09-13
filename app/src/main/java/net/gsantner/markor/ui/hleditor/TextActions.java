@@ -341,7 +341,7 @@ public abstract class TextActions {
      */
     public static void runRegexReplaceAction(final EditText editor, final List<ReplacePattern> patterns, final boolean matchAll) {
 
-        Editable text = editor.getText();
+        final Editable text = editor.getText();
         int[] selection = StringUtils.getSelection(editor);
         final int[] lStart = StringUtils.getLineOffsetFromIndex(text, selection[0]);
         final int[] lEnd = StringUtils.getLineOffsetFromIndex(text, selection[1]);
@@ -352,10 +352,10 @@ public abstract class TextActions {
         while (lineStart <= selEnd && lineStart <= text.length()) {
 
             int lineEnd = StringUtils.getLineEnd(text, lineStart, selEnd);
-            CharSequence line = text.subSequence(lineStart, lineEnd);
+            final CharSequence line = text.subSequence(lineStart, lineEnd);
 
             for (ReplacePattern pattern : patterns) {
-                Matcher matcher = pattern.searchPattern.matcher(line);
+                final Matcher matcher = pattern.searchPattern.matcher(line);
                 if (matcher.find()) {
 
                     // Optimization. Don't replace if the replace pattern is the pattern itself.
