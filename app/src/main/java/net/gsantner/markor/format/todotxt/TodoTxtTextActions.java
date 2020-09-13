@@ -249,6 +249,9 @@ public class TodoTxtTextActions extends TextActions {
     }
 
     private void normalize() {
+
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+
         CharSequence text = _hlEditor.getText();
 
         // Case in context and project
@@ -266,6 +269,7 @@ public class TodoTxtTextActions extends TextActions {
         text = Pattern.compile("^\\s*$", Pattern.MULTILINE).matcher(text).replaceAll("");
 
         _hlEditor.setText(text);
+        _hlEditor.setSelection(Math.min(sel[0], text.length()), Math.min(sel[1], text.length()));
     }
 
     private void addContext() {
