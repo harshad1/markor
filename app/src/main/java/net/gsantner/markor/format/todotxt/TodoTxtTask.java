@@ -166,7 +166,7 @@ public class TodoTxtTask {
 
     public char getPriority() {
         if (priority == null) {
-            String ret = parseOneValueOrDefault(line, PATTERN_PRIORITY_ANY, "");
+            final String ret = parseOneValueOrDefault(line, PATTERN_PRIORITY_ANY, "");
             if (ret.length() == 1) {
                 priority = ret.charAt(0);
             } else {
@@ -239,18 +239,17 @@ public class TodoTxtTask {
     }
 
     private static String parseOneValueOrDefault(final String text, final Pattern pattern, final int group, final String defaultValue) {
-        for (Matcher m = pattern.matcher(text); m.find(); ) {
-            if (m.groupCount() > group) {
+        for (final Matcher m = pattern.matcher(text); m.find(); ) {
+            if (m.groupCount() >= group) {  // Groups are 1-indexed
                 return m.group(group);
             }
         }
         return defaultValue;
     }
 
-    private static boolean isPatternFindable(String text, Pattern pattern) {
+    private static boolean isPatternFindable(final String text, final Pattern pattern) {
         return pattern.matcher(text).find();
     }
-
 
     // Sort tasks array and return it. Changes input array.
     public static List<TodoTxtTask> sortTasks(List<TodoTxtTask> tasks, final String orderBy, final boolean descending) {
@@ -278,6 +277,7 @@ public class TodoTxtTask {
         @Override
         public int compare(final TodoTxtTask x, final TodoTxtTask y) {
 
+            // Always push done tasks to the bottom. Note ascending is small -> big.
             final int doneCompare = Integer.compare(x.isDone()? 1 : 0, y.isDone()? 1 : 0);
             if (doneCompare != 0) return doneCompare;
 
@@ -355,7 +355,7 @@ public class TodoTxtTask {
         }
 
         private int compare(final String x, final String y) {
-            int n = compareNull(x, y);
+            final int n = compareNull(x, y);
             if (n != 0) {
                 return n;
             } else {
