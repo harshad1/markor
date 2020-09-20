@@ -241,11 +241,7 @@ public final class StringUtils {
         };
     }
 
-    public static void normalize(final EditText editor, final boolean isTodo) {
-
-        final int[] sel = StringUtils.getSelection(editor);
-
-        CharSequence text = editor.getText();
+    public static CharSequence normalize(CharSequence text, final boolean isTodo) {
 
         if (isTodo) {
             // Case in context and project
@@ -275,7 +271,6 @@ public final class StringUtils {
         // Trailing empty lines
         text = Pattern.compile("[\\n\\s]+\\z").matcher(text).replaceAll("");
 
-        editor.setText(text);
-        editor.setSelection(Math.min(sel[0], text.length()), Math.min(sel[1], text.length()));
+        return text;
     }
 }

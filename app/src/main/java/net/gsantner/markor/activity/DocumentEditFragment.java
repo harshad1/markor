@@ -650,10 +650,11 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
     public boolean saveDocument() {
         boolean ret = false;
         if (isAdded() && _hlEditor != null && _hlEditor.getText() != null) {
+            String docText = _hlEditor.getText().toString();
             if (doNormalize) {
-                StringUtils.normalize(_hlEditor, _document.getFormat() == TextFormat.FORMAT_TODOTXT);
+                docText = StringUtils.normalize(docText, _document.getFormat() == TextFormat.FORMAT_TODOTXT).toString();
             }
-            ret = DocumentIO.saveDocument(_document, _hlEditor.getText().toString(), _shareUtil, getContext());
+            ret = DocumentIO.saveDocument(_document, docText, _shareUtil, getContext());
             updateLauncherWidgets();
 
             if (_document != null && _document.getFile() != null) {

@@ -238,7 +238,7 @@ public class TodoTxtTextActions extends TextActions {
                     return true;
                 }
                 case R.string.tmaid_common_open_link_browser: {
-                    StringUtils.normalize(_hlEditor, true);
+                    _hlEditor.setText(StringUtils.normalize(_hlEditor.getText(), true));
                     return true;
                 }
                 case R.string.tmaid_todotxt_current_date: {
