@@ -278,5 +278,4 @@ public final class StringUtils {
         editor.setText(text);
         editor.setSelection(Math.min(sel[0], text.length()), Math.min(sel[1], text.length()));
     }
-
 }
