@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -262,8 +263,14 @@ public final class StringUtils {
             text = Pattern.compile("^\\s*$", Pattern.MULTILINE).matcher(text).replaceAll("");
         }
 
-        // Trailing space
-        text = Pattern.compile("\\s+$", Pattern.MULTILINE).matcher(text).replaceAll("");
+        final String[] inLines = text.toString().split("\\n");
+        final StringBuilder builder = new StringBuilder();
+        final Pattern trailSpace = Pattern.compile("\\s+$");
+        for (String line : inLines) {
+            builder.append(trailSpace.matcher(line).replaceAll(""));
+            builder.append("\n");
+        }
+        text = builder.toString();
 
         // Trailing empty lines
         text = Pattern.compile("[\\n\\s]+\\z").matcher(text).replaceAll("");
