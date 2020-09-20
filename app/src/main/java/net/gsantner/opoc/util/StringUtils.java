@@ -10,12 +10,15 @@
 package net.gsantner.opoc.util;
 
 import android.text.Editable;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class StringUtils {
 
@@ -236,4 +239,37 @@ public final class StringUtils {
                 getWordEnd(text, sel[1])
         };
     }
+
+    public static void normalize(final EditText editor, final boolean isTodo) {
+
+        final int[] sel = StringUtils.getSelection(editor);
+
+        CharSequence text = editor.getText();
+
+        if (isTodo) {
+            // Case in context and project
+            final StringBuilder builder = new StringBuilder(text);
+            Matcher match = Pattern.compile("(^|\\s)(\\++|@+)(\\w*)(\\s|$)", Pattern.MULTILINE).matcher(text);
+            while (match.find()) {
+                builder.replace(match.start(3), match.end(3), match.group(3).toLowerCase());
+            }
+            text = builder.toString();
+
+            // Remove multiple spaces
+            text = Pattern.compile("\\s{2,}", Pattern.MULTILINE).matcher(text).replaceAll(" ");
+
+            // Empty lines
+            text = Pattern.compile("^\\s*$", Pattern.MULTILINE).matcher(text).replaceAll("");
+        }
+
+        // Trailing space
+        text = Pattern.compile("\\s+$", Pattern.MULTILINE).matcher(text).replaceAll("");
+
+        // Trailing empty lines
+        text = Pattern.compile("[\\n\\s]+\\z").matcher(text).replaceAll("");
+
+        editor.setText(text);
+        editor.setSelection(Math.min(sel[0], text.length()), Math.min(sel[1], text.length()));
+    }
+
 }

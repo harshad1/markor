@@ -62,6 +62,7 @@ import net.gsantner.opoc.preference.FontPreferenceCompat;
 import net.gsantner.opoc.ui.FilesystemViewerData;
 import net.gsantner.opoc.util.ActivityUtils;
 import net.gsantner.opoc.util.CoolExperimentalStuff;
+import net.gsantner.opoc.util.StringUtils;
 import net.gsantner.opoc.util.TextViewUndoRedo;
 
 import java.io.File;
@@ -79,8 +80,10 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
     private static final String SAVESTATE_PREVIEW_ON = "SAVESTATE_PREVIEW_ON";
 
     private boolean wrapLines = false;
+    private boolean doNormalize = false;
     private AppSettings _appSettings;
     private MenuItem actionWrapWords;
+    private MenuItem actionNormalize;
     private MenuItem actionKeepScreenOn;
     private HorizontalScrollView hsView;
 
@@ -234,7 +237,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         }
 
         // Set initial wrap state
-        initWrapState();
+        initDocState();
     }
 
 
@@ -307,7 +310,8 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         actionKeepScreenOn.setChecked(_appSettings.isKeepScreenOn());
 
         actionWrapWords = menu.findItem(R.id.action_wrap_words);
-        setWrapState();
+        actionNormalize = menu.findItem(R.id.action_normalize);
+        setDocState();
     }
 
     public void loadDocumentIntoUi() {
@@ -491,7 +495,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
             case R.id.action_wrap_words: {
                 wrapLines = !wrapLines;
                 setHorizontalScrollMode();
-                setWrapState();
+                setDocState();
                 return true;
             }
             case R.id.action_keep_screen_on: {
@@ -503,6 +507,11 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
                 } else {
                     window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 }
+                return true;
+            }
+            case R.id.action_normalize: {
+                doNormalize = !doNormalize;
+                setDocState();
                 return true;
             }
         }
@@ -571,15 +580,19 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         fragmentView.findViewById(R.id.document__fragment__edit__text_actions_bar__scrolling_parent).setBackgroundColor(_appSettings.getEditorTextactionBarColor());
     }
 
-    private void initWrapState() {
+    private void initDocState() {
         wrapLines = _appSettings.getDocumentWrapState(getPath());
-        setWrapState();
+        doNormalize = _appSettings.getDocumentNormalize(getPath());
+        setDocState();
         setHorizontalScrollMode();
     }
 
-    private void setWrapState() {
+    private void setDocState() {
         if (actionWrapWords != null) {
             actionWrapWords.setChecked(wrapLines);
+        }
+        if (actionNormalize != null) {
+            actionNormalize.setChecked(doNormalize);
         }
     }
 
@@ -637,6 +650,9 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
     public boolean saveDocument() {
         boolean ret = false;
         if (isAdded() && _hlEditor != null && _hlEditor.getText() != null) {
+            if (doNormalize) {
+                StringUtils.normalize(_hlEditor, _document.getFormat() == TextFormat.FORMAT_TODOTXT);
+            }
             ret = DocumentIO.saveDocument(_document, _hlEditor.getText().toString(), _shareUtil, getContext());
             updateLauncherWidgets();
 
@@ -644,6 +660,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
                 AppSettings settings = new AppSettings(getContext());
                 settings.setLastEditPosition(_document.getFile(), _hlEditor.getSelectionStart(), _hlEditor.getTop());
                 settings.setDocumentWrapState(getPath(), wrapLines);
+                settings.setDocumentNormalize(getPath(), doNormalize);
             }
         }
         return ret;
@@ -703,7 +720,7 @@ public class DocumentEditFragment extends GsFragmentBase implements TextFormat.T
         }
 
         if (isVisibleToUser) {
-            initWrapState();
+            initDocState();
         }
     }
 

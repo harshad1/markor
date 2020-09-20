@@ -72,7 +72,7 @@ public class ListHandler implements TextWatcher {
         beforeLineEnd = StringUtils.getLineEnd(s, start);
     }
 
-    private boolean containsNewline(CharSequence s, int start, int count) {
+    private boolean containsNewline(final CharSequence s, final int start, final int count) {
         final int end = start + count;
         for (int i = start; i < end; i++) {
             if (s.charAt(i) == '\n') {

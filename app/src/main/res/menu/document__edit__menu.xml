@@ -96,8 +96,14 @@
         app:showAsAction="never" />
     <item
         android:id="@+id/action_wrap_words"
-        android:icon="@drawable/ic_save_black_24dp"
+        android:icon="@drawable/ic_baseline_wrap_text_24"
         android:title="@string/wrap_words"
+        app:showAsAction="never"
+        android:checkable="true"/>
+    <item
+        android:id="@+id/action_normalize"
+        android:icon="@drawable/ic_baseline_format_paint_24"
+        android:title="Normalize"
         app:showAsAction="never"
         android:checkable="true"/>
     <item

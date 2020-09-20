@@ -19,6 +19,8 @@ import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.general.CommonTextActions;
@@ -144,7 +146,7 @@ public class TodoTxtTextActions extends TextActions {
                     return;
                 }
                 case R.string.tmaid_todotxt_current_date: {
-                    setDueDate(3);
+                    setDueDate(0);
                     return;
                 }
                 case R.string.tmaid_todotxt_archive_done_tasks: {
@@ -236,7 +238,7 @@ public class TodoTxtTextActions extends TextActions {
                     return true;
                 }
                 case R.string.tmaid_common_open_link_browser: {
-                    normalize();
+                    StringUtils.normalize(_hlEditor, true);
                     return true;
                 }
                 case R.string.tmaid_todotxt_current_date: {
@@ -246,30 +248,6 @@ public class TodoTxtTextActions extends TextActions {
             }
             return false;
         }
-    }
-
-    private void normalize() {
-
-        final int[] sel = StringUtils.getSelection(_hlEditor);
-
-        CharSequence text = _hlEditor.getText();
-
-        // Case in context and project
-        final StringBuilder builder = new StringBuilder(text);
-        Matcher match = Pattern.compile("(^|\\s)(\\++|@+)(\\w*)(\\s|$)", Pattern.MULTILINE).matcher(text);
-        while (match.find()) {
-            builder.replace(match.start(3), match.end(3), match.group(3).toLowerCase());
-        }
-        text = builder.toString();
-
-        // Trailing space
-        text = Pattern.compile("\\s+$", Pattern.MULTILINE).matcher(text).replaceAll("");
-
-        // Empty lines
-        text = Pattern.compile("^\\s*$", Pattern.MULTILINE).matcher(text).replaceAll("");
-
-        _hlEditor.setText(text);
-        _hlEditor.setSelection(Math.min(sel[0], text.length()), Math.min(sel[1], text.length()));
     }
 
     private void addContext() {

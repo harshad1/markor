@@ -347,6 +347,7 @@ public class AppSettings extends SharedPreferencesPropertyBackend {
     private static final String PREF_PREFIX_EDIT_POS_CHAR = "PREF_PREFIX_EDIT_POS_CHAR";
     private static final String PREF_PREFIX_EDIT_POS_SCROLL = "PREF_PREFIX_EDIT_POS_SCROLL";
     private static final String PREF_PREFIX_WRAP_STATE = "PREF_PREFIX_WRAP_STATE";
+    private static final String PREF_PREFIX_NORMALIZE_STATE = "PREF_PREFIX_NORMALIZE_STATE";
 
     public void setLastEditPosition(File file, int pos, int scrolloffset) {
         if (file == null || !file.exists()) {
@@ -356,6 +357,14 @@ public class AppSettings extends SharedPreferencesPropertyBackend {
             setInt(PREF_PREFIX_EDIT_POS_CHAR + file.getAbsolutePath(), pos, _prefCache);
             setInt(PREF_PREFIX_EDIT_POS_SCROLL + file.getAbsolutePath(), scrolloffset, _prefCache);
         }
+    }
+
+    public void setDocumentNormalize(final String path, final boolean state) {
+        setBool(PREF_PREFIX_NORMALIZE_STATE + path, state);
+    }
+
+    public boolean getDocumentNormalize(final String path) {
+        return getBool(PREF_PREFIX_NORMALIZE_STATE + path, true);
     }
 
     public void setDocumentWrapState(final String path, final boolean state) {
