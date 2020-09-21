@@ -482,7 +482,7 @@ public abstract class TextActions {
         _activity.runOnUiThread(() -> _hlEditor.setText(text));
     }
 
-    protected boolean runCommonTextAction(String action) {
+    protected boolean runCommonTextAction(final String action) {
         switch (action) {
             case "tmaid_common_next_line": {
                 // Go to end of line, works with wrapped lines too
@@ -506,7 +506,6 @@ public abstract class TextActions {
                 DatetimeFormatDialog.showDatetimeFormatDialog(getActivity(), _hlEditor);
                 return true;
             }
-
             case "tmaid_common_time_insert_timestamp": {
                 try {
                     _hlEditor.insertOrReplaceTextOnCursor(new SimpleDateFormat(_appSettings.getString(DatetimeFormatDialog.class.getCanonicalName() + ".lastusedformat", ""), Locale.getDefault()).format(new Date()).replace("\\n", "\n"));

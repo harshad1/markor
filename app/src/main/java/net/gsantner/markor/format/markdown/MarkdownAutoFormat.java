@@ -192,9 +192,9 @@ public class MarkdownAutoFormat implements InputFilter {
         public UnOrderedListLine(CharSequence text, int position) {
             super(text, position);
 
+            final Matcher uMatch = MarkdownTextActions.PREFIX_UNORDERED_LIST.matcher(line);
             final Matcher ucMatch = MarkdownTextActions.PREFIX_UNCHECKED_LIST.matcher(line);
             final Matcher cMatch = MarkdownTextActions.PREFIX_CHECKED_LIST.matcher(line);
-            final Matcher uMatch = MarkdownTextActions.PREFIX_UNORDERED_LIST.matcher(line);
             final Matcher dMatch = MarkdownTextActions.PREFIX_DATETIME_LIST.matcher(line);
             final Matcher tMatch = MarkdownTextActions.PREFIX_TIME_LIST.matcher(line);
 

@@ -19,8 +19,6 @@ import android.support.v4.app.FragmentActivity;
 import android.text.Editable;
 import android.view.HapticFeedbackConstants;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.general.CommonTextActions;
@@ -39,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 //TODO
 public class TodoTxtTextActions extends TextActions {

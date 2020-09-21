@@ -10,7 +10,12 @@
 package net.gsantner.markor.format.markdown;
 
 import android.app.Activity;
+import android.app.TimePickerDialog;
+import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
+import android.text.Editable;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.View;
@@ -18,6 +23,7 @@ import android.widget.Toast;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.general.CommonTextActions;
+import net.gsantner.markor.format.general.DatetimeFormatDialog;
 import net.gsantner.markor.model.Document;
 import net.gsantner.markor.ui.AttachImageOrLinkDialog;
 import net.gsantner.markor.ui.SearchOrCustomTextDialogCreator;
@@ -28,8 +34,12 @@ import net.gsantner.opoc.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.TIME;
 
 public class MarkdownTextActions extends TextActions {
 
@@ -41,7 +51,7 @@ public class MarkdownTextActions extends TextActions {
     public static final Pattern PREFIX_UNORDERED_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s)");
     public static final Pattern PREFIX_LEADING_SPACE = Pattern.compile("^(\\s*)");
     public static final Pattern PREFIX_DATETIME_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}\\s)");
-    public static final Pattern PREFIX_TIME_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s\\d{2}:\\d{2}\\s)");
+    public static final Pattern PREFIX_TIME_LIST = Pattern.compile("^(\\s*)((-|\\*|\\+)\\s(\\d{2}):(\\d{2})\\s)");
 
     private static final Pattern[] PREFIX_PATTERNS = {
             PREFIX_ORDERED_LIST,
@@ -204,6 +214,10 @@ public class MarkdownTextActions extends TextActions {
                     runRenumberOrderedListIfRequired();
                     return true;
                 }
+                case R.string.tmaid_common_time: {
+                    insertDateTimeStamp();
+                    return true;
+                }
                 default: {
                     return runCommonTextAction(_context.getString(_action));
                 }
@@ -228,7 +242,7 @@ public class MarkdownTextActions extends TextActions {
                     return true;
                 }
                 case R.string.tmaid_common_time: {
-                    runCommonTextAction("tmaid_common_time_insert_timestamp");
+                    DatetimeFormatDialog.showDatetimeFormatDialog(getActivity(), _hlEditor);
                     return true;
                 }
                 case R.string.tmaid_markdown_table_insert_columns: {
@@ -326,6 +340,117 @@ public class MarkdownTextActions extends TextActions {
     private void runRenumberOrderedListIfRequired() {
         if (_appSettings.isMarkdownAutoUpdateList()) {
             MarkdownAutoFormat.renumberOrderedList(_hlEditor.getText(), StringUtils.getSelection(_hlEditor)[0]);
+        }
+    }
+
+    private void insertDateTimeStamp() {
+        final int[] sel = StringUtils.getSelection(_hlEditor);
+        final Editable text = _hlEditor.getText();
+
+        final boolean[] set = new boolean[1];
+        set[0] = false;
+
+        if (StringUtils.getLineEnd(text, sel[0]) == StringUtils.getLineEnd(text, sel[1])) {
+
+            final MarkdownAutoFormat.UnOrderedListLine line = new MarkdownAutoFormat.UnOrderedListLine(text, sel[0]);
+
+            if (line.isTimeList && !line.isDateTimeList) {
+
+                final TimePickerDialog.OnTimeSetListener listener = (_view, hour, minute) -> {
+                    final Calendar fmtCal = Calendar.getInstance();
+                    fmtCal.set(0, 0, 0, hour, minute);
+                    final String newLog = String.format("%c %s ", line.listChar, TIME.format(fmtCal.getTime()));
+                    text.replace(line.groupStart, line.groupEnd, newLog);
+                    set[0] = true;
+                };
+
+                // Parse current date
+                final Calendar fmtCal = Calendar.getInstance();
+                final Matcher match = PREFIX_TIME_LIST.matcher(line.line);
+                if (match.find()) {
+                    final int hour = Integer.parseInt(match.group(4)), minute = Integer.parseInt(match.group(5));
+                    fmtCal.set(0, 0, 0, hour, minute);
+                }
+
+                new TimeFragment()
+                        .setActivity(_activity)
+                        .setListener(listener)
+                        .setCalendar(fmtCal)
+                        .setMessage(_context.getString(R.string.due_date))
+                        .show(((FragmentActivity) _activity).getSupportFragmentManager(), "log_time");
+            }
+        }
+        if (!set[0]) {
+            runCommonTextAction("tmaid_common_time_insert_timestamp");
+        }
+    }
+
+    /**
+     * A DialogFragment to manage showing a DatePicker
+     * Must be public and have default constructor.
+     */
+    public static class TimeFragment extends DialogFragment {
+
+        private TimePickerDialog.OnTimeSetListener _listener;
+
+        private Activity _activity;
+        private int _hour;
+        private int _minute;
+        private String _message;
+
+        public TimeFragment() {
+            super();
+            setCalendar(Calendar.getInstance());
+        }
+
+        public TimeFragment setListener(TimePickerDialog.OnTimeSetListener listener) {
+            _listener = listener;
+            return this;
+        }
+
+        public TimeFragment setActivity(Activity activity) {
+            _activity = activity;
+            return this;
+        }
+
+        public TimeFragment setHour(int hour) {
+            _hour = hour;
+            return this;
+        }
+
+        public TimeFragment setMinute(int minute) {
+            _minute = minute;
+            return this;
+        }
+
+        public TimeFragment setMessage(String message) {
+            _message = message;
+            return this;
+        }
+
+        public TimeFragment setCalendar(final Calendar calendar) {
+            setHour(calendar.get(Calendar.HOUR_OF_DAY));
+            setMinute(calendar.get(Calendar.MINUTE));
+            return this;
+        }
+
+        @Override
+        public TimePickerDialog onCreateDialog(Bundle savedInstanceState) {
+            super.onCreateDialog(savedInstanceState);
+
+            TimePickerDialog dialog = new TimePickerDialog(
+                    _activity,
+                    TimePickerDialog.THEME_HOLO_DARK,
+                    _listener,
+                    _hour,
+                    _minute,
+                    true);
+
+            if (_message != null && !_message.isEmpty()) {
+                dialog.setMessage(_message);
+            }
+
+            return dialog;
         }
     }
 }
