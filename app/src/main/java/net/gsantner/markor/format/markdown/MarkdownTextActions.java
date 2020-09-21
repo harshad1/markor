@@ -215,7 +215,9 @@ public class MarkdownTextActions extends TextActions {
                     return true;
                 }
                 case R.string.tmaid_common_time: {
-                    insertDateTimeStamp();
+                    if (!insertDateTimeStamp()) {
+                        runCommonTextAction("tmaid_common_time_insert_timestamp");
+                    }
                     return true;
                 }
                 default: {
@@ -241,10 +243,6 @@ public class MarkdownTextActions extends TextActions {
                     _hlEditor.setSelection(pos + 48);
                     return true;
                 }
-                case R.string.tmaid_common_time: {
-                    DatetimeFormatDialog.showDatetimeFormatDialog(getActivity(), _hlEditor);
-                    return true;
-                }
                 case R.string.tmaid_markdown_table_insert_columns: {
                     SearchOrCustomTextDialogCreator.showInsertTableRowDialog(_activity, true, callbackInsertTableRow);
                     break;
@@ -259,8 +257,13 @@ public class MarkdownTextActions extends TextActions {
                     Toast.makeText(_activity, R.string.code_block, Toast.LENGTH_SHORT).show();
                     return true;
                 }
+                case R.string.tmaid_common_time: {
+                    DatetimeFormatDialog.showDatetimeFormatDialog(getActivity(), _hlEditor);
+                    return true;
+                }
                 case R.string.tmaid_common_ordered_list_number: {
                     MarkdownAutoFormat.renumberOrderedList(_hlEditor.getText(), StringUtils.getSelection(_hlEditor)[0]);
+                    return true;
                 }
             }
             return false;
@@ -343,12 +346,9 @@ public class MarkdownTextActions extends TextActions {
         }
     }
 
-    private void insertDateTimeStamp() {
+    private boolean insertDateTimeStamp() {
         final int[] sel = StringUtils.getSelection(_hlEditor);
         final Editable text = _hlEditor.getText();
-
-        final boolean[] set = new boolean[1];
-        set[0] = false;
 
         if (StringUtils.getLineEnd(text, sel[0]) == StringUtils.getLineEnd(text, sel[1])) {
 
@@ -361,7 +361,6 @@ public class MarkdownTextActions extends TextActions {
                     fmtCal.set(0, 0, 0, hour, minute);
                     final String newLog = String.format("%c %s ", line.listChar, TIME.format(fmtCal.getTime()));
                     text.replace(line.groupStart, line.groupEnd, newLog);
-                    set[0] = true;
                 };
 
                 // Parse current date
@@ -378,11 +377,11 @@ public class MarkdownTextActions extends TextActions {
                         .setCalendar(fmtCal)
                         .setMessage(_context.getString(R.string.due_date))
                         .show(((FragmentActivity) _activity).getSupportFragmentManager(), "log_time");
+
+                return true;
             }
         }
-        if (!set[0]) {
-            runCommonTextAction("tmaid_common_time_insert_timestamp");
-        }
+        return false;
     }
 
     /**
