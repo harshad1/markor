@@ -165,6 +165,7 @@ public class HighlightingEditor extends AppCompatEditText {
                 e.printStackTrace();
             }
             if (MainActivity.IS_DEBUG_ENABLED) {
+                AppSettings.appendDebugLog(_hl._profiler.resetDebugText());
                 AppSettings.appendDebugLog("Finished highlighting");
             }
             _modified = true;
