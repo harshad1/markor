@@ -24,7 +24,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -161,7 +160,7 @@ public class NetworkUtils {
             if (data != null && !data.isEmpty()) {
                 connection.setDoOutput(true);
                 final OutputStream output = connection.getOutputStream();
-                output.write(data.getBytes(StandardCharsets.UTF_8));
+                output.write(data.getBytes(Charset.forName(UTF8)));
                 output.flush();
                 output.close();
             }
