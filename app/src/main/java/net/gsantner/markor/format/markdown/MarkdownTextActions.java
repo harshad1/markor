@@ -439,7 +439,6 @@ public class MarkdownTextActions extends TextActions {
 
             TimePickerDialog dialog = new TimePickerDialog(
                     _activity,
-                    TimePickerDialog.THEME_HOLO_DARK,
                     _listener,
                     _hour,
                     _minute,
