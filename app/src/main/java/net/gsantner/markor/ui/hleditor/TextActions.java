@@ -9,6 +9,7 @@
 #########################################################*/
 package net.gsantner.markor.ui.hleditor;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -38,6 +39,7 @@ import net.gsantner.opoc.util.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,9 +47,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.WEEKDAY;
 import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.DATE;
 import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.TIME;
 
@@ -515,9 +519,24 @@ public abstract class TextActions {
             }
             case "tmaid_common_accordion": {
                 // Replaced accordion with my log template
-                final Date d = new Date();
-                final String template = "\n# %s\n\n## Objectives\n- [ ]\n\n## Log\n- %s ";
-                _hlEditor.insertOrReplaceTextOnCursor(String.format(template, DATE.format(d), TIME.format(d)));
+                final Calendar now = Calendar.getInstance();
+                final Calendar sixty = Calendar.getInstance();
+                sixty.set(2047, Calendar.SEPTEMBER, 16);
+                final long diff = TimeUnit.MILLISECONDS.toDays(sixty.getTimeInMillis() - now.getTimeInMillis());
+                @SuppressLint("DefaultLocale") final String template = (
+                        String.format("\n# %s %s, %d days left", DATE.format(now.getTime()), WEEKDAY.format(now.getTime()), diff)
+                        + "\n\n## Review"
+                        + "\n\n__What went well today?__"
+                        + "\n\n__What didn't go well today?__"
+                        + "\n\n__What am I grateful for?__"
+                        + "\n\n__How can I use this insight to be smarter tomorrow?__"
+                        + "\n\n## Objectives"
+                        + "\n\n### Home\n- [ ]"
+                        + "\n\n### Work\n- [ ]"
+                        + "\n\n### Log"
+                        + String.format("\n- %s", TIME.format(now.getTime()))
+                );
+                _hlEditor.insertOrReplaceTextOnCursor(String.format(template, template));
                 return true;
             }
             case "tmaid_common_attach_something": {

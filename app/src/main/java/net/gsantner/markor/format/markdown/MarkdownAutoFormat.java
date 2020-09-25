@@ -28,6 +28,7 @@ public class MarkdownAutoFormat implements InputFilter {
     public static final SimpleDateFormat TIME = new SimpleDateFormat("HH:mm", Locale.ROOT);
     public static final SimpleDateFormat DATE_TIME = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.ROOT);
     public static final SimpleDateFormat DATE = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+    public static final SimpleDateFormat WEEKDAY = new SimpleDateFormat("EEEE", Locale.ROOT);
 
     @Override
     public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {

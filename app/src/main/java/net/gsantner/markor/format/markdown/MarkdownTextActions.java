@@ -11,6 +11,7 @@ package net.gsantner.markor.format.markdown;
 
 import android.app.Activity;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.app.DialogFragment;
@@ -19,6 +20,7 @@ import android.text.Editable;
 import android.view.HapticFeedbackConstants;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 import net.gsantner.markor.R;
@@ -361,6 +363,8 @@ public class MarkdownTextActions extends TextActions {
                     fmtCal.set(0, 0, 0, hour, minute);
                     final String newLog = String.format("%c %s ", line.listChar, TIME.format(fmtCal.getTime()));
                     text.replace(line.groupStart, line.groupEnd, newLog);
+                    InputMethodManager imm = (InputMethodManager) _activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.showSoftInput(_hlEditor, InputMethodManager.SHOW_FORCED);
                 };
 
                 // Parse current date
