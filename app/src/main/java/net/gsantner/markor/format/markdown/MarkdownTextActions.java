@@ -267,6 +267,10 @@ public class MarkdownTextActions extends TextActions {
                     MarkdownAutoFormat.renumberOrderedList(_hlEditor.getText(), StringUtils.getSelection(_hlEditor)[0]);
                     return true;
                 }
+                case R.string.tmaid_common_checkbox_list: {
+                    _hlEditor.insertOrReplaceTextOnCursor("<input type=\"checkbox\">");
+                    return true;
+                }
             }
             return false;
         }

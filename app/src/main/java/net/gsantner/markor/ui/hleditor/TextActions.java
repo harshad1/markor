@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.general.CommonTextActions;
@@ -241,6 +242,9 @@ public abstract class TextActions {
                 return false;
             });
         }
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lp.setMargins(-12, lp.topMargin, -12, lp.bottomMargin);
+        btn.setLayoutParams(lp);
         btn.setPadding(_textActionSidePadding, btn.getPaddingTop(), _textActionSidePadding, btn.getPaddingBottom());
 
         boolean isDarkTheme = AppSettings.get().isDarkThemeEnabled();
@@ -531,10 +535,10 @@ public abstract class TextActions {
                         + "\n\n__What am I grateful for?__"
                         + "\n\n__How can I use this insight to be smarter tomorrow?__"
                         + "\n\n## Objectives"
-                        + "\n\n### Home\n- [ ]"
-                        + "\n\n### Work\n- [ ]"
+                        + "\n\n### Home\n- [ ] "
+                        + "\n\n### Work\n- [ ] "
                         + "\n\n### Log"
-                        + String.format("\n- %s", TIME.format(now.getTime()))
+                        + String.format("\n- %s ", TIME.format(now.getTime()))
                 );
                 _hlEditor.insertOrReplaceTextOnCursor(String.format(template, template));
                 return true;
