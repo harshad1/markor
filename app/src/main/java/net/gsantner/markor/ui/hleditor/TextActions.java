@@ -537,7 +537,7 @@ public abstract class TextActions {
                         + "\n\n## Objectives"
                         + "\n\n### Home\n- [ ] "
                         + "\n\n### Work\n- [ ] "
-                        + "\n\n### Log"
+                        + "\n\n## Log"
                         + String.format("\n- %s ", TIME.format(now.getTime()))
                 );
                 _hlEditor.insertOrReplaceTextOnCursor(String.format(template, template));
