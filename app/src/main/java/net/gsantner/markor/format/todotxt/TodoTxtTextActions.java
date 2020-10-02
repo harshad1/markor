@@ -29,6 +29,7 @@ import net.gsantner.markor.util.AppSettings;
 import net.gsantner.markor.util.DocumentIO;
 import net.gsantner.markor.util.ShareUtil;
 import net.gsantner.opoc.util.FileUtils;
+import net.gsantner.opoc.util.NanoProfiler;
 import net.gsantner.opoc.util.StringUtils;
 
 import java.io.File;
