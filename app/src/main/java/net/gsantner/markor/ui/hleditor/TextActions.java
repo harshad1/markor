@@ -9,7 +9,6 @@
 #########################################################*/
 package net.gsantner.markor.ui.hleditor;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -25,7 +24,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.general.CommonTextActions;
@@ -40,7 +38,7 @@ import net.gsantner.opoc.util.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,13 +46,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.WEEKDAY;
-import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.DATE;
-import static net.gsantner.markor.format.markdown.MarkdownAutoFormat.TIME;
 
 
 @SuppressWarnings({"WeakerAccess", "UnusedReturnValue"})
@@ -242,9 +235,6 @@ public abstract class TextActions {
                 return false;
             });
         }
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lp.setMargins(-12, lp.topMargin, -12, lp.bottomMargin);
-        btn.setLayoutParams(lp);
         btn.setPadding(_textActionSidePadding, btn.getPaddingTop(), _textActionSidePadding, btn.getPaddingBottom());
 
         boolean isDarkTheme = AppSettings.get().isDarkThemeEnabled();
@@ -349,7 +339,7 @@ public abstract class TextActions {
      */
     public static void runRegexReplaceAction(final EditText editor, final List<ReplacePattern> patterns, final boolean matchAll) {
 
-        final Editable text = editor.getText();
+        Editable text = editor.getText();
         int[] selection = StringUtils.getSelection(editor);
         final int[] lStart = StringUtils.getLineOffsetFromIndex(text, selection[0]);
         final int[] lEnd = StringUtils.getLineOffsetFromIndex(text, selection[1]);
@@ -360,10 +350,10 @@ public abstract class TextActions {
         while (lineStart <= selEnd && lineStart <= text.length()) {
 
             int lineEnd = StringUtils.getLineEnd(text, lineStart, selEnd);
-            final CharSequence line = text.subSequence(lineStart, lineEnd);
+            CharSequence line = text.subSequence(lineStart, lineEnd);
 
             for (ReplacePattern pattern : patterns) {
-                final Matcher matcher = pattern.searchPattern.matcher(line);
+                Matcher matcher = pattern.searchPattern.matcher(line);
                 if (matcher.find()) {
 
                     // Optimization. Don't replace if the replace pattern is the pattern itself.
@@ -490,7 +480,7 @@ public abstract class TextActions {
         _activity.runOnUiThread(() -> _hlEditor.setText(text));
     }
 
-    protected boolean runCommonTextAction(final String action) {
+    protected boolean runCommonTextAction(String action) {
         switch (action) {
             case "tmaid_common_next_line": {
                 // Go to end of line, works with wrapped lines too
@@ -514,6 +504,7 @@ public abstract class TextActions {
                 DatetimeFormatDialog.showDatetimeFormatDialog(getActivity(), _hlEditor);
                 return true;
             }
+
             case "tmaid_common_time_insert_timestamp": {
                 try {
                     _hlEditor.insertOrReplaceTextOnCursor(new SimpleDateFormat(_appSettings.getString(DatetimeFormatDialog.class.getCanonicalName() + ".lastusedformat", ""), Locale.getDefault()).format(new Date()).replace("\\n", "\n"));
@@ -522,25 +513,7 @@ public abstract class TextActions {
                 return true;
             }
             case "tmaid_common_accordion": {
-                // Replaced accordion with my log template
-                final Calendar now = Calendar.getInstance();
-                final Calendar sixty = Calendar.getInstance();
-                sixty.set(2047, Calendar.SEPTEMBER, 16);
-                final long diff = TimeUnit.MILLISECONDS.toDays(sixty.getTimeInMillis() - now.getTimeInMillis());
-                @SuppressLint("DefaultLocale") final String template = (
-                        String.format("\n# %s %s, %d days left", DATE.format(now.getTime()), WEEKDAY.format(now.getTime()), diff)
-                        + "\n\n## Review"
-                        + "\n\n__What went well today?__"
-                        + "\n\n__What didn't go well today?__"
-                        + "\n\n__What am I grateful for?__"
-                        + "\n\n__How can I use this insight to be smarter tomorrow?__"
-                        + "\n\n## Objectives"
-                        + "\n\n### Home\n- [ ] "
-                        + "\n\n### Work\n- [ ] "
-                        + "\n\n## Log"
-                        + String.format("\n- %s ", TIME.format(now.getTime()))
-                );
-                _hlEditor.insertOrReplaceTextOnCursor(String.format(template, template));
+                _hlEditor.insertOrReplaceTextOnCursor("<details markdown='1'><summary>" + _context.getString(R.string.expand_collapse) + "</summary>\n" + HighlightingEditor.PLACE_CURSOR_HERE_TOKEN + "\n\n</details>");
                 return true;
             }
             case "tmaid_common_attach_something": {
