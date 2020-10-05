@@ -96,12 +96,12 @@ public class MarkdownTextActions extends TextActions {
                 new ActionItem(R.string.tmaid_markdown_h3, R.drawable.format_header_3, R.string.heading_3),
                 new ActionItem(R.string.tmaid_markdown_horizontal_line, R.drawable.ic_more_horiz_black_24dp, R.string.horizontal_line),
                 new ActionItem(R.string.tmaid_markdown_strikeout, R.drawable.ic_format_strikethrough_black_24dp, R.string.strikeout),
+                new ActionItem(R.string.tmaid_common_accordion, R.drawable.ic_arrow_drop_down_black_24dp, R.string.accordion),
                 new ActionItem(R.string.tmaid_common_indent, R.drawable.ic_format_indent_increase_black_24dp, R.string.indent),
                 new ActionItem(R.string.tmaid_common_deindent, R.drawable.ic_format_indent_decrease_black_24dp, R.string.deindent),
                 new ActionItem(R.string.tmaid_common_next_line, R.drawable.ic_baseline_keyboard_return_24, R.string.next_line),
                 new ActionItem(R.string.tmaid_common_move_text_one_line_up, R.drawable.ic_baseline_arrow_upward_24, R.string.move_text_one_line_up),
                 new ActionItem(R.string.tmaid_common_move_text_one_line_down, R.drawable.ic_baseline_arrow_downward_24, R.string.move_text_one_line_down),
-                new ActionItem(R.string.tmaid_common_accordion, R.drawable.ic_arrow_drop_down_black_24dp, R.string.accordion),
         };
 
         return Arrays.asList(TMA_ACTIONS);
@@ -202,10 +202,6 @@ public class MarkdownTextActions extends TextActions {
                     runRenumberOrderedListIfRequired();
                     return true;
                 }
-                case R.string.tmaid_common_time: {
-                    runCommonTextAction("tmaid_common_time_insert_timestamp");
-                    return true;
-                }
                 default: {
                     return runCommonTextAction(_context.getString(_action));
                 }
@@ -229,9 +225,13 @@ public class MarkdownTextActions extends TextActions {
                     _hlEditor.setSelection(pos + 48);
                     return true;
                 }
+                case R.string.tmaid_common_time: {
+                    runCommonTextAction("tmaid_common_time_insert_timestamp");
+                    return true;
+                }
                 case R.string.tmaid_markdown_table_insert_columns: {
                     SearchOrCustomTextDialogCreator.showInsertTableRowDialog(_activity, true, callbackInsertTableRow);
-                    break;
+                    return true;
                 }
                 case R.string.tmaid_markdown_code_inline: {
                     _hlEditor.disableHighlighterAutoFormat();
@@ -241,10 +241,6 @@ public class MarkdownTextActions extends TextActions {
                     _hlEditor.setSelection(c + "\n```\n".length());
                     _hlEditor.enableHighlighterAutoFormat();
                     Toast.makeText(_activity, R.string.code_block, Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                case R.string.tmaid_common_time: {
-                    DatetimeFormatDialog.showDatetimeFormatDialog(getActivity(), _hlEditor);
                     return true;
                 }
                 case R.string.tmaid_common_ordered_list_number: {

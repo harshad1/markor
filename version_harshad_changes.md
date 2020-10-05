@@ -4,11 +4,12 @@ The changes listed here are probably not exhaustive, but are definately 90%+
 
 ## Markdown
 
-1. Logging template instead of accordion
-2. Datetime list and time list prefixes with auto-insert etc for logging
-    1. Time action in a time list will present a time update dialog
-3. Time setting for logging with dialog
+~1. Logging template instead of accordion~
+~2. Datetime list and time list prefixes with auto-insert etc for logging!
+    ~1. Time action in a time list will present a time update dialog~
+~3. Time setting for logging with dialog~
 4. Long press of checkbox inserts html checkable box
+5. 2020-10-05 Removed all logging specific changes
 
 ## TodoTxt
 
@@ -33,6 +34,7 @@ The changes listed here are probably not exhaustive, but are definately 90%+
 11. Removed donation dialog
 12. Action spacing reduced
     - [ ] Consider pushing these changes upstream
+13. Back goes back always
 
 ## Other changes
 
