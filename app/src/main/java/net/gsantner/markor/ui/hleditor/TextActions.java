@@ -39,7 +39,6 @@ import net.gsantner.opoc.util.StringUtils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -316,7 +315,7 @@ public abstract class TextActions {
         }
     }
 
-    public void runRegexReplaceAction(final ReplacePattern ... patterns) {
+    public void runRegexReplaceAction(final ReplacePattern... patterns) {
         runRegexReplaceAction(Arrays.asList(patterns), false);
     }
 
@@ -332,7 +331,7 @@ public abstract class TextActions {
         runRegexReplaceAction(_hlEditor, patterns, matchAll);
     }
 
-    public static void runRegexReplaceAction(final EditText editor, final ReplacePattern ... patterns) {
+    public static void runRegexReplaceAction(final EditText editor, final ReplacePattern... patterns) {
         runRegexReplaceAction(editor, Arrays.asList(patterns), false);
     }
 
