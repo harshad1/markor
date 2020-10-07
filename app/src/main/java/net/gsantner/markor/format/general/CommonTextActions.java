@@ -176,13 +176,14 @@ public class CommonTextActions {
             }
             case ACTION_SEARCH: {
                 SearchOrCustomTextDialogCreator.showSearchDialog(_activity, origText, null,
-                        (text, line) -> {
-                            if (!_hlEditor.hasFocus()) {
-                                _hlEditor.requestFocus();
-                            }
-                            // Go to beginning of line #line
-                            _hlEditor.setSelection(StringUtils.getLineStart(origText, StringUtils.getIndexFromLineOffset(origText, line, 0)));
-                });
+                    (text, line) -> {
+                        if (!_hlEditor.hasFocus()) {
+                            _hlEditor.requestFocus();
+                        }
+                        // Go to beginning of line #line
+                        _hlEditor.setSelection(StringUtils.getLineStart(origText, StringUtils.getIndexFromLineOffset(origText, line, 0)));
+                    }
+                );
                 return true;
             }
             case ACTION_JUMP_BOTTOM_TOP: {
