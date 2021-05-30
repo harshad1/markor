@@ -39,13 +39,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Filter;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import net.gsantner.opoc.util.ActivityUtils;
+import net.gsantner.markor.R;
 import net.gsantner.opoc.util.Callback;
 import net.gsantner.opoc.util.ContextUtils;
 
@@ -56,8 +60,11 @@ import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("WeakerAccess")
@@ -66,6 +73,7 @@ public class SearchOrCustomTextDialog {
     public static class DialogOptions {
         public Callback.a1<String> callback;
         public Callback.a2<String, Integer> withPositionCallback;
+        public Callback.a1<List<Pair<String, Integer>>> multiSelectCallback;
         public List<? extends CharSequence> data;
         public List<? extends CharSequence> highlightData;
         public List<Integer> iconsForData;
@@ -80,6 +88,7 @@ public class SearchOrCustomTextDialog {
         public boolean searchIsRegex = false;
         public Callback.a1<Spannable> highlighter;
         public String extraFilter = null;
+        public List<Integer> preSelected = Collections.emptyList();
 
         public Callback.a0 neutralButtonCallback = null;
 
@@ -106,6 +115,7 @@ public class SearchOrCustomTextDialog {
         final DialogOptions _dopt;
         final List<Pair<String, Integer>> _filteredItems;
         final Pattern _extraPattern;
+        final Set<Integer> _selected;
 
         WithPositionAdapter(Context c_context, @LayoutRes int c_layout, List<Pair<String, Integer>> c_filteredItems, DialogOptions c_dopt) {
             super(c_context, c_layout, c_filteredItems);
@@ -114,6 +124,7 @@ public class SearchOrCustomTextDialog {
             _dopt = c_dopt;
             _filteredItems = c_filteredItems;
             _extraPattern = (c_dopt.extraFilter == null ? null : Pattern.compile(c_dopt.extraFilter));
+            _selected = new TreeSet<>(c_dopt.preSelected != null ? c_dopt.preSelected : Collections.emptyList());
         }
 
         @NonNull
@@ -129,6 +140,8 @@ public class SearchOrCustomTextDialog {
             } else {
                 textView = (TextView) convertView;
             }
+
+            textView.setActivated(_selected.contains(posInOriginalList));
 
             if (posInOriginalList >= 0 && _dopt.iconsForData != null && posInOriginalList < _dopt.iconsForData.size() && _dopt.iconsForData.get(posInOriginalList) != 0) {
                 textView.setCompoundDrawablesWithIntrinsicBounds(_dopt.iconsForData.get(posInOriginalList), 0, 0, 0);
@@ -195,13 +208,34 @@ public class SearchOrCustomTextDialog {
         }
     }
 
+    private static void setNeutralButton(final AlertDialog dialog, final WithPositionAdapter adapter) {
+        final Button button = dialog.getButton(AlertDialog.BUTTON_NEUTRAL);
+        if (button != null) {
+            if (adapter._dopt.multiSelectCallback != null && adapter._selected.size() > 0) {
+                button.setVisibility(Button.VISIBLE);
+                button.setText(R.string.clear);
+                button.setOnClickListener((v) -> {
+                    adapter._selected.clear();
+                    adapter.notifyDataSetChanged();
+                    setNeutralButton(dialog, adapter); // Will not result in recursion
+                });
+            } else if (adapter._dopt.neutralButtonCallback != null && adapter._dopt.neutralButtonText != 0) {
+                button.setVisibility(Button.VISIBLE);
+                button.setText(adapter._dopt.neutralButtonText);
+                button.setOnClickListener((v) -> adapter._dopt.neutralButtonCallback.callback());
+            } else {
+                button.setVisibility(Button.INVISIBLE);
+            }
+        }
+    }
+
     public static void showMultiChoiceDialogWithSearchFilterUI(final Activity activity, final DialogOptions dopt) {
         final List<Pair<String, Integer>> filteredItems = new ArrayList<>();
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(activity, dopt.isDarkDialog
                 ? android.support.v7.appcompat.R.style.Theme_AppCompat_Dialog
                 : android.support.v7.appcompat.R.style.Theme_AppCompat_Light_Dialog
         );
-        final WithPositionAdapter listAdapter = new WithPositionAdapter(activity, android.R.layout.simple_list_item_1, filteredItems, dopt);
+        final WithPositionAdapter listAdapter = new WithPositionAdapter(activity, android.R.layout.simple_list_item_activated_1, filteredItems, dopt);
 
         final AppCompatEditText searchEditText = new AppCompatEditText(activity);
         searchEditText.setText(dopt.defaultText);
@@ -251,26 +285,30 @@ public class SearchOrCustomTextDialog {
                 .setOnCancelListener(null)
                 .setNegativeButton(dopt.cancelButtonText, (dialogInterface, i) -> dialogInterface.dismiss());
 
-        if (dopt.neutralButtonCallback != null && dopt.neutralButtonText != 0) {
-            dialogBuilder.setNeutralButton(dopt.neutralButtonText, (dialogInterface, i) -> {
-                dopt.neutralButtonCallback.callback();
-            });
-        }
+        // dialogBuilder.setNeutralButton("", (di, i) -> {});
 
         if (dopt.titleText != 0) {
             dialogBuilder.setTitle(dopt.titleText);
         }
 
-        if (dopt.isSearchEnabled) {
+        if (dopt.isSearchEnabled || dopt.multiSelectCallback != null) {
             dialogBuilder.setPositiveButton(dopt.okButtonText, (dialogInterface, i) -> {
-                dialogInterface.dismiss();
-                if (dopt.callback != null && !TextUtils.isEmpty(searchEditText.getText().toString())) {
-                    dopt.callback.callback(searchEditText.getText().toString());
+                final String searchText = dopt.isSearchEnabled ? searchEditText.getText().toString() : null;
+                // Prefer multiSelectCallback if present and one or more items are selected
+                if (dopt.multiSelectCallback != null && listAdapter._selected.size() > 0) {
+                    List<Pair<String, Integer>> res = new ArrayList<>();
+                    for (final int position : listAdapter._selected) {
+                        res.add(new Pair<>(dopt.data.get(position).toString(), position));
+                    }
+                    dopt.multiSelectCallback.callback(res);
+                } else if (dopt.callback != null && !TextUtils.isEmpty(searchText)) {
+                    dopt.callback.callback(searchText);
                 }
             });
         }
 
         final AlertDialog dialog = dialogBuilder.create();
+
         listView.setOnItemClickListener((parent, view, position, id) -> {
             dialog.dismiss();
             if (dopt.callback != null) {
@@ -281,6 +319,21 @@ public class SearchOrCustomTextDialog {
                 dopt.withPositionCallback.callback(item.first, item.second);
             }
         });
+
+        if (dopt.multiSelectCallback != null) {
+            listView.setOnItemLongClickListener((parent, view, position, id) -> {
+                final Integer index = filteredItems.get(position).second;
+                if (listAdapter._selected.contains(index)) {
+                    listAdapter._selected.remove(index);
+                    ((TextView) view).setActivated(false);
+                } else {
+                    listAdapter._selected.add(index);
+                    ((TextView) view).setActivated(true);
+                }
+                setNeutralButton(dialog, listAdapter);
+                return true;
+            });
+        }
 
         searchEditText.setOnKeyListener((keyView, keyCode, keyEvent) -> {
             if ((keyEvent.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
@@ -297,7 +350,9 @@ public class SearchOrCustomTextDialog {
         if ((w = dialog.getWindow()) != null && dopt.isSearchEnabled) {
             w.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
+
         dialog.show();
+
         if ((w = dialog.getWindow()) != null) {
             int ds_w = dopt.dialogWidthDp < 100 ? dopt.dialogWidthDp : ((int) (dopt.dialogWidthDp * activity.getResources().getDisplayMetrics().density));
             int ds_h = dopt.dialogHeightDp < 100 ? dopt.dialogHeightDp : ((int) (dopt.dialogHeightDp * activity.getResources().getDisplayMetrics().density));
@@ -313,9 +368,12 @@ public class SearchOrCustomTextDialog {
         if (dopt.isSearchEnabled) {
             searchEditText.requestFocus();
         }
+
         if (dopt.defaultText != null) {
             listAdapter.getFilter().filter(searchEditText.getText());
         }
+
+        setNeutralButton(dialog, listAdapter);
     }
 
 

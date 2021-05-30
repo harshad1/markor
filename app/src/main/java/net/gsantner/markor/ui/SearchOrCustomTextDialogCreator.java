@@ -22,6 +22,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -267,6 +268,11 @@ public class SearchOrCustomTextDialogCreator {
         dopt.callback = callback;
         dopt.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.category : R.string.context;
         dopt.searchHintText = R.string.search_or_custom;
+        dopt.multiSelectCallback = (result) -> {
+            for (final Pair<String, Integer> p : result) {
+                callback.callback(p.first);
+            }
+        };
         //dopt.messageText = activity.getString(R.string.add_x_or_browse_existing_ones_witharg, activity.getString(R.string.context));
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
@@ -339,6 +345,11 @@ public class SearchOrCustomTextDialogCreator {
         dopt.callback = callback;
         dopt.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.tag : R.string.project;
         dopt.searchHintText = R.string.search_or_custom;
+        dopt.multiSelectCallback = (result) -> {
+            for (final Pair<String, Integer> p : result) {
+                callback.callback(p.first);
+            }
+        };
         //dopt.messageText = activity.getString(R.string.add_x_or_browse_existing_ones_witharg, activity.getString(R.string.project));
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
