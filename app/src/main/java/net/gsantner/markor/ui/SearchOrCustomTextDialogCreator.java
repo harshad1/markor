@@ -276,7 +276,7 @@ public class SearchOrCustomTextDialogCreator {
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
-    public static void showSttContextListDialog(Activity activity, List<String> availableData, String fullText, Callback.a1<String> userCallback) {
+    public static void showSttContextListDialog(Activity activity, List<String> availableData, String fullText, Callback.a1<Spannable> highlighter, Callback.a1<String> userCallback) {
         SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
         baseConf(activity, dopt);
         dopt.data = new ArrayList<>(new TreeSet<>(availableData));
@@ -289,6 +289,7 @@ public class SearchOrCustomTextDialogCreator {
             dopt2.data = filterContains(new ArrayList<>(Arrays.asList(fullText.split("\n"))), callbackValue);
             dopt2.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.category : R.string.context;
             dopt2.searchHintText = R.string.search;
+            dopt2.highlighter = highlighter;
             SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
         };
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
@@ -358,8 +359,7 @@ public class SearchOrCustomTextDialogCreator {
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
-
-    public static void showSttProjectListDialog(Activity activity, List<String> availableData, String fullText, Callback.a1<String> userCallback) {
+     public static void showSttProjectListDialog(Activity activity, List<String> availableData, String fullText, Callback.a1<Spannable> highlighter, Callback.a1<String> userCallback) {
         SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
         baseConf(activity, dopt);
         dopt.data = new ArrayList<>(new TreeSet<>(availableData));
@@ -372,11 +372,11 @@ public class SearchOrCustomTextDialogCreator {
             dopt2.data = filterContains(new ArrayList<>(Arrays.asList(fullText.split("\n"))), callbackValue);
             dopt2.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.tag : R.string.project;
             dopt2.searchHintText = R.string.search;
+            dopt2.highlighter = highlighter;
             SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
         };
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
-
 
     public static void showSearchDialog(Activity activity, Editable edit, int[] sel, Callback.a1<Spannable> highlighter, Callback.a2<String, Integer> userCallback) {
         SearchOrCustomTextDialog.DialogOptions dopt2 = new SearchOrCustomTextDialog.DialogOptions();
