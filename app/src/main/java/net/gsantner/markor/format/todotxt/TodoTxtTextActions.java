@@ -504,7 +504,7 @@ public class TodoTxtTextActions extends TextActions {
             }
             selTasks.addAll(unselTasks);
             _hlEditor.setText(TodoTxtTask.tasksToString(selTasks));
-            _hlEditor.setSelection(0, StringUtils.getIndexFromLineOffset(text, positions.size(), 0));
+            _hlEditor.setSelection(0, StringUtils.getIndexFromLineOffset(text, positions.size() - 1, 0));
         }
     }
 }
