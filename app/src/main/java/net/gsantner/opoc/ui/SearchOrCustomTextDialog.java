@@ -57,7 +57,6 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Collections;
 import java.util.List;
@@ -73,7 +72,7 @@ public class SearchOrCustomTextDialog {
         public Callback.a1<String> callback = null;
         public Callback.a1<Integer> positionCallback = null;
         public Callback.a1<List<Integer>> multiSelectCallback = null;
-        @NonNull public List<? extends CharSequence> data = Collections.emptyList();
+        public List<? extends CharSequence> data = null;
         public List<? extends CharSequence> highlightData = null;
         public List<Integer> iconsForData;
         public String messageText = "";
@@ -117,7 +116,7 @@ public class SearchOrCustomTextDialog {
         final Set<Integer> _selected;
 
         public static WithPositionAdapter newInstance(Context context, DialogOptions dopt) {
-            return new WithPositionAdapter(context, android.R.layout.simple_list_item_activated_1, new ArrayList<Integer>(), dopt);
+            return new WithPositionAdapter(context, android.R.layout.simple_list_item_activated_1, new ArrayList<>(), dopt);
         }
 
         private WithPositionAdapter(final Context context, @LayoutRes int layout, List<Integer> filteredItems, DialogOptions dopt) {
@@ -188,15 +187,18 @@ public class SearchOrCustomTextDialog {
                 protected FilterResults performFiltering(final CharSequence constraint) {
                     final List<Integer> resList = new ArrayList<>();
 
-                    final String fil = constraint.toString();
-                    final boolean emptySearch = fil.isEmpty();
-                    for (int i = 0; i < _dopt.data.size(); i++) {
-                        final CharSequence str = _dopt.data.get(i);
-                        final boolean matchExtra = (_extraPattern == null) || _extraPattern.matcher(str).find();
-                        final boolean matchNormal = str.toString().toLowerCase(Locale.getDefault()).contains(fil.toLowerCase(Locale.getDefault()));
-                        final boolean matchRegex = _dopt.searchIsRegex && (str.toString().matches(fil));
-                        if (matchExtra && (matchNormal || matchRegex || emptySearch)) {
-                            resList.add(i);
+                    if (_dopt.data != null) {
+                        final String fil = constraint.toString();
+                        final boolean emptySearch = fil.isEmpty();
+                        for (int i = 0; i < _dopt.data.size(); i++) {
+                            final String str = _dopt.data.get(i).toString();
+                            final boolean matchExtra = (_extraPattern == null) || _extraPattern.matcher(str).find();
+                            final Locale locale = Locale.getDefault();
+                            final boolean matchNormal = str.toLowerCase(locale).contains(fil.toLowerCase(locale));
+                            final boolean matchRegex = _dopt.searchIsRegex && (str.matches(fil));
+                            if (matchExtra && (matchNormal || matchRegex || emptySearch)) {
+                                resList.add(i);
+                            }
                         }
                     }
 
@@ -472,7 +474,7 @@ public class SearchOrCustomTextDialog {
             List<String> ret = new ArrayList<>();
 
             boolean first = true;
-            Iterator<File> iter = null;
+            Iterator<File> iter;
             try {
                 iter = FileUtils.iterateFilesAndDirs(_searchDir, this, this);
             } catch (Exception ex) {

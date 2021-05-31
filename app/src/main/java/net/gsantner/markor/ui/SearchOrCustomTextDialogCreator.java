@@ -304,17 +304,6 @@ public class SearchOrCustomTextDialogCreator {
         return values;
     }
 
-    private static List<String> filterEmpty(List<String> data) {
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).trim().isEmpty()) {
-                data.remove(i);
-                i--;
-
-            }
-        }
-        return data;
-    }
-
     /**
      * Allow to choose between Hexcolor / foreground / background color, pass back stringid
      */
@@ -397,7 +386,7 @@ public class SearchOrCustomTextDialogCreator {
 
     public static void showTodoSearchDialog(Activity activity, Editable edit, int[] sel, Callback.a1<Spannable> highlighter, Callback.a1<List<Integer>> userCallback) {
         SearchOrCustomTextDialog.DialogOptions dopt2 = basicSearchDialogopts(activity, edit, sel);
-        dopt2.positionCallback = (posn) -> { userCallback.callback(Arrays.asList(posn)); };
+        dopt2.positionCallback = posn -> userCallback.callback(Collections.singletonList(posn));
         dopt2.multiSelectCallback = userCallback;
         dopt2.highlighter = highlighter;
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
@@ -430,7 +419,7 @@ public class SearchOrCustomTextDialogCreator {
         baseConf(activity, dopt);
         dopt.callback = callback;
         dopt.data = Arrays.asList("1", "2", "4", "8");
-        dopt.highlightData = Arrays.asList(Integer.toString(indent));
+        dopt.highlightData = Collections.singletonList(Integer.toString(indent));
         dopt.isSearchEnabled = false;
         dopt.dialogWidthDp = WindowManager.LayoutParams.WRAP_CONTENT;
         dopt.dialogHeightDp = WindowManager.LayoutParams.WRAP_CONTENT;
