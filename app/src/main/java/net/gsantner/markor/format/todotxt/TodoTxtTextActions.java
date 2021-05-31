@@ -54,15 +54,8 @@ public class TodoTxtTextActions extends TextActions {
         if (action.equals(CommonTextActions.ACTION_SEARCH)) {
             final Editable edit = _hlEditor.getText();
 
-            SearchOrCustomTextDialogCreator.showSearchDialog(_activity, edit, StringUtils.getSelection(_hlEditor),
-                    this::doBasicHighlights,
-                    (text, lineNr) -> {
-                        if (!_hlEditor.hasFocus()) {
-                            _hlEditor.requestFocus();
-                        }
-                        _hlEditor.setSelection(StringUtils.getIndexFromLineOffset(edit, lineNr, 0));
-                    }
-            );
+            SearchOrCustomTextDialogCreator.showTodoSearchDialog(_activity, edit, StringUtils.getSelection(_hlEditor),
+                    this::doBasicHighlights, this::selectTaskByPositions);
             return true;
         }
         return runCommonTextAction(action);
@@ -497,5 +490,25 @@ public class TodoTxtTextActions extends TextActions {
                 _appSettings.isDarkThemeEnabled(),
                 null
         );
+    }
+
+    private void selectTaskByPositions(final List<Integer> positions) {
+        if (!_hlEditor.hasFocus()) {
+            _hlEditor.requestFocus();
+        }
+        final CharSequence text = _hlEditor.getText();
+        if (positions.size() == 1) {
+            _hlEditor.setSelection(StringUtils.getIndexFromLineOffset(text, positions.get(0), 0));
+        } else if (positions.size() > 1){
+            List<TodoTxtTask> tasks = Arrays.asList(TodoTxtTask.getAllTasks(_hlEditor));
+            List<TodoTxtTask> orderedTasks = new ArrayList<>();
+            for (final int p : positions) {
+                orderedTasks.add(tasks.get(p));
+                tasks.remove(p);
+            }
+            orderedTasks.addAll(tasks);
+            _hlEditor.setText(TodoTxtTask.tasksToString(orderedTasks));
+            _hlEditor.setSelection(0, StringUtils.getIndexFromLineOffset(text, positions.size(), 0));
+        }
     }
 }
