@@ -308,7 +308,6 @@ public class SearchOrCustomTextDialogCreator {
             dopt2.titleText = dopt.titleText;
             dopt2.searchHintText = R.string.search;
             dopt2.highlighter = highlighter;
-            dopt2.iconsForData = Collections.nCopies(dopt2.data.size(), R.drawable.ic_search_black_24dp);
             dopt2.multiSelectCallback = posns -> userCallback.callback(StringUtils.slice(filteredIndices, posns));
             dopt2.positionCallback = posn -> dopt2.multiSelectCallback.callback(Collections.singletonList(posn));
             SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
