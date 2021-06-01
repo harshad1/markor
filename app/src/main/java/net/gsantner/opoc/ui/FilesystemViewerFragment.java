@@ -54,6 +54,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -607,7 +608,12 @@ public class FilesystemViewerFragment extends GsFragmentBase
                 _doptMoC.titleText = isMove ? R.string.move : R.string.copy;
                 _doptMoC.rootFolder = _appSettings.getNotebookDirectory();
                 _doptMoC.startFolder = getCurrentFolder();
-
+                // Directories cannot be moved into themselves. Don't give users the option
+                final Set<String> selSet = new HashSet<>();
+                for (final File f : files) {
+                    selSet.add(f.getAbsolutePath());
+                }
+                _doptMoC.fileOverallFilter = (test) -> !selSet.contains(test.getAbsolutePath());
             }
 
             @SuppressLint("SetTextI18n")
