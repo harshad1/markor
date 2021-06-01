@@ -22,11 +22,13 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import net.gsantner.markor.R;
+import net.gsantner.markor.format.todotxt.TodoTxtTask;
 import net.gsantner.markor.format.zimwiki.ZimWikiHighlighter;
 import net.gsantner.markor.util.AppSettings;
 import net.gsantner.opoc.ui.FileSearchDialog;
@@ -34,12 +36,15 @@ import net.gsantner.opoc.ui.FileSearchResultSelectorDialog;
 import net.gsantner.opoc.ui.SearchEngine;
 import net.gsantner.opoc.ui.SearchOrCustomTextDialog;
 import net.gsantner.opoc.util.Callback;
+import net.gsantner.opoc.util.StringUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import static net.gsantner.markor.format.todotxt.TodoTxtTask.SttTaskSimpleComparator.BY_CONTEXT;
@@ -277,42 +282,50 @@ public class SearchOrCustomTextDialogCreator {
         dopt.data = new ArrayList<>(new TreeSet<>(availableData));
         dopt.callback = callback;
         dopt.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.category : R.string.context;
-        dopt.searchHintText = R.string.search_or_custom;
-        //dopt.messageText = activity.getString(R.string.add_x_or_browse_existing_ones_witharg, activity.getString(R.string.context));
+        dopt.multiSelectCallback = (result) -> {
+            for (final Integer pi : result) {
+                callback.callback(dopt.data.get(pi).toString());
+            }
+        };
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
-    public static void showSttContextListDialog(Activity activity, List<String> availableData, String fullText, Callback.a1<String> userCallback) {
-        showSttContextDialog(activity, availableData, callbackValue -> {
-            SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
-            baseConf(activity, dopt);
-            dopt.callback = userCallback;
-            dopt.data = filterContains(new ArrayList<>(Arrays.asList(fullText.split("\n"))), callbackValue);
-            dopt.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.category : R.string.context;
-            dopt.searchHintText = R.string.search;
-            SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
-        });
-    }
-
-    private static List<String> filterContains(List<String> values, String text) {
-        for (int i = 0; i < values.size(); i++) {
-            if (!values.get(i).contains(text)) {
-                values.remove(i);
-                i--;
-            }
+    public static void showSttKeySearchDialog(
+            final Activity activity,
+            final CharSequence fullText,
+            final Callback.a1<Spannable> highlighter,
+            final boolean isProjects,
+            final Callback.a1<List<Integer>> userCallback)
+    {
+        SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
+        baseConf(activity, dopt);
+        final TodoTxtTask[] allTasks = TodoTxtTask.getAllTasks(fullText);
+        dopt.data = Arrays.asList(isProjects ? TodoTxtTask.getProjects(allTasks) : TodoTxtTask.getContexts(allTasks));
+        if (isTodoTxtAlternativeNaming(activity)) {
+            dopt.titleText = isProjects ? R.string.tag : R.string.category;
+        } else {
+            dopt.titleText = isProjects ? R.string.project : R.string.context;
         }
-        return values;
-    }
+        dopt.searchHintText = R.string.search_or_custom;
+        dopt.iconsForData = Collections.nCopies(dopt.data.size(), R.drawable.ic_search_black_24dp);
 
-    private static List<String> filterEmpty(List<String> data) {
-        for (int i = 0; i < data.size(); i++) {
-            if (data.get(i).trim().isEmpty()) {
-                data.remove(i);
-                i--;
+        dopt.multiSelectCallback = keyIndices -> {
+            SearchOrCustomTextDialog.DialogOptions dopt2 = new SearchOrCustomTextDialog.DialogOptions();
+            baseConf(activity, dopt2);
+            final Set<String> searchKeys = new HashSet<>(StringUtils.slice((List<String>) dopt.data, keyIndices));
+            final List<Integer> filteredIndices = StringUtils.filterIndices(Arrays.asList(allTasks), task ->
+                    StringUtils.containsAny(searchKeys, Arrays.asList(isProjects ? task.getProjects() : task.getContexts())));
+            dopt2.data = StringUtils.map(StringUtils.slice(Arrays.asList(allTasks), filteredIndices), TodoTxtTask::getLine);
+            dopt2.titleText = dopt.titleText;
+            dopt2.searchHintText = R.string.search;
+            dopt2.highlighter = highlighter;
+            dopt2.multiSelectCallback = posns -> userCallback.callback(StringUtils.slice(filteredIndices, posns));
+            dopt2.positionCallback = posn -> dopt2.multiSelectCallback.callback(Collections.singletonList(posn));
+            SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
+        };
 
-            }
-        }
-        return data;
+        dopt.positionCallback = index -> dopt.multiSelectCallback.callback(Collections.singletonList(index));
+        SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
     /**
@@ -350,51 +363,52 @@ public class SearchOrCustomTextDialogCreator {
         dopt.callback = callback;
         dopt.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.tag : R.string.project;
         dopt.searchHintText = R.string.search_or_custom;
-        //dopt.messageText = activity.getString(R.string.add_x_or_browse_existing_ones_witharg, activity.getString(R.string.project));
+        dopt.multiSelectCallback = (result) -> {
+            for (final Integer pi : result) {
+                callback.callback(dopt.data.get(pi).toString());
+            }
+        };
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
-
-    public static void showSttProjectListDialog(Activity activity, List<String> availableData, String fullText, Callback.a1<String> userCallback) {
-        showSttProjectDialog(activity, availableData, callbackValue -> {
-            SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
-            baseConf(activity, dopt);
-            dopt.callback = userCallback;
-            dopt.data = filterContains(new ArrayList<>(Arrays.asList(fullText.split("\n"))), callbackValue);
-            dopt.titleText = isTodoTxtAlternativeNaming(activity) ? R.string.tag : R.string.project;
-            dopt.searchHintText = R.string.search;
-            SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
-        });
-    }
-
-
-    public static void showSearchDialog(Activity activity, Editable edit, int[] sel, Callback.a1<Spannable> highlighter, Callback.a2<String, Integer> userCallback) {
+    private static SearchOrCustomTextDialog.DialogOptions basicSearchDialogopts(Activity activity, Editable edit, int[] sel) {
         SearchOrCustomTextDialog.DialogOptions dopt2 = new SearchOrCustomTextDialog.DialogOptions();
         baseConf(activity, dopt2);
-        dopt2.withPositionCallback = userCallback;
         dopt2.data = Arrays.asList(edit.toString().split("\n", -1)); // Do not ignore empty lines
         dopt2.extraFilter = "[^\\s]+"; // Line must have one or more non-whitespace to display
         dopt2.titleText = R.string.search_documents;
         dopt2.searchHintText = R.string.search;
-        dopt2.highlighter = highlighter;
         dopt2.neutralButtonCallback = () -> SearchReplaceDialog.showSearchReplaceDialog(activity, edit, sel);
         dopt2.neutralButtonText = R.string.search_and_replace;
+        return dopt2;
+    }
+
+    public static void showSearchDialog(Activity activity, Editable edit, int[] sel, Callback.a1<Integer> userCallback) {
+        SearchOrCustomTextDialog.DialogOptions dopt2 = basicSearchDialogopts(activity, edit, sel);
+        dopt2.positionCallback = userCallback;
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
     }
 
-    public static void showMarkdownHeadlineDialog(Activity activity, String fullText, Callback.a2<String, Integer> userCallback) {
+    public static void showTodoSearchDialog(Activity activity, Editable edit, int[] sel, Callback.a1<Spannable> highlighter, Callback.a1<List<Integer>> userCallback) {
+        SearchOrCustomTextDialog.DialogOptions dopt2 = basicSearchDialogopts(activity, edit, sel);
+        dopt2.positionCallback = posn -> userCallback.callback(Collections.singletonList(posn));
+        dopt2.multiSelectCallback = userCallback;
+        dopt2.highlighter = highlighter;
+        SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
+    }
+
+    public static void showMarkdownHeadlineDialog(Activity activity, String fullText, Callback.a1<Integer> userCallback) {
         showHeadlineDialog("^\\s{0,2}#{1,6}", activity, fullText, userCallback);
     }
 
-    public static void showZimWikiHeadlineDialog(Activity activity, String fullText, Callback.a2<String, Integer> userCallback) {
+    public static void showZimWikiHeadlineDialog(Activity activity, String fullText, Callback.a1<Integer> userCallback) {
         showHeadlineDialog(ZimWikiHighlighter.Patterns.HEADING.pattern.toString(), activity, fullText, userCallback);
     }
 
-    private static void showHeadlineDialog(String headlineFilterPattern,
-                                           Activity activity, String fullText, Callback.a2<String, Integer> userCallback) {
+    private static void showHeadlineDialog(String headlineFilterPattern, Activity activity, String fullText, Callback.a1<Integer> userCallback) {
         SearchOrCustomTextDialog.DialogOptions dopt2 = new SearchOrCustomTextDialog.DialogOptions();
         baseConf(activity, dopt2);
-        dopt2.withPositionCallback = userCallback;
+        dopt2.positionCallback = userCallback;
         dopt2.data = Arrays.asList(fullText.split("\n", -1));
         dopt2.titleText = R.string.table_of_contents;
         dopt2.searchHintText = R.string.search;
@@ -410,7 +424,7 @@ public class SearchOrCustomTextDialogCreator {
         baseConf(activity, dopt);
         dopt.callback = callback;
         dopt.data = Arrays.asList("1", "2", "4", "8");
-        dopt.highlightData = Arrays.asList(Integer.toString(indent));
+        dopt.highlightData = Collections.singletonList(Integer.toString(indent));
         dopt.isSearchEnabled = false;
         dopt.dialogWidthDp = WindowManager.LayoutParams.WRAP_CONTENT;
         dopt.dialogHeightDp = WindowManager.LayoutParams.WRAP_CONTENT;
@@ -471,10 +485,10 @@ public class SearchOrCustomTextDialogCreator {
         SearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt);
     }
 
-    public static void showCopyMoveConflictDialog(final Activity activity, final String fileName, final String destName, final boolean multiple, final Callback.a2<String, Integer> callback) {
+    public static void showCopyMoveConflictDialog(final Activity activity, final String fileName, final String destName, final boolean multiple, final Callback.a1<Integer> callback) {
         SearchOrCustomTextDialog.DialogOptions dopt = new SearchOrCustomTextDialog.DialogOptions();
         baseConf(activity, dopt);
-        dopt.withPositionCallback = callback;
+        dopt.positionCallback = callback;
         List<String> data = new ArrayList<>();
         data.add(activity.getString(R.string.keep_both));
         data.add(activity.getString(R.string.skip));

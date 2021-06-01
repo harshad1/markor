@@ -128,7 +128,7 @@ public class WrMarkorSingleton {
         OVERWRITE,
         SKIP,
         ASK
-    }
+    };
 
     public void moveOrCopySelected(final List<File> files, final File destDir, final Activity activity, final boolean isMove) {
         if (destDir.isDirectory()) {
@@ -169,17 +169,17 @@ public class WrMarkorSingleton {
                     // Put the file back in
                     files.push(file);
                     SearchOrCustomTextDialogCreator.showCopyMoveConflictDialog(
-                            activity, file.getName(), destDir.getName(), files.size() > 1, (name, option) -> {
-                                ConflictResolution res = ConflictResolution.ASK;
-                                if (option == 0 || option == 3) {
-                                    res = ConflictResolution.KEEP_BOTH;
-                                } else if (option == 1 || option == 4) {
-                                    res = ConflictResolution.OVERWRITE;
-                                } else if (option == 2 || option == 5) {
-                                    res = ConflictResolution.SKIP;
-                                }
-                                _moveOrCopySelected(files, destDir, activity, isMove, res, option > 2);
-                            });
+                        activity, file.getName(), destDir.getName(), files.size() > 1, (option) -> {
+                            ConflictResolution res = ConflictResolution.ASK;
+                            if (option == 0 || option == 3) {
+                                res = ConflictResolution.KEEP_BOTH;
+                            } else if (option == 1 || option == 4) {
+                                res = ConflictResolution.OVERWRITE;
+                            } else if (option == 2 || option == 5) {
+                                res = ConflictResolution.SKIP;
+                            }
+                            _moveOrCopySelected(files, destDir, activity, isMove, res, option > 2);
+                        });
                     return; // Process will be continued by callback
                 }
                 resolution = preserveResolution ? resolution : ConflictResolution.ASK;
