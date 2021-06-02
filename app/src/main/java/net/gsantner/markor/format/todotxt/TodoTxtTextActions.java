@@ -280,15 +280,19 @@ public class TodoTxtTextActions extends TextActions {
 
     private void insertUniqueItem(String item) {
         item = item.trim().replace(" ", "_");
+        final String pattern = String.format("\\s\\Q%s\\E(:?\\s|$)", item);
         if (!selectionIsSingleTask() || _appSettings.isTodoAppendProConOnEndEnabled()) {
             runRegexReplaceAction(
                     // Replace existing item with itself. i.e. do nothing
-                    new ReplacePattern(String.format("\\s\\Q%s\\E(:?\\s|$)", item), "$0"),
+                    new ReplacePattern(pattern, "$0"),
                     // Append to end
                     new ReplacePattern("\\s*$", " " + item)
             );
         } else {
-            insertInline(item);
+            final int[] sel = StringUtils.getLineSelection(_hlEditor);
+            if (!_hlEditor.getText().subSequence(sel[0], sel[1]).toString().matches(pattern)) {
+                insertInline(item);
+            }
         }
     }
 
