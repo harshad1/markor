@@ -24,6 +24,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.TooltipCompat;
@@ -43,6 +44,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -331,7 +333,7 @@ public class SearchOrCustomTextDialog {
         searchLayout.addView(searchEditText, slp);
 
         final ImageView clearButton = new ImageView(activity);
-        clearButton.setImageResource(R.drawable.ic_crop_black_24dp);
+        clearButton.setImageResource(R.drawable.ic_baseline_clear_24);
         TooltipCompat.setTooltipText(clearButton, activity.getString(R.string.clear));
         clearButton.setColorFilter(ContextCompat.getColor(activity, dopt.isDarkDialog ? android.R.color.white : R.color.grey));
 
