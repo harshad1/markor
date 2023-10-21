@@ -193,6 +193,8 @@ public class GsContextUtils {
     protected static String _lastCameraPictureFilepath;
     protected static String m_chooserTitle = "➥";
 
+    protected WebView jsEvaluator = null;
+
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //########################
