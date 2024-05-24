@@ -874,7 +874,7 @@ public class MarkorDialogFactory {
             GsSearchOrCustomTextDialog.showMultiChoiceDialogWithSearchFilterUI(activity, dopt2);
         };
 
-        dopt.portraitAspectRatio = new float[]{0.95f, 0.8f};
+        dopt.portraitAspectRatio = new float[]{1.0f, 0.8f};
         dopt.landscapeAspectRatio = new float[]{0.7f, 0.95f};
         dopt.gravity = Gravity.CENTER;
         dopt.dismissCallback = (d) -> {
