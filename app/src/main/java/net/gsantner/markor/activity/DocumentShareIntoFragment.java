@@ -11,19 +11,22 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Pair;
 import android.util.Patterns;
 import android.util.TypedValue;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 
@@ -36,7 +39,6 @@ import net.gsantner.markor.frontend.AttachLinkOrFileDialog;
 import net.gsantner.markor.frontend.NewFileDialog;
 import net.gsantner.markor.frontend.filebrowser.MarkorFileBrowserFactory;
 import net.gsantner.markor.frontend.textview.HighlightingEditor;
-import net.gsantner.markor.frontend.textview.TextViewUtils;
 import net.gsantner.markor.model.AppSettings;
 import net.gsantner.markor.model.Document;
 import net.gsantner.markor.util.MarkorContextUtils;
@@ -77,6 +79,8 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
 
     private File workingDir;
 
+    ShareIntoImportOptionsFragment _shareIntoImportOptionsFragment;
+
     public DocumentShareIntoFragment() {
     }
 
@@ -88,10 +92,9 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
     @Override
     public void onViewCreated(final @NonNull View view, final Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        HighlightingEditor _hlEditor = view.findViewById(R.id.document__fragment__share_into__highlighting_editor);
+        final HighlightingEditor hlEditor = view.findViewById(R.id.document__fragment__share_into__highlighting_editor);
 
         final String sharedText = (getArguments() != null ? getArguments().getString(EXTRA_SHARED_TEXT, "") : "").trim();
-        final ShareIntoImportOptionsFragment _shareIntoImportOptionsFragment;
         if (_savedInstanceState == null) {
             FragmentTransaction t = getChildFragmentManager().beginTransaction();
             _shareIntoImportOptionsFragment = new ShareIntoImportOptionsFragment();
@@ -102,18 +105,26 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
         }
 
         if (_shareIntoImportOptionsFragment != null) {
-            _shareIntoImportOptionsFragment.setEditor(_hlEditor);
+            _shareIntoImportOptionsFragment.setEditor(hlEditor);
         }
 
-        _hlEditor.setTextSize(TypedValue.COMPLEX_UNIT_SP, _appSettings.getFontSize());
-        _hlEditor.setTypeface(Typeface.create(_appSettings.getFontFamily(), Typeface.NORMAL));
-        _hlEditor.setHighlighter(new PlaintextSyntaxHighlighter(_appSettings));
-        _hlEditor.setHighlightingEnabled(true);
-        _hlEditor.setText(sharedText);
+        hlEditor.setTextSize(TypedValue.COMPLEX_UNIT_SP, _appSettings.getFontSize());
+        hlEditor.setTypeface(Typeface.create(_appSettings.getFontFamily(), Typeface.NORMAL));
+        hlEditor.setHighlighter(new PlaintextSyntaxHighlighter(_appSettings));
+        hlEditor.setHighlightingEnabled(true);
+        hlEditor.setText(sharedText);
 
         if (sharedText.isEmpty()) {
-            _hlEditor.requestFocus();
+            hlEditor.requestFocus();
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.document__share__menu, menu);
+        _cu.tintMenuItems(menu, true, Color.WHITE);
+        _shareIntoImportOptionsFragment.setInsertLinkMenuItem(menu.findItem(R.id.action_insert_link));
     }
 
     @Override
@@ -121,17 +132,15 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
         return FRAGMENT_TAG;
     }
 
-    @Override
-    public boolean onBackPressed() {
-        return false;
-    }
 
-
+    // Must be public to be inflated from XML
     public static class ShareIntoImportOptionsFragment extends GsPreferenceFragmentBase<AppSettings> {
         public static final String TAG = "ShareIntoImportOptionsFragment";
         private File workingDir;
 
         private EditText _editor = null;
+
+        private MenuItem _insertLinkMenu = null;
 
         @Override
         public boolean isDividerVisible() {
@@ -144,6 +153,25 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
 
         public void setEditor(final EditText editor) {
             _editor = editor;
+        }
+
+        public void setInsertLinkMenuItem(final MenuItem mi) {
+            _insertLinkMenu = mi;
+
+            if (_editor != null && _insertLinkMenu != null) {
+
+                _editor.addTextChangedListener(GsTextWatcherAdapter.on(
+                        (ctext, arg2, arg3, arg4) -> _insertLinkMenu.setVisible(hasLinks(ctext))));
+
+                _insertLinkMenu.setVisible(ShareIntoImportOptionsFragment.hasLinks(_editor.getText()));
+
+                _insertLinkMenu.setOnMenuItemClickListener(item -> {
+                    final boolean isChecked = !_insertLinkMenu.isChecked();
+                    _insertLinkMenu.setChecked(isChecked);
+                    _insertLinkMenu.getIcon().mutate().setAlpha(isChecked ? 255 : 40);
+                    return true;
+                });
+            }
         }
 
         @Override
@@ -165,44 +193,6 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
         protected void afterOnCreate(Bundle savedInstances, Context context) {
             super.afterOnCreate(savedInstances, context);
             doUpdatePreferences();
-
-            if (_editor != null) {
-                final CheckBoxPreference asLinkPref = (CheckBoxPreference) findPreference(R.string.pref_key__attach_as_link);
-                if (asLinkPref != null) {
-                    asLinkPref.setVisible(hasLinks(_editor.getText()));
-                    asLinkPref.setChecked(true);
-                    _editor.addTextChangedListener(GsTextWatcherAdapter.on((ctext, arg2, arg3, arg4) ->
-                            asLinkPref.setVisible(hasLinks(ctext))));
-                }
-            }
-        }
-
-        private boolean shareAsLink() {
-            final CheckBoxPreference asLinkPref = (CheckBoxPreference) findPreference(R.string.pref_key__attach_as_link);
-            return asLinkPref != null && asLinkPref.isVisible() && asLinkPref.isEnabled() && asLinkPref.isChecked();
-        }
-
-        private void appendToExistingDocumentAndClose(final File file, final boolean showEditor) {
-            final Activity context = getActivity();
-            final Document document = new Document(file);
-            final int format = _appSettings.getDocumentFormat(document.getPath(), document.getFormat());
-            final String formatted = getFormatted(shareAsLink(), file, format);
-
-            final String oldContent = document.loadContent(context);
-            if (oldContent != null) {
-                final String nline = oldContent.endsWith("\n") ? "" : "\n";
-                final String newContent = oldContent + nline + formatted;
-                document.saveContent(context, newContent);
-            } else {
-                Toast.makeText(context, R.string.error_could_not_open_file, Toast.LENGTH_LONG).show();
-            }
-
-            _appSettings.addRecentFile(file);
-            if (showEditor) {
-                showInDocumentActivity(document);
-            } else {
-                context.finish();
-            }
         }
 
         private static Pair<String, File> getLinePath(final CharSequence line) {
@@ -244,48 +234,31 @@ public class DocumentShareIntoFragment extends MarkorBaseFragment {
             return hasLinks[0];
         }
 
-        /**
-         * Iterates over each line of the text and checks if it is a path or link
-         * The whole line has to be a path or the line must end with a link to match.
-         *
-         * @param text Text to parse
-         * @return List of pairs.
-         * The first element of the pair is the start and end index of the link/path.
-         * Second element is true if it is a path, false if it is a link.
-         */
-        public static List<Pair<int[], Boolean>> findLinksAndPaths(final CharSequence text) {
-            final List<Pair<int[], Boolean>> links = new ArrayList<>();
+        private boolean shareAsLink() {
+            return _insertLinkMenu != null && _insertLinkMenu.isVisible() && _insertLinkMenu.isChecked();
+        }
 
-            GsTextUtils.forEachline(text, (line, start, end) -> {
+        private void appendToExistingDocumentAndClose(final File file, final boolean showEditor) {
+            final Activity context = getActivity();
+            final Document document = new Document(file);
+            final int format = _appSettings.getDocumentFormat(document.getPath(), document.getFormat());
+            final String formatted = getFormatted(shareAsLink(), file, format);
 
-                start = TextViewUtils.getNextNonWhitespace(text, start);
-                end = TextViewUtils.getLastNonWhitespace(text, end - 1) + 1;
+            final String oldContent = document.loadContent(context);
+            if (oldContent != null) {
+                final String nline = oldContent.endsWith("\n") ? "" : "\n";
+                final String newContent = oldContent + nline + formatted;
+                document.saveContent(context, newContent);
+            } else {
+                Toast.makeText(context, R.string.error_could_not_open_file, Toast.LENGTH_LONG).show();
+            }
 
-                if (start != -1 && end != -1 && start <= end) {
-
-                    final String trimmed = text.subSequence(start, end).toString();
-                    final boolean hasSpaces = trimmed.contains(" ") || trimmed.contains("\\t");
-
-                    // Test for web links
-                    if (!hasSpaces && Patterns.WEB_URL.matcher(trimmed).matches()) {
-                        links.add(Pair.create(new int[]{start, end}, false));
-                        return true;
-                    }
-
-                    // Test for file links
-                    try {
-                        if (new File(trimmed.replace("%20", " ")).exists()) {
-                            links.add(Pair.create(new int[]{start, end}, true));
-                            return true;
-                        }
-                    } catch (NullPointerException ignored) {
-                    }
-                }
-
-                return true;
-            });
-
-            return links;
+            _appSettings.addRecentFile(file);
+            if (showEditor) {
+                showInDocumentActivity(document);
+            } else {
+                context.finish();
+            }
         }
 
         public static String getLinkTitle(final String link) {
