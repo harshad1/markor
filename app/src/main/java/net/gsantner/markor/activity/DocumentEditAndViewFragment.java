@@ -222,7 +222,7 @@ public class DocumentEditAndViewFragment extends MarkorBaseFragment implements F
             _editTextUndoRedoHelper = new TextViewUndoRedo(_hlEditor);
         }
 
-        final Runnable debounced = TextViewUtils.makeDebounced(500, () -> {
+        final Runnable debounced = GsContextUtils.makeDebounced(500, () -> {
             checkTextChangeState();
             updateUndoRedoIconStates();
         });

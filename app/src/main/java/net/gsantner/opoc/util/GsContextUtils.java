@@ -60,6 +60,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
@@ -168,6 +169,26 @@ public class GsContextUtils {
     public static final GsContextUtils instance = new GsContextUtils();
 
     public GsContextUtils() {
+    }
+
+    public static Runnable makeDebounced(final long delayMs, final Runnable callback) {
+        return makeDebounced(null, delayMs, callback);
+    }
+
+    // Debounce any callback
+    public static Runnable makeDebounced(final Handler handler, final long delayMs, final Runnable callback) {
+        final Handler _handler = handler == null ? new Handler(Looper.getMainLooper()) : handler;
+        final Object sync = new Object();
+        return () -> {
+            synchronized (sync) {
+                _handler.removeCallbacks(callback);
+                if (delayMs > 0) {
+                    _handler.postDelayed(callback, delayMs);
+                } else {
+                    _handler.post(callback);
+                }
+            }
+        };
     }
 
     protected <T extends GsContextUtils> T thisp() {

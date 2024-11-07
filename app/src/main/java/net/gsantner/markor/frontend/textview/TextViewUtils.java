@@ -12,8 +12,6 @@ package net.gsantner.markor.frontend.textview;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Layout;
@@ -698,26 +696,6 @@ public final class TextViewUtils {
         public int nextSpanTransition(int start, int limit, Class type) {
             return -1;
         }
-    }
-
-    public static Runnable makeDebounced(final long delayMs, final Runnable callback) {
-        return makeDebounced(null, delayMs, callback);
-    }
-
-    // Debounce any callback
-    public static Runnable makeDebounced(final Handler handler, final long delayMs, final Runnable callback) {
-        final Handler _handler = handler == null ? new Handler(Looper.getMainLooper()) : handler;
-        final Object sync = new Object();
-        return () -> {
-            synchronized (sync) {
-                _handler.removeCallbacks(callback);
-                if (delayMs > 0) {
-                    _handler.postDelayed(callback, delayMs);
-                } else {
-                    _handler.post(callback);
-                }
-            }
-        };
     }
 
     // Converts region to string with a minimum of work

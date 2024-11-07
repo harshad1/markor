@@ -31,6 +31,7 @@ import net.gsantner.markor.ApplicationObject;
 import net.gsantner.markor.activity.MainActivity;
 import net.gsantner.markor.model.AppSettings;
 import net.gsantner.opoc.format.GsTextUtils;
+import net.gsantner.opoc.util.GsContextUtils;
 import net.gsantner.opoc.wrapper.GsCallback;
 import net.gsantner.opoc.wrapper.GsTextWatcherAdapter;
 import net.gsantner.markor.util.TextCasingUtils;
@@ -213,7 +214,7 @@ public class HighlightingEditor extends AppCompatEditText {
 
         if (_hl != null) {
             initHighlighter();
-            _hlDebounced = TextViewUtils.makeDebounced(getHandler(), _hl.getHighlightingDelay(), this::recomputeHighlightingAsync);
+            _hlDebounced = GsContextUtils.makeDebounced(getHandler(), _hl.getHighlightingDelay(), this::recomputeHighlightingAsync);
             recomputeHighlighting();
         } else {
             _hlDebounced = null;

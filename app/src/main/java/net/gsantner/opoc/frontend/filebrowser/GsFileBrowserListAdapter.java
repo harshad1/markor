@@ -61,7 +61,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
-public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowserListAdapter.FilesystemViewerViewHolder> implements Filterable, View.OnClickListener, View.OnLongClickListener, FilenameFilter {
+public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowserListAdapter.FilesystemViewerViewHolder> implements View.OnClickListener, View.OnLongClickListener, FilenameFilter {
     //########################
     //## Static
     //########################
@@ -88,7 +88,6 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
     private File _fileToShowAfterNextLoad;
     private File _currentFolder;
     private final Context _context;
-    private StringFilter _filter;
     private RecyclerView _recyclerView;
     private LinearLayoutManager _layoutManager;
     private final Map<File, File> _virtualMapping;
@@ -97,6 +96,9 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
     private final Map<File, Parcelable> _folderScrollMap = new HashMap<>();
     private final Stack<File> _backStack = new Stack<>();
     private long _prevModSum = 0;
+
+    private CharSequence _lastFilter = "";
+    private final Runnable _debouncedLoad;
 
     //########################
     //## Methods
@@ -137,6 +139,7 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
 
         _virtualMapping = Collections.unmodifiableMap(getVirtualFolders());
         _reverseVirtualMapping = Collections.unmodifiableMap(GsCollectionUtils.reverse(_virtualMapping));
+        _debouncedLoad = GsContextUtils.makeDebounced(250, this::reloadCurrentFolder);
         loadFolder(_dopt.startFolder != null ? _dopt.startFolder : _dopt.rootFolder, null);
     }
 
@@ -365,14 +368,6 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
     @Override
     public int getItemCount() {
         return _adapterDataFiltered.size();
-    }
-
-    @Override
-    public Filter getFilter() {
-        if (_filter == null) {
-            _filter = new StringFilter(this, _adapterData);
-        }
-        return _filter;
     }
 
     public boolean isCurrentFolderWriteable() {
@@ -755,7 +750,7 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
                 _adapterData.clear();
                 _adapterData.addAll(newData);
                 _currentSelection.retainAll(_adapterData);
-                _filter.filter(_filter._lastFilter);
+                _applyFilter();
                 _currentFolder = folder;
                 _prevModSum = modSum;
 
@@ -818,53 +813,24 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
         return _currentFolder != null && _dopt.rootFolder != null && _dopt.rootFolder.getAbsolutePath().equals(_currentFolder.getAbsolutePath());
     }
 
-    //########################
-    //##
-    //## StringFilter
-    //##
-    //########################
-    private static class StringFilter extends Filter {
-        private final GsFileBrowserListAdapter _adapter;
-        private final List<File> _originalList;
-        private final List<File> _filteredList;
-        public CharSequence _lastFilter = "";
+    private void _applyFilter() {
+        final String constraint = _lastFilter.toString().toLowerCase().trim();
+        _adapterDataFiltered.clear();
 
-        private StringFilter(GsFileBrowserListAdapter adapter, List<File> adapterData) {
-            super();
-            _adapter = adapter;
-            _originalList = adapterData;
-            _filteredList = new ArrayList<>();
-        }
-
-        @Override
-        protected FilterResults performFiltering(CharSequence constraint) {
-            final FilterResults results = new FilterResults();
-            constraint = constraint.toString().toLowerCase(Locale.getDefault()).trim();
-            _filteredList.clear();
-
-            if (constraint.length() == 0) {
-                _filteredList.addAll(_originalList);
-            } else {
-                for (File file : _originalList) {
-                    if (file.getName().toLowerCase(Locale.getDefault()).contains(constraint)) {
-                        _filteredList.add(file);
-                    }
+        if (constraint.isEmpty()) {
+            _adapterDataFiltered.addAll(_adapterData);
+        } else {
+            for (File file : _adapterData) {
+                if (file.getName().toLowerCase(Locale.getDefault()).contains(constraint)) {
+                    _adapterDataFiltered.add(file);
                 }
             }
-
-            _lastFilter = constraint;
-            results.values = _filteredList;
-            results.count = _filteredList.size();
-            return results;
         }
+    }
 
-        @Override
-        @SuppressWarnings("unchecked")
-        protected void publishResults(CharSequence constraint, FilterResults results) {
-            _adapter._adapterDataFiltered.clear();
-            _adapter._adapterDataFiltered.addAll((ArrayList<File>) results.values);
-            _adapter.notifyDataSetChanged();
-        }
+    public void filter(CharSequence constraint) {
+        _lastFilter = constraint;
+        _debouncedLoad.run();
     }
 
     @SuppressWarnings({"WeakerAccess", "unused"})
