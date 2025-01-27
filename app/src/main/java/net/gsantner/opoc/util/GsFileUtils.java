@@ -929,14 +929,4 @@ public class GsFileUtils {
         }
         return null;
     }
-
-    public static String getPath(final File file) {
-        try {
-            return file.getCanonicalPath();
-        } catch (IOException e) {
-            return file.getAbsolutePath();
-        } catch (NullPointerException e) {
-            return "";
-        }
-    }
 }
