@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -119,7 +119,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Το αρχείο δεν βρίσκεται στον τρέχοντα φάκελο. Θέλετε να το αντιγράψετε στον τρέχοντα φάκελο? Αυτό θα αντικαταστήσει οποιοδήποτε υπάρχον αρχείο με το ίδιο όνομα.</string>
     <string name="files_and_folders">Αρχεία και φάκελοι</string>
     <string name="document_browser">Περιηγητής εγγράφων</string>
-    <string name="file_browser">Περιηγητής αρχείων</string>
     <string name="set_due_date">Ορισμός ημερομηνίας λήξης</string>
     <string name="insert_replace_date">Εισαγωγή ημερομηνίας</string>
     <string name="create_note" needed="false">Δημιουργία Σημείωσης</string>
@@ -135,12 +134,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Κύρια Προβολή</string>
     <string name="overall_theme_used_in_app">Το γενικό θέμα που χρησιμοποιείται στην εφαρμογή</string>
     <string name="remember_last_directory">Απομνημόνευση τελευταίου φακέλου</string>
-    <string name="syntax_highlighting">Επισήμανση σύνταξης</string>
-    <string name="dynamic_highlighting">Δυναμική επισήμανση</string>
     <string name="highlighting_delay">Καθυστέρηση επισήμανσης</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Καθυστέρηση σε χιλιοστά του δευτερολέπτου για ανανέωση της επισήμανσης. Μια χαμηλότερη τιμή θα ξεκινήσει την επισήμανση νωρίτερα, αλλά θα εξαντλήσει την μπαταρία σας και ενδέχεται να επιβραδύνει την εφαρμογή σε παλαιότερες συσκευές.</string>
     <string name="highlighting_enabled_or_not__appspecific">Ελέγχει αν το εισαχθέν κείμενο πρέπει να επισημανθεί ή όχι</string>
-    <string name="dynamic_highlighting_effect">Δυναμική επισήμανση αυξάνει την απόδοση. Μπορεί να προκαλέσει τον επανασχεδιασμό των τεχνουργημάτων.</string>
     <string name="control_font_size_in_editor">Έλεγχος του μεγέθους γραμματοσειράς που χρησιμοποιείται στον επεξεργαστή</string>
     <string name="textactions_show_useful_actions_description__appspecific">Εμφάνιση μιας γραμμής με εύχρηστα κουμπιά στο κάτω μέρος. Αυτές οι ενέργειες κειμένου τροποποιούν το κείμενο ή τρέχουν μια ενέργεια βασισμένη στο κείμενο.</string>
     <string name="load_last_opened_folder_at_startup">Φόρτωση του τελευταίου ανοιγμένου φακέλου κατά την εκκίνηση</string>
@@ -175,17 +171,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">Ταξινόμηση εργασιών με βάση την επιλεγμένη σειρά</string>
     <string name="special_key">Ειδικό πλήκτρο</string>
     <string name="asciidoc_special_key">Περιεχόμενο AsciiDoc</string>
-    <string name="key_page_up">Σελίδα Επάνω (Page Up)</string>
-    <string name="key_page_down">Σελίδα Κάτω (Page Down)</string>
-    <string name="move_text_one_line_up">Μετακίνηση κειμένου μία γραμμή πάνω</string>
-    <string name="move_text_one_line_down">Μετακίνηση κειμένου μία γραμμή κάτω</string>
-    <string name="start_new_line_below">Ξεκινήστε νέα γραμμή παρακάτω</string>
-    <string name="key_pos_1">Έναρξη Γραμμής (Pos Home)</string>
-    <string name="key_pos_end">Τέλος Γραμμής (Pos Τέλος)</string>
-    <string name="key_pos_1_document">Έναρξη Εγγράφου</string>
-    <string name="key_pos_end_document">Τέλος Εγγράφου</string>
     <string name="key_ctrl_a">Επιλογή όλων (Ctrl+A)</string>
-    <string name="key_tab">Στηλοθέτης</string>
     <string name="start_on_bottom">Έναρξη στο κάτω μέρος</string>
     <string name="start_on_bottom_when_loading_document">Μετά τη φόρτωση ενός εγγράφου, του δρομέα θέσης στο τέλος του</string>
     <string name="unordered_list_character">Χαρακτήρας για μη ταξινομημένη λίστα</string>
@@ -253,7 +239,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">Δεν υπάρχει εγκατεστημένη εφαρμογή ημερολογίου!</string>
     <string name="popular_documents">Δημοφιλή έγγραφα</string>
     <string name="color">Χρώμα</string>
-    <string name="zero_width_space">Χώρος μηδενικού πλάτους</string>
     <string name="basic_color_scheme">Σχέδιο βασικών χρωμάτων</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Αλλάζει το χρώμα φόντου και προσκηνίου του επεξεργαστή κειμένου. Ρυθμίζει το θέμα της εφαρμογής και είναι διαθέσιμο σε ανοιχτό και σκούρο θέμα. Τα χρώματα επισήμανσης 
  παραμένουν τα ίδια.</string>
@@ -272,7 +257,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Επιλέξτε ημερομηνία</string>
     <string name="pick_time">Επιλέξτε ώρα</string>
     <string name="get_format_instead_date_or_time">Χρήση μορφής αντί για ημερομηνία ή ώρα</string>
-    <string name="always_use_current_date_and_time">Να χρησιμοποιείται πάντα η τρέχουσα ημερομηνία &amp; ώρα</string>
     <string name="result">Αποτέλεσμα</string>
     <string name="just_time">Μόνο ώρα</string>
     <string name="just_date">Μόνο ημερομηνία</string>
@@ -297,8 +281,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Μαύρο</string>
     <string name="white">Λευκό</string>
     <string name="view">Προβολή</string>
-    <string name="view_mode">Λειτουργία προβολής</string>
-    <string name="edit_mode">Λειτουργία επεξεργασίας</string>
     <string name="mount_storage">Προσάρτηση αποθ. χώρος</string>
     <string name="application_needs_access_to_storage_mount_it">Απαιτείται άδεια για πρόσβαση σε αυτόν τον χώρο αποθήκευσης. Τοποθετήστε τον αποθηκευτικό χώρο για να δώσετε πρόσβαση. Επιβεβαιώστε αυτό το παράθυρο διαλόγου για να εμφανιστεί ένα αναδυόμενο παράθυρο. Επιλέξτε εκεί τον αποθηκευτικό χώρο και πατήστε την επιλογή.</string>
     <string name="share_into">Κοινή χρήση σε</string>
@@ -311,7 +293,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">Το επιλεγμένο αρχείο μπορεί να είναι ένα απλό αρχείο κειμένου. Θέλετε να το ανοίξετε στον επεξεργαστή, ή σε άλλη εφαρμογή?\n\nΜην προσπαθήσετε να ανοίξετε δυαδικά αρχεία. Αν δεν είστε σίγουροι, ανοίξτε με άλλη εφαρμογή.</string>
     <string name="list_in_recent_files">Λίστα σε πρόσφατα αρχεία</string>
     <string name="reload">Επαναφόρτωση</string>
-    <string name="wrap_words">Αναδίπλωση λέξεων</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Soft break if text doesn\'t fit to screen width. Else enable horizontal scrolling.</string>
     <string name="always_open_with_this_app">Πάντα άνοιγμα με αυτήν την εφαρμογή</string>
     <string name="always_open_files_with_this_app_when_list_contains_file_extension">Πάντα να ανοίγετε αρχεία με αυτήν την εφαρμογή, όταν η λίστα περιέχει την επέκταση αρχείου. Χρησιμοποιήστε \'Κανένα, .html, . ss , .js\' για παράδειγμα, αν θέλετε να επεξεργαστείτε τα αρχεία web και αυτά χωρίς επέκταση αρχείου.</string>
@@ -386,7 +367,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Μορφή περιγραφής αρχείου</string>
     <string name="file_description_format_dialog">Μορφή για την περιγραφή κάτω από κάθε αρχείο στο πρόγραμμα περιήγησης αρχείων. Ακολουθεί τους κανόνες SimpleDateFormat του Android, με την προσθήκη του FS για την εμφάνιση του μεγέθους του αρχείου. Αφήστε κενό για να χρησιμοποιήσετε την προεπιλεγμένη μορφή για τον τόπο σας.\n\nΠαράδειγμα εισόδου:\nFS yyyyy MMM dd hh:mm:ss aa\nΜορφή εξόδου:\n30KB 2020 Μαρ 20 11:24:52 μμ</string>
     <string name="loading_default_value">Φόρτωση προεπιλεγμένης τιμής</string>
-    <string name="file_settings">Ρυθμίσεις αρχείου</string>
     <string name="search_and_replace">Αναζήτηση / Αντικατάσταση</string>
     <string name="search_for">Αναζήτηση για</string>
     <string name="replace_with">Αντικατάσταση με</string>

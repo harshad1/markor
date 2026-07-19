@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -64,11 +64,11 @@ public class MarkorContextUtils extends GsContextUtils {
         }
     }
 
-    public <T extends GsContextUtils> T createLauncherDesktopShortcut(final Context context, final File file) {
+    public <T extends GsContextUtils> T createLauncherDesktopShortcut(final Context context, final File file, @Nullable String title) {
         // This is only allowed to call when direct file access is possible!!
         // So basically only for java.io.File Objects. Virtual files, or content://
         // in private/restricted space won't work - because of missing permission grant when re-launching
-        final String title = file != null ? GsFileUtils.getFilenameWithoutExtension(file) : null;
+        title = title == null ? GsFileUtils.getFilenameWithoutExtension(file) : title;
         if (!TextUtils.isEmpty(title)) {
             final int iconRes = getIconResForFile(file);
             final Intent intent = new Intent(context, OpenFromShortcutOrWidgetActivity.class).setData(Uri.fromFile(file));
@@ -80,7 +80,7 @@ public class MarkorContextUtils extends GsContextUtils {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @SuppressWarnings("deprecation")
     public PrintJob printOrCreatePdfFromWebview(final WebView webview, Document document, boolean... landscape) {
-        String jobName = String.format("%s (%s)", document.getTitle(), webview.getContext().getString(R.string.app_name_real));
+        String jobName = String.format("%s (%s)", document.title, webview.getContext().getString(R.string.app_name_real));
         return super.print(webview, jobName, landscape);
     }
 
@@ -89,30 +89,37 @@ public class MarkorContextUtils extends GsContextUtils {
         return thisp();
     }
 
-    // Get intent file
-    public static File getIntentFile(final Intent intent, final File fallback) {
+    public static File getIntentFile(final Intent intent) {
+        return getIntentFile(intent, null);
+    }
+
+    public static File getIntentFile(final Intent intent, final @Nullable Context context) {
         if (intent == null) {
-            return fallback;
+            return null;
         }
 
         // By extra path
-        final File file = (File) intent.getSerializableExtra(Document.EXTRA_FILE);
-        if (file != null) {
-            return file;
+        File file = (File) intent.getSerializableExtra(Document.EXTRA_FILE);
+
+        // By stream etc
+        if (file == null && context != null) {
+            file = GsContextUtils.extractFileFromIntent(intent, context);
         }
 
         // By url in data
-        try {
-            return new File(intent.getData().getPath());
-        } catch (NullPointerException ignored) {
+        if (file == null) {
+            try {
+                file = new File(intent.getData().getPath());
+            } catch (NullPointerException ignored) {
+            }
         }
 
-        return fallback;
+        return file;
     }
 
     public static File getValidIntentFile(final Intent intent, final File fallback) {
         final File f = getIntentFile(intent, null);
-        return f != null && (f.exists() || GsFileBrowserListAdapter.isVirtualFolder(f)) ? f : fallback;
+        return GsFileUtils.exists(f) ? f : fallback;
     }
 
     @Override

@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2018-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2018-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -36,7 +36,7 @@ public class MarkdownSyntaxHighlighter extends SyntaxHighlighterBase {
     private static final int MD_COLOR_LINK = 0xff1ea3fe;
     private static final int MD_COLOR_LIST = 0xffdaa521;
     private static final int MD_COLOR_QUOTE = 0xff88b04c;
-    private static final int MD_COLOR_CODEBLOCK = 0x448c8c8c;
+    private static final int MD_COLOR_CODEBLOCK = 0x60afafaf;
 
     public MarkdownSyntaxHighlighter(AppSettings as) {
         super(as);

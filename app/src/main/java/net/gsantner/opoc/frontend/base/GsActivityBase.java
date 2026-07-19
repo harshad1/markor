@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2020-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2020-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2020-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2020-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -11,9 +11,9 @@ package net.gsantner.opoc.frontend.base;
 
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
@@ -21,6 +21,8 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import net.gsantner.opoc.model.GsSharedPreferencesPropertyBackend;
 import net.gsantner.opoc.util.GsContextUtils;
@@ -41,8 +43,11 @@ public abstract class GsActivityBase<AS extends GsSharedPreferencesPropertyBacke
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        onPreCreate(savedInstanceState);
         super.onCreate(savedInstanceState);
+
+        _savedInstanceState = savedInstanceState;
+        _appSettings = createAppSettingsInstance();
+        _cu = createContextUtilsInstance();
 
         m_setActivityBackgroundColor.callback();
         m_setActivityNavigationBarColor.callback();
@@ -58,21 +63,19 @@ public abstract class GsActivityBase<AS extends GsSharedPreferencesPropertyBacke
             } catch (Exception ignored) {
             }
         }
+
+        // Setup the call to toolbar click events
+        // Do this every time the activity is created, to accommodate lifecycle changes
+        final Toolbar toolbar = getToolbar();
+        if (toolbar != null) {
+            toolbar.setOnClickListener(this::onToolbarClick);
+            toolbar.setOnLongClickListener(this::onToolbarLongClick);
+        }
     }
 
-    protected void onPreCreate(@Nullable Bundle savedInstanceState) {
-        _savedInstanceState = savedInstanceState;
-        _appSettings = createAppSettingsInstance(this);
-        _cu = createContextUtilsInstance(this);
-    }
+    protected abstract AS createAppSettingsInstance();
 
-    public AS createAppSettingsInstance(Context applicationContext) {
-        return null;
-    }
-
-    public CU createContextUtilsInstance(Context applicationContext) {
-        return null;
-    }
+    protected abstract CU createContextUtilsInstance();
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -85,6 +88,14 @@ public abstract class GsActivityBase<AS extends GsSharedPreferencesPropertyBacke
         super.onResume();
         m_setActivityBackgroundColor.callback();
         m_setActivityNavigationBarColor.callback();
+
+        // Setup the call to toolbar click events
+        // Do this every time the activity is created, to accommodate lifecycle changes
+        final Toolbar toolbar = getToolbar();
+        if (toolbar != null) {
+            toolbar.setOnClickListener(this::onToolbarClick);
+            toolbar.setOnLongClickListener(this::onToolbarLongClick);
+        }
     }
 
     @Override
@@ -100,6 +111,26 @@ public abstract class GsActivityBase<AS extends GsSharedPreferencesPropertyBacke
      * This will be called when this activity gets the first time visible
      */
     public void onActivityFirstTimeVisible() {
+    }
+
+    private void onToolbarClick(final View v) {
+        final FragmentManager fm = getSupportFragmentManager();
+        for (final Fragment fragment : fm.getFragments()) {
+            if (fragment instanceof GsFragmentBase && fragment.isVisible() && fragment.isResumed()) {
+                ((GsFragmentBase<?, ?>) fragment).onToolbarClicked(v);
+                break;
+            }
+        }
+    }
+
+    private boolean onToolbarLongClick(final View v) {
+        final FragmentManager fm = getSupportFragmentManager();
+        for (final Fragment fragment : fm.getFragments()) {
+            if (fragment instanceof GsFragmentBase && fragment.isVisible() && fragment.isResumed()) {
+                return ((GsFragmentBase<?, ?>) fragment).onToolbarLongClicked(v);
+            }
+        }
+        return false;
     }
 
     @ColorInt
@@ -146,12 +177,23 @@ public abstract class GsActivityBase<AS extends GsSharedPreferencesPropertyBacke
         }
     }
 
-    public Toolbar getToolbar() {
+    private Toolbar getToolbar() {
         try {
             final int toolbarResId = GsContextUtils.instance.getResId(this, GsContextUtils.ResType.ID, "toolbar");
             return findViewById(toolbarResId);
         } catch (Exception ignored) {
             return null;
         }
+    }
+
+    public void setToolbarText(final CharSequence text) {
+        final Toolbar toolbar = getToolbar();
+        if (toolbar != null) {
+            toolbar.setTitle(text);
+        }
+    }
+
+    public AS getAppSettings() {
+        return _appSettings;
     }
 }

@@ -1,5 +1,118 @@
 ### Recent changes
 - See [Discussions](https://github.com/gsantner/markor/discussions), [Issues](https://github.com/gsantner/markor/issues) and [Project news](https://github.com/gsantner/markor/blob/master/NEWS.md) to see what is going on.
+- New Updates also visible here: <https://github.com/gsantner/markor/releases>
+
+### v2.16 series
+- [2.16.0 - 2.16.1](https://github.com/gsantner/markor/compare/v2.16.0...v2.16.1)
+- [2.15.0 - 2.16.0](https://github.com/gsantner/markor/compare/v2.15.0...v2.16.0)
+- [2.15.2 - 2.16.0](https://github.com/gsantner/markor/compare/v2.15.2...v2.16.0)
+
+### v2.15 series
+- [2.14.0 - 2.14.1](https://github.com/gsantner/markor/compare/v2.14.0...v2.14.1)
+- [2.14.0 - 2.15.0](https://github.com/gsantner/markor/compare/v2.14.0...v2.15.0)
+- Make .svg editable, closes #2647, by @gsantner
+- keep the toolbar ref intact (#2635)
+- ShareInto: tracking/bloat parameter filtering - Amazon
+- Add SHA-256 to file info dialog (#2622)
+- Simpler http(s) regex for GsSimpleMarkdownParser (PR #2606)
+- Add dyslexia friendly font (PR #2602)
+- Improving view mode and rendering (PR #2566)
+- Fixes and improvements for AsciiDoc (darklight, caution-admonition, linebreak, pagebreak, quote, attachment)  (#2597)
+- Improve PlaintextSyntaxHighlighter with basic programming language editor syntax highlighting (PR #2560)
+- Update README.md (PR #2595)
+- Add AsciiDoc-reference, toolbar swap view and save button (#2580) (#2579)
+- Upgrade to mermaid v11.6.0 (PR #2575)
+- Template: Mermaid-Katex improvements (PR #2574)
+- Settings: Move some 'Other' settings to 'Edit mode' (PR #2562)
+- Quick filter all files, Share files into markor (PR #2521)
+- Fix Prism code block issues (PR #2542)
+- Fix unit tests - Color.rgb is Android only API and not available in junit -> own method
+- CSV: View-Mode syntax highlighting: Make column 3 readable in dark mode (255 blue -> violet-blue), closes #2540, by @gsantner
+- OrgMode: make insert-link action-button use correct syntax, closes #2527 (#2528)
+- Improve text rendering performance, closes #2478, closes #2515 (#2509)
+- Filebrowser: Per folder sort order (PR #2499)
+- Improve line numbers (PR #2470)
+- Orgmode fixes and improvements, closes #2405 (PR #2504)
+- View-Mode: Code highlighting block - Prism add more language (PR #2508)
+- Markdown: Open link action: Fix open links when Markdown link has space at end
+- Update Android gradle/tools to 8.10.2/8.8
+
+### v2.13 series
+- [2.13.0 - 2.14.0](https://github.com/gsantner/markor/compare/v2.13.0...v2.14.0)
+- Markdown: Fix rendering of '$' in non-math view mode (PR #2485 closes #2085 #2236)
+- Android Studio latest version support
+- Keyboard TAB key handling, syntax highlighting performance, filebrowser navigation (PR #2487 closes #2469 #2484)
+- Restore audio action  (PR #2481)
+- Multi user file browsing, closes #2479 (PR #2482)
+- Select lines (PR #2443 by @harshad1)
+- Fix various crashes of v2.13.1, by @gsantner
+- Fix lots of minor issues and crashes in v2.13.0, by @gsantner
+- Update F-Droid metadata links (#2466)
+- (wshoy/storageButton, wshoy/master) Update translations (#2467)
+- Remove OmRecorder (Voice/Audio recording feature), library outdated and download broken. (PR #2468)
+
+### v2.12 series
+- [2.12.0](https://github.com/gsantner/markor/compare/v2.11.1...v2.12.0)
+- [2.12.1](https://github.com/gsantner/markor/compare/v2.12.0...v2.12.1)
+- [2.12.2](https://github.com/gsantner/markor/compare/v2.12.1...v2.12.2)
+- [2.12.3](https://github.com/gsantner/markor/compare/v2.12.2...v2.12.3)
+- [2.12.4](https://github.com/gsantner/markor/compare/v2.12.3...v2.12.4)
+- [2.12.5](https://github.com/gsantner/markor/compare/v2.12.4...v2.12.5)
+- [2.12.6](https://github.com/gsantner/markor/compare/v2.12.5...v2.12.6)
+
+- Override .org file extension to use text mimetype (*/* unrecognized on older devices) PR#2455
+- android-35 Disable window size overlap, closes #2448 #2387 #2451
+- orgmode: add more text styling syntax and textactions (PR #2450)
+- orgmode: fix action buttons not being loaded correctly (PR #2449)
+- Rework /storage mapped folders (PR #2445 by @gsantner)
+- FileManager: Remove top submenu to open special folders, load storage overview in filemanager instead (PR #2440 by @gsantner)
+- Register chess extension (.fen) for plaintext - https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation closes #2241 (#2439)
+- Open .lrc extension as plaintext by default, closes #2322 (#2438)
+- TextAction: Add text case changing functionality (closes #2390, PR #2426)
+- Bugfix: showAndFlash must be called on UI thread, closes #2427 (#2428)
+- Improvements for HeadlineDialog scroll restoration and copy code block button (PR #2406)
+- Improvements for the action buttons (closes #2386, PR #2388)
+- Create launcher widget for todo (closes #1997, PR #2379)
+- Disable multi-window settings option by default (PR #2420)
+- Fixed checking for indices (#2421)
+- Fix how multiple windows are launched (PR #2419)
+- Add Em Space special key for paragraph indent (#2400)
+- GitHub Actions CI configuration - upgrade upload step, fixes CI build error (PR #2416 by @gsantner)
+- Updated README with dark/light todo.txt format images (PR #2411)
+- Navigation and highlighting improvements (PR #2377 closes #2409 closes #2410)
+- Filebrowser: Fix file modification time not reloaded, closes #2196 (PR #2385)
+- Minor doc improvements
+- Fix inject-head js option not applying, closes #2365, closes #2380 (PR #2383)
+- Add usual yyyy-MM-dd newfile default option
+- DocumentEditAndViewFragment: Fix all warnings, especially related to null pointers
+- Zim: Fix link/attachment format (PR #2147 by @mehw)
+- Add history scroll restoration for scroll views (#2366)
+- Various bugfixes (anchor/toc jumping #2364, snippets folder #2369, wikitext newfile #2362, virtual directory browser #2350) (PR #2370 by @hardhard1)
+- New Color picker, bump Android minSdk from 16 to 18, closes #1428 (PR #2203 by @halfdane)
+- Latest Android SDK/Gradle fixes, by @gsantner #2360
+- Add links to changelog
+- SearchReplace dialog: Use full width, closes #2367, by @gsantner
+- ShareInto: Fix crash when editor is null
+- Appearance improvements (PR #2359 closes #2358)
+- Fix notebook directory not being created, fix NewFileDialog when no last used type, by @gsantner closes #2360
+- Project configuration: upgrade to Android SDK 35, Gradle 8.7, AGP 8.5, Build tools 35, by @gsantner, (closes #2346, closes #2305 PR #2355)
+- Add ACTION_CREATE_NOTE intent filter, closes #2320, by @gsantner
+- Highlight file when going back to filebrowser (PR #2351)
+- View-Mode: Prism codeblock copy to clipboard button, update Mermaid and dark mode, closes #2336 closes #2335  (#2345)
+- File browser: Make Folder and file icons visually better distinct (outlined icon for file),  (PR by @wshoy #2331 fixes #2186)
+- Jump to correct heading via id, other tweaks, bugfixes (PR #2307 by @harshad1, fixes #2312 #2313)
+- FileBrowser: Disable file change options in virtual directories (closes #2287, by @gsantner)
+-  Format detection fixes, headline dialog improvements (PR #2300 closes #2303 closes #2296 closes #2297)
+- Disallow treating openxml (msword) files as textfiles, closes #2285
+- ShareInto: Move link checkbox down
+- ShareInto: Fix missing text at shared links (PR #2282 closes #2294)
+- CI/CD: Update GitHub Actions versions, fixes outdated warnings, force Java from Eclipse
+- Fix crash for unknown filetypes, fix EmbedBinary not detected, related to PR #2277
+- FileBrowser: Fix file copy file (nullpointer in currentfolder), by @gsantner
+- Update year in texts
+- Reformat code of PR #2277, closes #2225, closes #2217, closes #2199, closes #2153
+- Improvements to newfile dialog, open links, other fixes (PR #2277)
+
 
 ### v2.11 ([Details](https://github.com/gsantner/markor/blob/master/NEWS.md#markor-v211---asciidoc-csv-and-org-mode-todotxt-advanced-search-line-numbers))
 - Reworked attachments (PR #2106 by @harshad1)
@@ -25,7 +138,7 @@
 - [Editor: Increase performance on editables, more chunked operations, by @harshad1 (PR #1694)](https://github.com/gsantner/markor/pull/1694/files)
 - [Dialogs: Don't show OK button at dialogs that require specific selection, by @gsantner closes #1699, closes #1700](https://github.com/gsantner/markor/commit/b4ae32bf0e8ab890ded57718a9598da7a7d52870)
 - [Sync clients: Remove irritating file paths from unsupported dialog, by @gsantner, closes #1705](https://github.com/gsantner/markor/issues/1699)
-- [Check file existance case insensitive (Android filesystem usually is insensitive), by @gsantner, closes #1695](https://github.com/gsantner/markor/issues/1695)
+- [Check file existence case insensitive (Android filesystem usually is insensitive), by @gsantner, closes #1695](https://github.com/gsantner/markor/issues/1695)
 - [Improve Dialog OK button constraints #1699, by @harshad1 (PR #1720)](https://github.com/gsantner/markor/pull/1720/files)
 - [dotFiles: Hide "*_files" and "*.assets" from browser->save page to html, by @tifish (PR #1704)](https://github.com/gsantner/markor/pull/1704/files)
 - [More deterministic save / resume - Switching on every tab move, by @harshad1 (PR #1736)](https://github.com/gsantner/markor/pull/1736/files)
@@ -74,7 +187,7 @@
 - Backup and restore settings, Format selection with radio buttons, #1244 by @harshad1 @gsantner
 - Per-file font size, #1332 by @harshad1
 - Markdown: Support superscript^2^ syntax, #1268 by @gsantner
-- View mode: Image/PDF export whole page, add seperate screenshot option, by @gsantner
+- View mode: Image/PDF export whole page, add separate screenshot option, by @gsantner
 - todo.txt: Fix trailing space resulting in contexts/projects/due-dates to be entered twice, #1282 by @harshad1
 - Markdown: Enable GitLab extension, display video links as html5-video, #1280 by @gsantner
 - Markdown: Enable typographic transformation, #1277 by @gsantner
@@ -115,7 +228,7 @@
 - All formats: Date/Time dialog don't add entry twice to history, #1229 by @harshad1
 - Editor/Viewer: Increase scrollbar width, #1241 by @harshad1
 - File browser: File move start from current folder, #1234 by @harshad1
-- Editor/Viwer: Add file info option (document top menu), #1233 by @harshad1
+- Editor/Viewer: Add file info option (document top menu), #1233 by @harshad1
 - Viewer: Privacy: Opt-out of Android WebView's internal metrics, #1181 by @gsantner
 - Markdown: Support Notable's special home brewed syntax for attachments, #1252 by @gsantner
 - Dependencies: Add source code of colorpicker and build subproject, by @gsantner
@@ -141,7 +254,7 @@
 - Remove title from todo.txt date dialog, better usable on small devices
 - Fix search sometimes not working when chaging from view to edit mode
 - Rework Indent & Move lines Actions
-- Add settings option to control todo.txt completition date auto insert
+- Add settings option to control todo.txt completion date auto insert
 - All new todo.txt support in Markor
 - Add many languages to view-mode code highlighting
 - Add xlf format (plaintext)
@@ -176,7 +289,7 @@
 - Add Accordion (Click to expand) example and add action button
 - Tooltips for action buttons
 - For index.html files, show foldername at favourites/recents
-- todo.txt: Set completition date also when there is no creation date
+- todo.txt: Set completion date also when there is no creation date
 - Markdown: Configurable unordered list character
 - Custom order of action buttons
 - Markdown: Add alternative more performant heading highlighting
@@ -186,7 +299,7 @@
 - todo.txt: Preselect last used archive file by default for archiving
 - Markdown: Long press code to insert code block
 - todo.txt: Improved task sort functionalities
-- Add action button to expand selection of cursror to whole line
+- Add action button to expand selection of cursor to whole line
 - Markdown: Add Table of contents / Outline for Edit mode (Press toolbar)
 - Vertical Scrollbar now draggable at view & edit mode
 - todo.txt: Date&Time selection dialogs
@@ -261,7 +374,7 @@
 - Show app intro at first start  
 - All new file navigation  
 - Add favourite files  
-- Add quick navigiation options (to notebook, sdcard, AppData and more)  
+- Add quick navigation options (to notebook, sdcard, AppData and more)  
 - Add option to set Navigation-Bar color  
 - Combine edit & view mode to one fragment, show view as overlay  
 - Add horizontal scrolling for code blocks in view mode  
@@ -318,7 +431,7 @@
 - Editor  
   - Open multiple Windows  
 - Document browser  
-  - Completly new 'New file' dialog  
+  - Completely new 'New file' dialog  
 - Text Actions  
   - Sort todo.txt files  
   - Tasks support in Markdown  
@@ -330,7 +443,7 @@
 - Editor  
   - Added greenscale basic editor colors  
 - Representation  
-  - Set inital background color before loading document  
+  - Set initial background color before loading document  
   - Math/KaTex: Show inline when single dollar is used
 
 ### v1.4
@@ -453,9 +566,9 @@
 - Widget
   - Added shortcuts to ToDo, QuickNote and LinkBox
 - SD Card handling and permission errors
-  - Show warning when opening a file on not writeable path
-  - Add shortcuts to writeable SD card folders
-  - Mark unwriteable files red in selection dialog
+  - Show warning when opening a file on not writable path
+  - Add shortcuts to writable SD card folders
+  - Mark unwritable files red in selection dialog
 - ShareInto
   - Better separator placement
 
@@ -475,7 +588,7 @@
   - Show "open in browser" option if text contains link
   - Prepend separator to all existing documents
 - Settings / Preview
-  - User customizeable CSS/JS injection option (for preview)
+  - User customizable CSS/JS injection option (for preview)
   - Configureable in settings
   - Contains some (uncommented) modification lines for important elements
   - like font size, font type, script to load when page loaded etc.
@@ -500,7 +613,7 @@
 **New features:**  
 - Recently viewed documents
   - Start editing of recent documents, button in the toolbar of main view
-  - Allow sharing into recend documents
+  - Allow sharing into recent documents
   - Queue containing the 10 last viewed files
 - Keep scroll position when reloading document list (Notebook)
 - Document/File Info: Dialog showing information about selected file
@@ -520,7 +633,7 @@
 **Fixed:**  
 - Crash when Markor put to background and huge file is loaded
   - Document contents are not stored into resume cache anymore if they are too big
-  - Make no major differences for huge files, just undo/redo history is cleared when switchting away
+  - Make no major differences for huge files, just undo/redo history is cleared when switching away
 
 ### v0.3.7
 - Option to disable spellchecking-underline

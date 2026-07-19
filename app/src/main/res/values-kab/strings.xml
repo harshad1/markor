@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -118,7 +118,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Iẓri agejdan</string>
     <string name="overall_theme_used_in_app">Asentel agejdan i yeseqdac usnas</string>
     <string name="remember_last_directory">Mmekti akaram aneggaru</string>
-    <string name="syntax_highlighting">Asebrureq n tseddast</string>
     <string name="highlighting_delay">Amenḍar n usebrurq</string>
     <string name="highlighting_enabled_or_not__appspecific">Ma yella aḍris yettwaskecmen ad yettusebrureq neɣ ala</string>
     <string name="control_font_size_in_editor">Sbadu tiddi n tsefsit yettwasqedcen deg umaẓrag</string>
@@ -136,9 +135,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="space_between_lines_in_percent">Tallunt gar izirigen s ufmiḍi</string>
     <string name="line_spacing">Tallunt n izirigen</string>
     <string name="special_key">Tanast tuzzigt</string>
-    <string name="key_pos_end">Tagara n izirig (Pos End)</string>
-    <string name="key_pos_1_document">Tazwara n isemli</string>
-    <string name="key_pos_end_document">Tagara n isemli</string>
     <string name="key_ctrl_a">Fren akk (Ctrl+A)</string>
     <string name="default_">Amezwer</string>
     <string name="left">Azelmaḍ</string>
@@ -160,6 +156,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Turagt n usenfaṛ</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Ɛeddet amsukkel i usenfar. Anṣuf yes-sen akk ad xedmen aya, ama d wid i d-yusan d imaynuten</string>
     <string name="project_team">Tarbaɛt n usenfaṛ</string>
+    <string name="community">Tamezdagnut</string>
     <string name="contributors_public_add_yourself_description">Ssken tilɣa n umeddakel. Efk-it-id ad d-tbanen dagi deg yiwen n opt-in deffir n uddukkel</string>
     <string name="location">Asun</string>
     <string name="text_lines">Izirigen n uḍris</string>

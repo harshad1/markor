@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -18,21 +18,40 @@ import android.text.InputFilter;
 import android.text.Layout;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
+import android.util.Log;
+import android.util.TypedValue;
+import android.view.ActionMode;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.core.content.ContextCompat;
 
-import net.gsantner.markor.ApplicationObject;
+import net.gsantner.markor.R;
 import net.gsantner.markor.activity.MainActivity;
 import net.gsantner.markor.model.AppSettings;
 import net.gsantner.opoc.format.GsTextUtils;
 import net.gsantner.opoc.wrapper.GsCallback;
 import net.gsantner.opoc.wrapper.GsTextWatcherAdapter;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @SuppressWarnings("UnusedReturnValue")
 public class HighlightingEditor extends AppCompatEditText {
@@ -46,10 +65,8 @@ public class HighlightingEditor extends AppCompatEditText {
     private boolean _accessibilityEnabled = true;
     private final boolean _isSpellingRedUnderline;
     private SyntaxHighlighterBase _hl;
-    private boolean _isDynamicHighlightingEnabled = true;
     private Runnable _hlDebounced;        // Debounced runnable which recomputes highlighting
     private boolean _hlEnabled;           // Whether highlighting is enabled
-    private boolean _numEnabled;          // Whether show line numbers is enabled
     private final Rect _oldHlRect;        // Rect highlighting was previously applied to
     private final Rect _hlRect;           // Current rect
     private int _hlShiftThreshold = -1;   // How much to scroll before re-apply highlight
@@ -57,12 +74,18 @@ public class HighlightingEditor extends AppCompatEditText {
     private TextWatcher _autoFormatModifier;
     private boolean _autoFormatEnabled;
     private boolean _saveInstanceState = true;
-    private final LineNumbersDrawer _lineNumbersDrawer = new LineNumbersDrawer(this);
-
+    private final ExecutorService executor = new ThreadPoolExecutor(0, 3, 60, TimeUnit.SECONDS, new SynchronousQueue<>());
+    private final AtomicBoolean _textUnchangedWhileHighlighting = new AtomicBoolean(true);
+    private int _textChangedNumber;
+    private final Runnable _textChangedRecorder = TextViewUtils.makeDebounced(getHandler(), 1000, () -> _textChangedNumber++);
+    private StaticCursorDrawer _staticCursorDrawer;
+    private GsCallback.r0<int[]> _getScrollCallback;
+    private GsCallback.a2<Integer, Integer> _applyScrollCallback;
+    private int[] _savedScrollPosition;
 
     public HighlightingEditor(Context context, AttributeSet attrs) {
         super(context, attrs);
-        final AppSettings as = ApplicationObject.settings();
+        final AppSettings as = AppSettings.get(context);
 
         setAutoFormatters(null, null);
 
@@ -73,7 +96,6 @@ public class HighlightingEditor extends AppCompatEditText {
         }
 
         _hlEnabled = false;
-        _numEnabled = false;
         _oldHlRect = new Rect();
         _hlRect = new Rect();
 
@@ -82,6 +104,7 @@ public class HighlightingEditor extends AppCompatEditText {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (_hlEnabled && _hl != null) {
+                    _textUnchangedWhileHighlighting.set(false);
                     _hl.fixup(start, before, count);
                 }
             }
@@ -91,80 +114,138 @@ public class HighlightingEditor extends AppCompatEditText {
                 if (_hlEnabled && _hl != null && _hlDebounced != null) {
                     _hlDebounced.run();
                 }
+                _textChangedRecorder.run();
             }
         });
 
         // Listen to and update highlighting
         final ViewTreeObserver observer = getViewTreeObserver();
-        observer.addOnScrollChangedListener(() -> updateHighlighting(false));
-        observer.addOnGlobalLayoutListener(() -> updateHighlighting(false));
+        observer.addOnScrollChangedListener(this::updateHighlighting);
+        observer.addOnGlobalLayoutListener(this::updateHighlighting);
 
         // Fix for Android 12 perf issues - https://github.com/gsantner/markor/discussions/1794
         setEmojiCompatEnabled(false);
-    }
 
-    @Override
-    public boolean onPreDraw() {
-        _lineNumbersDrawer.setTextSize(getTextSize());
-        return super.onPreDraw();
-    }
-
-    @Override
-    protected void onDraw(Canvas canvas) {
-        super.onDraw(canvas);
-
-        if (_numEnabled) {
-            _lineNumbersDrawer.draw(canvas);
-        }
+        // Custom options
+        setupCustomOptions();
     }
 
     // Highlighting
     // ---------------------------------------------------------------------------------------------
 
-    private boolean isScrollSignificant() {
-        return (_oldHlRect.top - _hlRect.top) > _hlShiftThreshold ||
-                (_hlRect.bottom - _oldHlRect.bottom) > _hlShiftThreshold;
+    // Batch edit spans (or anything else, really)
+    // This triggers a reflow which will bring focus back to the cursor.
+    // Therefore, it cannot be used for updating the highlighting as one scrolls
+    private void batch(final Runnable runnable) {
+        try {
+            beginBatchEdit();
+            runnable.run();
+        } finally {
+            endBatchEdit(); // This can trigger reflow which will bring focus back to the cursor and reset scroll position
+        }
     }
 
-    private void updateHighlighting(final boolean recompute) {
-        if (_hlEnabled && _hl != null && getLayout() != null) {
+    public void setScrollCallbacks(final GsCallback.r0<int[]> get, final GsCallback.a2<Integer, Integer> apply) {
+        _getScrollCallback = get;
+        _applyScrollCallback = apply;
+    }
 
-            final boolean visible = getLocalVisibleRect(_hlRect);
+    private void saveScrollPositionForLayout() {
+        if (_savedScrollPosition == null && _getScrollCallback != null) {
+            _savedScrollPosition = _getScrollCallback.callback();
+        }
+    }
 
-            // Don't highlight unless shifted sufficiently or a recompute is required
-            if (recompute || (visible && _hl.hasSpans() && isScrollSignificant())) {
-                _oldHlRect.set(_hlRect);
+    private void applySavedScrollPosition() {
+        final int[] position = _savedScrollPosition;
+        _savedScrollPosition = null;
+        if (position != null && position.length >= 2 && _applyScrollCallback != null) {
+            _applyScrollCallback.callback(position[0], position[1]);
+        }
+    }
 
-                final int[] newHlRegion = hlRegion(_hlRect); // Compute this _before_ clear
-                _hl.clearDynamic();
-                if (recompute) {
-                    _hl.clearStatic().recompute().applyStatic();
-                }
-                _hl.applyDynamic(newHlRegion);
+    private boolean isScrollSignificant() {
+        return Math.abs(_oldHlRect.top - _hlRect.top) > _hlShiftThreshold ||
+                Math.abs(_hlRect.bottom - _oldHlRect.bottom) > _hlShiftThreshold;
+    }
+
+    // The order of tests here is important
+    // - we want to run getLocalVisibleRect even if recompute is true
+    // - we want to run isScrollSignificant after getLocalVisibleRect
+    // - We don't care about the presence of spans or scroll significance if recompute is true
+    private boolean runHighlight(final boolean recompute) {
+        return _hl != null && getLayout() != null &&
+                (getLocalVisibleRect(_hlRect) || recompute) &&
+                (recompute || _hl.hasSpans()) &&
+                (recompute || isScrollSignificant());
+    }
+
+    private void updateHighlighting() {
+        if (runHighlight(false)) {
+            // Do not batch as we do not want to reflow
+            _hl.clearDynamic().applyDynamic(hlRegion());
+            _oldHlRect.set(_hlRect);
+        }
+    }
+
+    public void recomputeHighlighting() {
+        if (_hlEnabled && runHighlight(true)) {
+            this.saveScrollPositionForLayout();
+            batch(() -> _hl
+                    .clearDynamic()
+                    .clearStatic(false)
+                    .recompute()
+                    .addAdditional(_matches)
+                    .applyStatic()
+                    .applyDynamic(hlRegion())
+            );
+            this.applySavedScrollPosition();
+        }
+    }
+
+    /**
+     * Computing the highlighting spans for a lot of text can be slow so we do it async
+     * 1. We set a flag to check that the text did not change when we were computing
+     * 2. We trigger the computation to a buffer
+     * 3. If the text did not change during computation, we apply the highlighting
+     */
+    private void recomputeHighlightingAsync() {
+        if (_hlEnabled && runHighlight(true)) {
+            try {
+                executor.execute(this::_recomputeHighlightingWorker);
+            } catch (RejectedExecutionException ignored) {
             }
         }
     }
 
-    public void setDynamicHighlightingEnabled(final boolean enable) {
-        _isDynamicHighlightingEnabled = enable;
-        updateHighlighting(true);
-    }
-
-    public boolean isDynamicHighlightingEnabled() {
-        return _isDynamicHighlightingEnabled;
+    private synchronized void _recomputeHighlightingWorker() {
+        _textUnchangedWhileHighlighting.set(true);
+        _hl.compute();
+        post(() -> {
+            if (_textUnchangedWhileHighlighting.get()) {
+                batch(() -> _hl
+                        .clearStatic(false)
+                        .clearDynamic()
+                        .setComputed()
+                        .addAdditional(_matches)
+                        .applyStatic()
+                        .applyDynamic(hlRegion())
+                );
+            }
+        });
     }
 
     public void setHighlighter(final SyntaxHighlighterBase newHighlighter) {
         if (_hl != null) {
-            _hl.clearAll();
+            _hl.clearDynamic().clearStatic(true);
         }
 
         _hl = newHighlighter;
 
         if (_hl != null) {
             initHighlighter();
-            _hlDebounced = TextViewUtils.makeDebounced(getHandler(), _hl.getHighlightingDelay(), () -> updateHighlighting(true));
-            _hlDebounced.run();
+            _hlDebounced = TextViewUtils.makeDebounced(getHandler(), _hl.getHighlightingDelay(), this::recomputeHighlightingAsync);
+            recomputeHighlighting();
         } else {
             _hlDebounced = null;
         }
@@ -197,62 +278,114 @@ public class HighlightingEditor extends AppCompatEditText {
         } else if (!enable && _hlEnabled) {
             _hlEnabled = false;
             if (_hl != null) {
-                _hl.clearAll();
+                _hl.clearDynamic().clearStatic(true).clearComputed();
             }
         }
         return prev;
     }
 
-    public boolean getLineNumbersEnabled() {
-        return _numEnabled;
-    }
-
-    public void setLineNumbersEnabled(final boolean enable) {
-        if (enable ^ _numEnabled) {
-            post(this::invalidate);
-        }
-        _numEnabled = enable;
-        if (_numEnabled) {
-            _lineNumbersDrawer.startLineTracking();
-        } else {
-            _lineNumbersDrawer.reset();
-            _lineNumbersDrawer.stopLineTracking();
-        }
-    }
-
     // Region to highlight
-    private int[] hlRegion(final Rect rect) {
-        if (_isDynamicHighlightingEnabled) {
-            final int hlSize = Math.round(HIGHLIGHT_REGION_SIZE * rect.height()) + _hlShiftThreshold;
-            final int startY = rect.centerY() - hlSize;
-            final int endY = rect.centerY() + hlSize;
-            return new int[]{rowStart(startY), rowEnd(endY)};
-        } else {
-            return new int[]{0, length()};
-        }
-    }
-
-    @Override
-    public boolean bringPointIntoView(int i) {
-        return super.bringPointIntoView(i);
+    private int[] hlRegion() {
+        final int hlSize = Math.round(HIGHLIGHT_REGION_SIZE * _hlRect.height()) + _hlShiftThreshold;
+        final int startY = _hlRect.centerY() - hlSize;
+        final int endY = _hlRect.centerY() + hlSize;
+        return new int[]{rowStart(startY), rowEnd(endY)};
     }
 
     private int rowStart(final int y) {
         final Layout layout = getLayout();
-        final int line = layout.getLineForVertical(y);
-        return layout.getLineStart(line);
+        return layout == null ? 0 : layout.getLineStart(layout.getLineForVertical(y));
     }
 
     private int rowEnd(final int y) {
         final Layout layout = getLayout();
-        final int line = layout.getLineForVertical(y);
-        return layout.getLineEnd(line);
+        return layout == null ? 0 : layout.getLineEnd(layout.getLineForVertical(y));
+    }
+
+    // Additional highlight for search / replace etc
+    // ---------------------------------------------------------------------------------------------
+
+    // for highlight text search matches/occurrences
+    private final List<SyntaxHighlighterBase.SpanGroup> _matches = new ArrayList<>();
+
+    public void setSearchMatches(List<SyntaxHighlighterBase.SpanGroup> spanGroups) {
+        if (_hl != null) {
+            _hl.clearAdditional(_matches);
+        }
+        _matches.clear();
+        if (spanGroups != null) {
+            _matches.addAll(spanGroups);
+        }
+        if (_hl != null) {
+            _hl.addAdditional(_matches);
+        }
+    }
+
+    public void removeSearchMatch(SyntaxHighlighterBase.SpanGroup spanGroup) {
+        if (_hl != null) {
+            _hl.clearDynamic().clearAdditional(spanGroup);
+        }
+        _matches.remove(spanGroup);
+    }
+
+    public void clearSearchMatches() {
+        if (_hl != null) {
+            _hl.clearDynamic().clearAdditional(_matches).applyDynamic(hlRegion());
+        }
+        _matches.clear();
+    }
+
+    public void applyDynamicHighlight() {
+        if (_hl != null) {
+            _hl.clearDynamic().applyDynamic(hlRegion());
+        }
+    }
+
+    // for highlight find-in-selection region
+    private SyntaxHighlighterBase.SpanGroup _searchSelection = null;
+
+    public void addSearchSelection(final int start, final int end, final @ColorInt int color) {
+        _searchSelection = SyntaxHighlighterBase.createBackgroundHighlight(start, end, color);
+        if (_hl != null) {
+            _hl.addAdditional(_searchSelection);
+        }
+    }
+
+    public void clearSearchSelection() {
+        if (_hl != null) {
+            _hl.clearDynamic().clearAdditional(_searchSelection);
+            _searchSelection = null;
+        }
     }
 
     // Various overrides
     // ---------------------------------------------------------------------------------------------
     public void setSaveInstanceState(final boolean save) {
         _saveInstanceState = save;
+    }
+
+    @Override
+    public boolean onPreDraw() {
+        try {
+            return super.onPreDraw();
+        } catch (OutOfMemoryError ignored) {
+            return false; // return false to cancel current drawing pass/round
+        }
+    }
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        try {
+            super.onDraw(canvas);
+
+            if (_staticCursorDrawer != null && hasFocus()) {
+                _staticCursorDrawer.draw(canvas);
+            }
+        } catch (Exception e) {
+            // Hinder drawing from crashing the app
+            Log.e(getClass().getName(), "HighlightingEditor onDraw->super.onDraw crash" + e);
+            Toast.makeText(getContext(), e.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -266,7 +399,7 @@ public class HighlightingEditor extends AppCompatEditText {
     protected void onVisibilityChanged(@NonNull View changedView, int visibility) {
         super.onVisibilityChanged(changedView, visibility);
         if (changedView == this && visibility == View.VISIBLE) {
-            updateHighlighting(true);
+            recomputeHighlighting();
         }
     }
 
@@ -276,6 +409,14 @@ public class HighlightingEditor extends AppCompatEditText {
         initHighlighter();
         if (_hlDebounced != null) {
             _hlDebounced.run();
+        }
+    }
+
+    @Override
+    public void setTextSize(int unit, float size) {
+        super.setTextSize(unit, size);
+        if (_staticCursorDrawer != null) {
+            _staticCursorDrawer.notifyTextSizeChanged();
         }
     }
 
@@ -290,11 +431,16 @@ public class HighlightingEditor extends AppCompatEditText {
 
     @Override
     public boolean onTextContextMenuItem(int id) {
-        // Copy-paste fix by bad richtext pasting - example text from code at https://plantuml.com/activity-diagram-beta
+        // Copy-paste fix by bad rich-text pasting - example text from code at https://plantuml.com/activity-diagram-beta
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && id == android.R.id.paste) {
             id = android.R.id.pasteAsPlainText;
         }
-        return super.onTextContextMenuItem(id);
+        try {
+            // i.e. DeadSystemRuntimeException can happen here
+            return super.onTextContextMenuItem(id);
+        } catch (Exception ignored) {
+            return true;
+        }
     }
 
     // Accessibility code is blocked during rapid update events
@@ -307,7 +453,7 @@ public class HighlightingEditor extends AppCompatEditText {
         }
     }
 
-    // Hleditor will report that it is not autofillable under certain circumstances
+    // HighlightingEditor will report that it is not auto-fillable under certain circumstances
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int getAutofillType() {
@@ -347,6 +493,42 @@ public class HighlightingEditor extends AppCompatEditText {
         if (MainActivity.IS_DEBUG_ENABLED) {
             AppSettings.appendDebugLog("Selection changed: " + selStart + "->" + selEnd);
         }
+
+        if (_staticCursorDrawer != null) {
+            _staticCursorDrawer.notifySelectionChanged(selStart, selEnd);
+        }
+    }
+
+    public interface OnDispatchKeyListener {
+        /**
+         * Override this method to implement custom keyboard shortcuts.
+         *
+         * @param keyCode the key code from HighlightingEditor
+         * @param event   the key event from HighlightingEditor
+         * @return {@code false} if the key press event was not be handled, {@code true} if it was consumed here.
+         */
+        boolean onDispatchKey(int keyCode, KeyEvent event);
+    }
+
+    private OnDispatchKeyListener onDispatchKeyListener;
+
+    /**
+     * This method can capture complete keyboard events.
+     * For example, it can capture the Enter key events like Ctrl + Enter, Ctrl + Shift + Enter, ...
+     *
+     * @param onDispatchKeyListener the key listener to listen to dispatch key events
+     */
+    public void setOnDispatchKeyListener(OnDispatchKeyListener onDispatchKeyListener) {
+        this.onDispatchKeyListener = onDispatchKeyListener;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (onDispatchKeyListener != null && onDispatchKeyListener.onDispatchKey(event.getKeyCode(), event)) {
+            return true;
+        } else {
+            return super.dispatchKeyEvent(event);
+        }
     }
 
     // Auto-format
@@ -366,14 +548,15 @@ public class HighlightingEditor extends AppCompatEditText {
 
     public void setAutoFormatEnabled(final boolean enable) {
         if (enable && !_autoFormatEnabled) {
-            if (_autoFormatFilter != null) {
-                setFilters(new InputFilter[]{_autoFormatFilter});
-            }
+            TextViewUtils.addFilter(this, _autoFormatFilter);
+
             if (_autoFormatModifier != null) {
                 addTextChangedListener(_autoFormatModifier);
             }
+
         } else if (!enable && _autoFormatEnabled) {
-            setFilters(new InputFilter[]{});
+            TextViewUtils.removeFilter(this, _autoFormatFilter);
+
             if (_autoFormatModifier != null) {
                 removeTextChangedListener(_autoFormatModifier);
             }
@@ -398,6 +581,11 @@ public class HighlightingEditor extends AppCompatEditText {
 
     // Utility functions for interaction
     // ---------------------------------------------------------------------------------------------
+
+    public void selectLines() {
+        final int[] sel = TextViewUtils.getLineSelection(this);
+        setSelection(sel[0], sel[1]);
+    }
 
     public void simulateKeyPress(int keyEvent_KEYCODE_SOMETHING) {
         dispatchKeyEvent(new KeyEvent(0, 0, KeyEvent.ACTION_DOWN, keyEvent_KEYCODE_SOMETHING, 0));
@@ -446,184 +634,154 @@ public class HighlightingEditor extends AppCompatEditText {
         return getSelectionStart();
     }
 
-    // Set selection to fill whole lines
-    // Returns original selectionStart
-    public int setSelectionExpandWholeLines() {
-        final int[] sel = TextViewUtils.getSelection(this);
-        final CharSequence text = getText();
-        setSelection(
-                TextViewUtils.getLineStart(text, sel[0]),
-                TextViewUtils.getLineEnd(text, sel[1])
-        );
-        return sel[0];
-    }
-
     public boolean indexesValid(int... indexes) {
         return GsTextUtils.inRange(0, length(), indexes);
     }
 
-    static class LineNumbersDrawer {
-
-        private final AppCompatEditText _editor;
-        private final Paint _paint = new Paint();
-
-        private final int _defaultPaddingLeft;
-        private static final int LINE_NUMBER_PADDING_LEFT = 18;
-        private static final int LINE_NUMBER_PADDING_RIGHT = 12;
-
-        private final Rect _visibleArea = new Rect();
-        private final Rect _lineNumbersArea = new Rect();
-
-        private int _numberX;
-        private int _gutterX;
-        private int _maxNumber = 1; // to gauge gutter width
-        private int _maxNumberDigits;
-        private float _oldTextSize;
-        private final int[] _startLine = {0, 1}; // {line index, actual line number}
-
-        private final GsTextWatcherAdapter _lineTrackingWatcher = new GsTextWatcherAdapter() {
+    private void setupCustomOptions() {
+        setCustomSelectionActionModeCallback(new ActionMode.Callback() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                _maxNumber -= GsTextUtils.countChar(s, start, start + count, '\n');
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                // Add custom items programmatically
+                menu.add(0, R.string.option_select_lines, 0, "☰");
+                return true;
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                _maxNumber += GsTextUtils.countChar(s, start, start + count, '\n');
-            }
-        };
-
-        public LineNumbersDrawer(final AppCompatEditText editor) {
-            _editor = editor;
-            _paint.setColor(0xFF999999);
-            _paint.setTextAlign(Paint.Align.RIGHT);
-            _defaultPaddingLeft = editor.getPaddingLeft();
-        }
-
-        public void setTextSize(final float textSize) {
-            _paint.setTextSize(textSize);
-        }
-
-        public boolean isTextSizeChanged() {
-            if (_paint.getTextSize() == _oldTextSize) {
-                return false;
-            } else {
-                _oldTextSize = _paint.getTextSize();
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                // Modify menu items here if necessary
                 return true;
             }
-        }
 
-        public boolean isMaxNumberDigitsChanged() {
-            final int oldDigits = _maxNumberDigits;
-
-            if (_maxNumber < 10) {
-                _maxNumberDigits = 1;
-            } else if (_maxNumber < 100) {
-                _maxNumberDigits = 2;
-            } else if (_maxNumber < 1000) {
-                _maxNumberDigits = 3;
-            } else if (_maxNumber < 10000) {
-                _maxNumberDigits = 4;
-            } else {
-                _maxNumberDigits = 5;
-            }
-            return _maxNumberDigits != oldDigits;
-        }
-
-        public boolean isOutOfLineNumbersArea() {
-            final int margin = (int) (_visibleArea.height() * 0.5f);
-            final int top = _visibleArea.top - margin;
-            final int bottom = _visibleArea.bottom + margin;
-
-            if (top < _lineNumbersArea.top || bottom > _lineNumbersArea.bottom) {
-                // Reset line numbers area
-                // height of line numbers area = (1.5 + 1 + 1.5) * height of visible area
-                _lineNumbersArea.top = top - _visibleArea.height();
-                _lineNumbersArea.bottom = bottom + _visibleArea.height();
-                return true;
-            } else {
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                if (item.getItemId() == R.string.option_select_lines) {
+                    HighlightingEditor.this.selectLines();
+                    return true;
+                }
                 return false;
             }
-        }
 
-        public void startLineTracking() {
-            _editor.removeTextChangedListener(_lineTrackingWatcher);
-            _maxNumber = 1;
-            final CharSequence text = _editor.getText();
-            if (text != null) {
-                _maxNumber += GsTextUtils.countChar(text, 0, text.length(), '\n');
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                // Cleanup if needed
             }
-            _editor.addTextChangedListener(_lineTrackingWatcher);
-        }
+        });
+    }
 
-        public void stopLineTracking() {
-            _editor.removeTextChangedListener(_lineTrackingWatcher);
+    /**
+     * Get a number representing the current text changed state.
+     * This number will increase by 1 every time the text is changed.
+     * This is lighter weight than hash to represent text changed state.
+     *
+     * @return the number representing text last changed state, update time error within 1000ms.
+     */
+    public int getTextChangedNumber() {
+        return _textChangedNumber;
+    }
+
+    // Static cursor (redraw cursor)
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Static cursor drawer for EditText.
+     */
+    static class StaticCursorDrawer {
+
+        private final Paint paint = new Paint();
+        private final EditText editText;
+
+        private float lineHeight;
+        private float offsetY;
+        private final float offsetYBase;
+        private boolean paused;
+
+        public StaticCursorDrawer(final @NonNull EditText editText, final @ColorInt int cursorColor) {
+            this.editText = editText;
+            paint.setColor(cursorColor);
+            offsetYBase = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16, editText.getResources().getDisplayMetrics());
+            notifyTextSizeChanged(); // Initialize textSize, lineHeight, offsetY and the cursor width
         }
 
         /**
-         * Draw line numbers.
+         * Draw static cursor.
          *
-         * @param canvas The canvas on which the line numbers will be drawn.
+         * @param canvas The canvas of the EditText.
          */
         public void draw(final Canvas canvas) {
-            if (!_editor.getLocalVisibleRect(_visibleArea)) {
+            if (paused) {
                 return;
             }
 
-            final CharSequence text = _editor.getText();
-            final Layout layout = _editor.getLayout();
-            if (text == null || layout == null) {
+            final Layout layout = editText.getLayout();
+            if (layout == null) {
                 return;
             }
 
-            // If text size or the max line number of digits changed,
-            // update the variables and reset padding
-            if (isTextSizeChanged() || isMaxNumberDigitsChanged()) {
-                _numberX = LINE_NUMBER_PADDING_LEFT + (int) _paint.measureText(String.valueOf(_maxNumber));
-                _gutterX = _numberX + LINE_NUMBER_PADDING_RIGHT;
-                _editor.setPadding(_gutterX + 12, _editor.getPaddingTop(), _editor.getPaddingRight(), _editor.getPaddingBottom());
-            }
+            // Draw static cursor
+            final int selectionStart = editText.getSelectionStart();
+            final int line = layout.getLineForOffset(selectionStart);
+            final float x = layout.getPrimaryHorizontal(selectionStart) + editText.getPaddingStart() + 1;
+            final float y = layout.getLineBaseline(line) + offsetY;
 
-            int i = _startLine[0], number = _startLine[1];
-            // If current visible area is out of current line numbers area,
-            // iterate from the first line to recalculate the start line
-            if (isOutOfLineNumbersArea()) {
-                i = 0;
-                number = 1;
-                _startLine[0] = -1;
-            }
+            canvas.drawLine(x, y, x, y + lineHeight, paint);
+        }
 
-            // Draw border of the gutter
-            canvas.drawLine(_gutterX, _lineNumbersArea.top, _gutterX, _lineNumbersArea.bottom, _paint);
+        /**
+         * Call on the text size of the EditText has changed when the static cursor is enabled.
+         */
+        public void notifyTextSizeChanged() {
+            float textSize = editText.getTextSize();
+            lineHeight = editText.getLineHeight();
+            offsetY = offsetYBase - textSize;
 
-            // Draw line numbers
-            final int count = layout.getLineCount();
-            final int offsetY = _editor.getPaddingTop();
-            for (; i < count; i++) {
-                final int start = layout.getLineStart(i);
-                if (start == 0 || text.charAt(start - 1) == '\n') {
-                    final int y = layout.getLineBaseline(i);
-                    if (y > _lineNumbersArea.bottom) {
-                        break;
-                    }
-                    if (y > _lineNumbersArea.top) {
-                        if (_startLine[0] < 0) {
-                            _startLine[0] = i;
-                            _startLine[1] = number;
-                        }
-                        canvas.drawText(String.valueOf(number), _numberX, y + offsetY, _paint);
-                    }
-                    number++;
-                }
+            // Set the stroke width (cursor width)
+            final DisplayMetrics displayMetrics = editText.getResources().getDisplayMetrics();
+            if (textSize < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, displayMetrics)) {
+                paint.setStrokeWidth(2);
+            } else if (textSize < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 15, displayMetrics)) {
+                paint.setStrokeWidth(4);
+            } else if (textSize < TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 25, displayMetrics)) {
+                paint.setStrokeWidth(5);
+            } else {
+                paint.setStrokeWidth(6);
             }
         }
 
         /**
-         * Reset to the state without line numbers.
+         * Call on the selection of the EditText changed when the static cursor is enabled.
+         *
+         * @param selStart The new selection start location.
+         * @param selEnd   The new selection end location.
          */
-        public void reset() {
-            _editor.setPadding(_defaultPaddingLeft, _editor.getPaddingTop(), _editor.getPaddingRight(), _editor.getPaddingBottom());
-            _maxNumberDigits = 0;
+        public void notifySelectionChanged(int selStart, int selEnd) {
+            if (selStart == selEnd) {
+                if (editText.isCursorVisible()) {
+                    editText.setCursorVisible(false);
+                }
+                if (paused) {
+                    paused = false;
+                }
+            } else if (!paused) {
+                paused = true; // Pause drawing the cursor when selecting text
+            }
+        }
+    }
+
+    public void setStaticCursorEnabled(boolean staticCursorEnabled) {
+        if (staticCursorEnabled) {
+            if (_staticCursorDrawer == null) {
+                _staticCursorDrawer = new StaticCursorDrawer(this, ContextCompat.getColor(getContext(), R.color.accent));
+                setCursorVisible(false);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    setTextCursorDrawable(R.drawable.cursor_transparent); // Ensure that the default cursor is invisible
+                }
+            }
+        } else if (_staticCursorDrawer != null) {
+            _staticCursorDrawer = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                setTextCursorDrawable(R.drawable.cursor_accent);
+            }
         }
     }
 }

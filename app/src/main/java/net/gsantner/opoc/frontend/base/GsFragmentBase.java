@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2017-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2017-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -60,13 +60,18 @@ public abstract class GsFragmentBase<AS extends GsSharedPreferencesPropertyBacke
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        _cu = createContextUtilsInstance(inflater.getContext().getApplicationContext());
-        _appSettings = createAppSettingsInstance(inflater.getContext().getApplicationContext());
-        GsContextUtils.instance.setAppLanguage(getActivity(), getAppLanguage());
+
+        final Activity activity = getActivity();
+        _cu = createContextUtilsInstance(activity);
+        _appSettings = createAppSettingsInstance(activity);
+
+        _cu.setAppLanguage(activity, getAppLanguage());
         _savedInstanceState = savedInstanceState;
+
         if (getLayoutResId() == 0) {
             Log.e(getClass().getCanonicalName(), "Error: GsFragmentbase.onCreateview: Returned 0 for getLayoutResId");
         }
+
         return inflater.inflate(getLayoutResId(), container, false);
     }
 
@@ -76,15 +81,9 @@ public abstract class GsFragmentBase<AS extends GsSharedPreferencesPropertyBacke
         view.postDelayed(this::checkRunFirstTimeVisible, 200);
     }
 
-    @Nullable
-    public AS createAppSettingsInstance(Context applicationContext) {
-        return null;
-    }
+    protected abstract AS createAppSettingsInstance(final Context context);
 
-    @Nullable
-    public CU createContextUtilsInstance(Context applicationContext) {
-        return null;
-    }
+    protected abstract CU createContextUtilsInstance(final Context context);
 
     /**
      * Get a tag from the fragment, allows faster distinction
@@ -130,32 +129,13 @@ public abstract class GsFragmentBase<AS extends GsSharedPreferencesPropertyBacke
     /**
      * This will be called when this fragment gets the first time visible
      */
-    public void onFragmentFirstTimeVisible() {
+    protected void onFragmentFirstTimeVisible() {
     }
 
-    private synchronized void checkRunFirstTimeVisible() {
+    private void checkRunFirstTimeVisible() {
         if (_fragmentFirstTimeVisible && isVisible() && isResumed()) {
             _fragmentFirstTimeVisible = false;
             onFragmentFirstTimeVisible();
-            attachToolbarClickListenersToFragment();
-        }
-    }
-
-    protected void attachToolbarClickListenersToFragment() {
-        final Toolbar toolbar = getToolbar();
-        if (toolbar != null) {
-            toolbar.setOnLongClickListener(clickView -> {
-                if (isVisible() && isResumed()) {
-                    return onToolbarLongClicked(clickView);
-                }
-                return false;
-            });
-            toolbar.setOnClickListener(clickView -> {
-                if (isVisible() && isResumed()) {
-                    onToolbarClicked(clickView);
-                }
-            });
-
         }
     }
 
@@ -173,7 +153,7 @@ public abstract class GsFragmentBase<AS extends GsSharedPreferencesPropertyBacke
         super.onResume();
         final View view = getView();
         if (view != null) {
-            view.postDelayed(this::checkRunFirstTimeVisible, 200);
+            view.post(this::checkRunFirstTimeVisible);
             // Add any remaining tasks
             while (!_postTasks.isEmpty()) {
                 view.post(_postTasks.remove());
@@ -192,19 +172,6 @@ public abstract class GsFragmentBase<AS extends GsSharedPreferencesPropertyBacke
         return _fragmentMenu;
     }
 
-    /**
-     * Get the toolbar from activity
-     * Requires id to be set to @+id/toolbar
-     */
-    @SuppressWarnings("ConstantConditions")
-    protected Toolbar getToolbar() {
-        try {
-            Activity a = getActivity();
-            return (Toolbar) a.findViewById(GsContextUtils.instance.getResId(a, GsContextUtils.ResType.ID, "toolbar"));
-        } catch (Exception e) {
-            return null;
-        }
-    }
 
     public boolean onReceiveKeyPress(int keyCode, KeyEvent event) {
         return false;

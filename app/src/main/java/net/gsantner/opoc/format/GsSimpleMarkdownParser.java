@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2017-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2017-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -44,7 +44,7 @@ public class GsSimpleMarkdownParser {
     public final static SmpFilter FILTER_ANDROID_TEXTVIEW = new SmpFilter() {
         @Override
         public String filter(String text) {
-            // TextView supports a limited set of html tags, most notably
+            // TextView supports a limited set of HTML tags, most notably
             // a href, b, big, font size&color, i, li, small, u
 
             // Don't start new line if 2 empty lines and heading
@@ -61,9 +61,9 @@ public class GsSimpleMarkdownParser {
                     .replaceAll("(?m)^# (.*)$", "<br/><big><big><big><b><font color='#000000'>$1</font></b></big></big></big><br/><br/>") // h1 (DEP: h2,h3)
                     .replaceAll("!\\[(.*?)\\]\\((.*?)\\)", "<a href=\\'$2\\'>$1</a>") // img
                     .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href=\\'$2\\'>$1</a>") // a href (DEP: img)
-                    .replaceAll("<(http|https):\\/\\/(.*)>", "<a href='$1://$2'>$1://$2</a>") // a href (DEP: img)
-                    .replaceAll("(?m)^([-*] )(.*)$", "<font color='#000001'>&#8226;</font> $2<br/>") // unordered list + end line
-                    .replaceAll("(?m)^  (-|\\*) ([^<]*)$", "&nbsp;&nbsp;<font color='#000001'>&#8226;</font> $2<br/>") // unordered list2 + end line
+                    .replaceAll("<http(s?):\\/\\/(.*)>", "<a href='http$1://$2'>$1://$2</a>") // a href (DEP: img)
+                    .replaceAll("(?m)^([-*] )(.*)$", "<font color='#000000'>&#8226;</font> $2<br/>") // unordered list + end line
+                    .replaceAll("(?m)^  (-|\\*) ([^<]*)$", "&nbsp;&nbsp;<font color='#000000'>&#8226;</font> $2<br/>") // unordered list2 + end line
                     .replaceAll("`([^<]*)`", "<font face='monospace'>$1</font>") // code
                     .replace("\\*", "●") // temporary replace escaped star symbol
                     .replaceAll("(?m)\\*\\*(.*)\\*\\*", "<b>$1</b>") // bold (DEP: temp star)
@@ -90,7 +90,7 @@ public class GsSimpleMarkdownParser {
                     .replaceAll("(?m)^## (.*)$", "<h2>$1</h2>") /// h2 (DEP: h3)
                     .replaceAll("(?m)^# (.*)$", "<h1>$1</h1>") // h1 (DEP: h2,h3)
                     .replaceAll("!\\[(.*?)\\]\\((.*?)\\)", "<img src=\\'$2\\' alt='$1' />") // img
-                    .replaceAll("<(http|https):\\/\\/(.*)>", "<a href='$1://$2'>$1://$2</a>") // a href (DEP: img)
+                    .replaceAll("<http(s?):\\/\\/(.*)>", "<a href='http$1://$2'>$1://$2</a>") // a href (DEP: img)
                     .replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href=\\'$2\\'>$1</a>") // a href (DEP: img)
                     .replaceAll("(?m)^[-*] (.*)$", "<font color='#000001'>&#8226;</font> $1  ") // unordered list + end line
                     .replaceAll("(?m)^  [-*] (.*)$", "&nbsp;&nbsp;<font color='#000001'>&#8226;</font> $1  ") // unordered list2 + end line
@@ -231,8 +231,8 @@ public class GsSimpleMarkdownParser {
         return this;
     }
 
-    public GsSimpleMarkdownParser replaceBulletCharacter(String replacment) {
-        _html = _html.replace("&#8226;", replacment);
+    public GsSimpleMarkdownParser replaceBulletCharacter(String replacement) {
+        _html = _html.replace("&#8226;", replacement);
         return this;
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -110,18 +110,11 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_save_path_do_import_notice__appspecific">തിരഞ്ഞെടുത്ത ഫയൽ അപ്പ്ലിക്കേഷന്റെ നോട്ടുബുക്ക് ഫോൾഡറിൽ ഇല്ല. അത് ഇപ്പോഴത്തെ ഫോൾഡറിലേക്കു പകർത്തണോ? ശ്രദ്ധിക്കുക, ഇപ്രകാരം ചെയ്യുന്നത് നിലവിൽ അതെ പേരിൽ ഉള്ള ഫയലിനെ ഓവർറൈറ്റ് ചെയ്യും.</string>
     <string name="files_and_folders">ഫയൽസും ഫോൾഡേഴ്‌സും</string>
     <string name="document_browser">ഡോക്യുമെന്റ് തിരച്ചിൽസംവിധാനം</string>
-    <string name="file_browser">ഫയൽ തിരച്ചിൽസംവിധാനം</string>
     <string name="back_to_previous_folder" needed="false">മുൻപത്തെ ഫോൾഡറിലേക്കു പോവുക</string>
     <string name="main_view">പ്രധാന കാഴ്ച</string>
     <string name="other">മറ്റുള്ളവ</string>
     <string name="general">പൊതു</string>
-    <string name="key_page_down">പേജ് താഴേക്ക് (Page Down)</string>
-    <string name="key_pos_1">വരിയുടെ തുടക്കം (Pos Home)</string>
-    <string name="key_pos_end">വരിയുടെ അവസാനം (Pos End)</string>
-    <string name="key_pos_1_document">ഡോക്യുമെന്റ് തുടക്കം</string>
-    <string name="key_pos_end_document">ഡോക്യുമെന്റ് അവസാനം</string>
     <string name="key_ctrl_a">എല്ലാം തിരഞ്ഞെടുക്കുക (Ctrl+A)</string>
-    <string name="key_tab">പട്ടിക തയ്യാറാക്കൽ</string>
     <string name="start_on_bottom">താഴെനിന്ന് തുടങ്ങുക</string>
     <string name="start_on_bottom_when_loading_document">ഡോക്യുമെന്റ് ലോഡ് ചെയ്യുമ്പോൾ കഴ്സർ അവസാനം നിർത്തുക</string>
     <string name="filemanager_doesnot_supply_required_data__appspecific">Markor-ന് ലോക്കൽ അഥവാ ഓഫ്‌ലൈൻ ഡോക്യൂമെന്റസ് മാത്രമേ പരിഷ്കരിക്കാൻ കഴിയൂ, മാത്രമല്ല മുഴുവൻ ഫയൽ പാത്ത് നൽകാത്ത ഫയൽ മാനേജർസ് പിന്തുണക്കില്ല.</string>
@@ -146,6 +139,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">പ്രോജക്ടു് ലൈസൻസ്</string>
     <string name="contribute_code_to_this_project_anybody_welcome">പ്രോജക്റ്റിലേക്ക് കോഡ് സംഭാവന ചെയ്യുക. തുടക്കക്കാരെ ഉൾപ്പെടെ എല്ലാവരെയും സ്വാഗതം ചെയ്യുന്നു</string>
     <string name="project_team">പ്രോജക്റ്റ് ടീം</string>
+    <string name="community">കമ്മ്യൂണിറ്റി</string>
     <string name="contributors_public_add_yourself_description">സംഭാവക വിവരം കാണിക്കുക. സംഭാവന ചെയ്തതിനുശേഷം ഒരു ഓപ്റ്റ്-ഇൻ അടിസ്ഥാനത്തിൽ ഇത് ഇവിടെ കാണിക്കുന്നതിന് നൽകുക</string>
     <string name="error_picture_selection">ചിത്രം തിരഞ്ഞെടുക്കുകയോ സംരക്ഷിക്കുകയോ ചെയ്തിട്ടില്ല.</string>
     <string name="edit_picture">ചിത്രം എഡിറ്റുചെയ്യുക</string>

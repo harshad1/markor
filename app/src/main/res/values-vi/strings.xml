@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -117,7 +117,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Tệp được chọn không nằm trong thư mục này. Bạn có muốn sao chép? Hành động này sẽ ghi đè dữ liệu lên các tệp trùng tên.</string>
     <string name="files_and_folders">Tệp và cặp</string>
     <string name="document_browser">Trình duyệt tài liệu</string>
-    <string name="file_browser">Trình duyệt tệp tin</string>
     <string name="set_due_date">Đặt thời hạn</string>
     <string name="insert_replace_date">Nhập thời gian</string>
     <string name="create_note" needed="false">Tạo ghi chú</string>
@@ -131,11 +130,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="number_of_files_witharg" needed="false">Số lượng tệp: %d</string>
     <string name="main_view">Mục hiển thị chính</string>
     <string name="remember_last_directory">Nhớ đường dẫn sau cùng</string>
-    <string name="syntax_highlighting">Đánh dấu cú pháp</string>
-    <string name="dynamic_highlighting">Đánh dấu động</string>
     <string name="highlighting_delay">Đánh dấu độ trễ</string>
     <string name="highlighting_enabled_or_not__appspecific">Tùy chọn đánh dấu văn bản</string>
-    <string name="dynamic_highlighting_effect">Đánh dấu động làm tăng hiệu suất. Có thể gây hiện tượng răng cưa.</string>
     <string name="control_font_size_in_editor">Chọn kích cỡ phông chữ bằng bộ tùy chỉnh</string>
     <string name="textactions_show_useful_actions_description__appspecific">Hiện thanh tác vụ kèm các phím tiện lợi. Hành động văn bản giúp điều chỉnh nội dung và thực hiện tác vụ.</string>
     <string name="load_last_opened_folder_at_startup">Tải tệp sau cùng khi khởi động</string>
@@ -174,6 +170,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Giấy phép dự án</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Đóng góp mã vào dự án. Mọi người đều được làm vậy, kể cả những người mới vào</string>
     <string name="project_team">Nhóm dự án</string>
+    <string name="community">Cộng đồng</string>
     <string name="contributors_public_add_yourself_description">Hiển thị thông tin người đóng góp. Hãy chủ động cung cấp thông tin để được hiện ở đây sau khi đóng góp</string>
     <string name="error_picture_selection">Không có ảnh nào được chọn, chụp hoặc lưu.</string>
     <string name="edit_picture">Chỉnh sửa ảnh</string>

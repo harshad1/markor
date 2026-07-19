@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2017-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2017-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -64,26 +64,26 @@ public class TodoTxtTask {
         return DATEF_YYYY_MM_DD.format(new Date());
     }
 
-    public static List<TodoTxtTask> getTasks(final CharSequence text, final int selStart, final int selEnd) {
-        final String[] lines = text.subSequence(
-                TextViewUtils.getLineStart(text, selStart),
-                TextViewUtils.getLineEnd(text, selEnd)
-        ).toString().split("\n");
-
+    public static List<TodoTxtTask> getTasks(final CharSequence text, final int[] sel) {
         final List<TodoTxtTask> tasks = new ArrayList<>();
-        for (final String line : lines) {
-            tasks.add(new TodoTxtTask(line));
+        if (GsTextUtils.isValidSelection(text, sel)) {
+
+            final int[] lsel = TextViewUtils.getLineSelection(text, sel);
+            final String[] lines = text.subSequence(lsel[0], lsel[1]).toString().split("\n");
+
+            for (final String line : lines) {
+                tasks.add(new TodoTxtTask(line));
+            }
         }
         return tasks;
     }
 
     public static List<TodoTxtTask> getSelectedTasks(final TextView view) {
-        final int[] sel = TextViewUtils.getSelection(view);
-        return getTasks(view.getText(), sel[0], sel[1]);
+        return getTasks(view.getText(), TextViewUtils.getSelection(view));
     }
 
     public static List<TodoTxtTask> getAllTasks(final CharSequence text) {
-        return getTasks(text, 0, text.length());
+        return getTasks(text, new int[]{0, text.length()});
     }
 
     public static List<String> getProjects(final List<TodoTxtTask> tasks) {
@@ -197,10 +197,10 @@ public class TodoTxtTask {
     }
 
     public String getCreationDate() {
-        return getCreationaDate("");
+        return getCreationDate("");
     }
 
-    public String getCreationaDate(final String defaultValue) {
+    public String getCreationDate(final String defaultValue) {
         if (creationDate == null) {
             creationDate = parseOneValueOrDefault(line, PATTERN_CREATION_DATE, defaultValue);
         }

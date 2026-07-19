@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -122,7 +122,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Il file non è situato nella cartella corrente. Vuoi copiarlo nella cartella corrente? Questo sovrascriverà qualsiasi file esistente con lo stesso nome.</string>
     <string name="files_and_folders">File e cartelle</string>
     <string name="document_browser">Navigatore dei documenti</string>
-    <string name="file_browser">Esploratore dei file</string>
     <string name="set_due_date">Imposta data di scadenza</string>
     <string name="insert_replace_date">Insert date</string>
     <string name="create_note" needed="false">Crea nota</string>
@@ -138,12 +137,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Visualizzazione principale</string>
     <string name="overall_theme_used_in_app">Tema complessivo usato nell\'applicazione</string>
     <string name="remember_last_directory">Ricorda l\'ultima cartella</string>
-    <string name="syntax_highlighting">Evidenziazione della sintassi</string>
-    <string name="dynamic_highlighting">Evidenziazione dinamica</string>
     <string name="highlighting_delay">Ritardo dell\'evidenziazione</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Ritardo in millisecondi per l\'aggiornamento dell\'evidenziazione. Un valore basso evidenzierà prima, ma consumerà più batteria e potrà diminuire le prestazioni nei dispositivi più vecchi.</string>
     <string name="highlighting_enabled_or_not__appspecific">Controlla quando il testo deve essere evidenziato o meno</string>
-    <string name="dynamic_highlighting_effect">L\'evidenziazione dinamica migliora le prestazioni. Può dare visualizzazioni imprecise.</string>
     <string name="control_font_size_in_editor">Controlla la dimensione del font usato nell\'editor</string>
     <string name="textactions_show_useful_actions_description__appspecific">Mostra una barra in basso con alcuni pulsanti utili, per modificare il testo o lanciare un\'azione basata sul testo.</string>
     <string name="load_last_opened_folder_at_startup">Apri l\'ultima cartella aperta all\'avvio</string>
@@ -178,17 +174,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">Ordina i task secondo l\'ordine selezionato</string>
     <string name="special_key">Tasto speciale</string>
     <string name="asciidoc_special_key">Contenuto speciale AsciiDoc</string>
-    <string name="key_page_up">Pagina superiore (tasto Up)</string>
-    <string name="key_page_down">Pagina inferiore (tasto Down)</string>
-    <string name="move_text_one_line_up">Sposta il testo una riga in su</string>
-    <string name="move_text_one_line_down">Sposta il testo una riga in giù</string>
-    <string name="start_new_line_below">Inizia una nuova riga sotto</string>
-    <string name="key_pos_1">Inizio della linea (tasto Home)</string>
-    <string name="key_pos_end">Fine della linea (tasto End)</string>
-    <string name="key_pos_1_document">Inizio del documento</string>
-    <string name="key_pos_end_document">Fine del documento</string>
     <string name="key_ctrl_a">Seleziona tutto (Ctrl + A)</string>
-    <string name="key_tab">Tabulatore</string>
+    <string name="em_space">Spaziatura em (&amp;emsp;)</string>
     <string name="start_on_bottom">Inizia dal basso</string>
     <string name="start_on_bottom_when_loading_document">Dopo che un documento è stato caricato, posiziona il cursore alla fine</string>
     <string name="unordered_list_character">Carattere per liste non ordinate</string>
@@ -217,6 +204,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="clipboard">Appunti</string>
     <string name="select_existing_document">Seleziona documento esistente</string>
     <string name="select_create_document">Seleziona o crea un documento</string>
+    <string name="select_create_folder">Seleziona o crea cartella</string>
     <string name="open_source_licenses">Licenze Open Source</string>
     <string name="rate_this_app">Valuta l\'app</string>
     <string name="translate">Traduci</string>
@@ -230,6 +218,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Licenza del progetto</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Contribuisci al codice del progetto. Tutti sono invitati a farlo, anche i nuovi arrivati</string>
     <string name="project_team">Team del progetto</string>
+    <string name="community">Comunità</string>
     <string name="contributors_public_add_yourself_description">Mostra informazioni sui contributori.
 
   I contributori possono fornire informazioni per essere mostrati qui (opt-in) dopo aver contribuito</string>
@@ -260,7 +249,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">Nessuna app calendario installata!</string>
     <string name="popular_documents">Documenti popolari</string>
     <string name="color">Colore</string>
-    <string name="zero_width_space">Spazio a larghezza zero</string>
     <string name="basic_color_scheme">Schema dei colori di base</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Cambia il colore di sfondo e di primo piano dell\'editor di testo. Si adegua al tema dell\'applicazione, al tema chiaro o scuro. I colori dell\'evidenziazione della sintassi rimangono gli stessi.</string>
     <string name="preset">Predefinito</string>
@@ -278,7 +266,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Scegli la data</string>
     <string name="pick_time">Scegli l\'ora</string>
     <string name="get_format_instead_date_or_time">Ottieni il formato invece della data o dell\'ora</string>
-    <string name="always_use_current_date_and_time">Usa sempre la date e ora attuale</string>
+    <string name="use_current_date_and_time">Usa data e ora attuali</string>
     <string name="result">Risultato</string>
     <string name="just_time">Solo l\'ora</string>
     <string name="just_date">Solo la data</string>
@@ -303,8 +291,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Nero</string>
     <string name="white">Bianco</string>
     <string name="view">Vedi</string>
-    <string name="view_mode">Modalità visualizzazione</string>
-    <string name="edit_mode">Modalità modifica</string>
     <string name="mount_storage">Monta spazio di archiviazione</string>
     <string name="application_needs_access_to_storage_mount_it">È richiesto un permesso per accedere a questo spazio di archiviazione. Monta lo spazio per dare l\'accesso, quindi dai conferma per far comparire una finestra popup. A questo punto seleziona lo spazio di archiviazione e premi \"Seleziona\".</string>
     <string name="share_into">Condividi con</string>
@@ -317,8 +303,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">Il file selezionato può essere un file di testo normale. Vuoi aprirlo nell\'editor o in un\'altra app?\n\nNon provare ad aprire file binari. Se non sei sicuro, apri con un\'altra app.</string>
     <string name="list_in_recent_files">Lista nei file recenti</string>
     <string name="reload">Ricarica</string>
-    <string name="wrap_words">Parole a capo</string>
-    <string name="line_numbers">Numeri di riga</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Manda a capo il testo se supera la dimensione della riga; altrimenti abilita lo scorrimento orizzontale.</string>
     <string name="recursive_search_in_location">Ricerca ricorsiva in %s</string>
     <string name="always_open_with_this_app">Apri sempre con quest\'app</string>
@@ -333,6 +317,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="current">Attuale</string>
     <string name="record_audio">Registra audio</string>
     <string name="attach">Allega</string>
+    <string name="attachment">Allegato</string>
     <string name="copy_file">Copia file</string>
     <string name="page">Pagina</string>
     <string name="experimental_features">Funzioni sperimentali</string>
@@ -396,7 +381,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Formato descrizione file</string>
     <string name="file_description_format_dialog">Formato per la descrizione sotto ogni file nel file browser. Segue le regole SimpleDateFormat di Android, con l\'aggiunta di FS per mostrare le dimensioni del file. Lasciare vuoto per usare il formato predefinito per il tuo locale.\n\nEsempio di input:\nFS yyyy MMM dd hh:mm:ss aa\nFormato di output:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">Caricamento valore predefinito</string>
-    <string name="file_settings">Impostazioni file</string>
     <string name="search_and_replace">Cerca / Sostituisci</string>
     <string name="search_for">Cerca per</string>
     <string name="replace_with">Sostituisci con</string>
@@ -457,4 +441,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="wont_save_min_length">I file di meno di %d caratteri non sono salvati automaticamente, per evitare perdita di dati.</string>
     <string name="advanced_filtering_help"><![CDATA[<small><a href="https://www.github.com/gsantner/markor/discussions/1940">Sintassi filtri avanzata</a></small>]]></string>
     <string name="filter">Filtro</string>
+    <string name="text_case">maiuscolo/minuscolo</string>
+    <string name="use_tab_to_indent">Indenta le righe col tasto TAB</string>
+    <string name="folder_local">Cartella locale</string>
 </resources>

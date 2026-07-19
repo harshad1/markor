@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -59,6 +59,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="last_modified">Дата зміни</string>
     <string name="select_this_folder">Обрати поточну директорію</string>
     <string name="select">Обрати</string>
+    <string name="select_all">Вибрати все</string>
     <string name="create">Створити</string>
     <string name="select_entries">Обрати елементи</string>
     <string name="one_item_selected">Один елемент обрано</string>
@@ -67,6 +68,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="hide_statusbar">Сховати рядок статусу</string>
     <string name="name">Ім\'я</string>
     <string name="url_or_path">URL / Шлях</string>
+    <string name="insert_link">Вставити посилання</string>
+    <string name="format_link">Формат посилання</string>
     <string name="insert_image">Вставити зображення</string>
     <string name="contributors">Учасники</string>
     <string name="save_location">Розташування сховища</string>
@@ -119,7 +122,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Цей файл не в поточній директорії. Бажаєте копіювати його до поточної директорії? Це призведе до перезапису наявного файлу з тим же іменем.</string>
     <string name="files_and_folders">Файли та директорії</string>
     <string name="document_browser">Перегляд документів</string>
-    <string name="file_browser">Перегляд файлів</string>
     <string name="set_due_date">Встановити дату завершення</string>
     <string name="insert_replace_date">Вставити дату</string>
     <string name="create_note" needed="false">Створити нотатку</string>
@@ -135,12 +137,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Головний екран</string>
     <string name="overall_theme_used_in_app">Загальна тема додатку</string>
     <string name="remember_last_directory">Пам\'ятати останню директорію</string>
-    <string name="syntax_highlighting">Підсвічування синтаксису</string>
-    <string name="dynamic_highlighting">Динамічне підсвічування</string>
     <string name="highlighting_delay">Затримка підсвічування</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Затримка оновлення підсвітки синтаксису у мілісекундах. Нижчі значення пришвидшують оновлення, проте підвищують витрату заряду батареї та можуть сповільнити роботу додатку на старіших пристроях.</string>
     <string name="highlighting_enabled_or_not__appspecific">Встановлює наявність підсвітки синтаксису тексту</string>
-    <string name="dynamic_highlighting_effect">Динамічне підсвічування збільшує продуктивність. Може призвести до створення артефактів.</string>
     <string name="control_font_size_in_editor">Задає розмір шрифту для тексту в редакторі</string>
     <string name="textactions_show_useful_actions_description__appspecific">Показувати панель знизу із зручними кнопками команд тексту, які перетворюють його або виконують відповідну дію.</string>
     <string name="load_last_opened_folder_at_startup">Завантажити останню відкриту директорію після запуску</string>
@@ -175,17 +174,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">Сортування завдань за обраним порядком</string>
     <string name="special_key">Спеціальна клавіша</string>
     <string name="asciidoc_special_key">Особливий зміст AsciiDoc</string>
-    <string name="key_page_up">До сторінки вище (Page Up)</string>
-    <string name="key_page_down">До сторінки нижче (Page Down)</string>
-    <string name="move_text_one_line_up">Перемістити текст на один рядок вище</string>
-    <string name="move_text_one_line_down">Перемістити текст на один рядок нижче</string>
-    <string name="start_new_line_below">Почати новий рядок нижче</string>
-    <string name="key_pos_1">До початку рядка (Home)</string>
-    <string name="key_pos_end">В кінець рядка (End)</string>
-    <string name="key_pos_1_document">Початок документа</string>
-    <string name="key_pos_end_document">Кінець документа</string>
     <string name="key_ctrl_a">Обрати все (Ctrl + A)</string>
-    <string name="key_tab">Табуляція</string>
+    <string name="em_space">Пробіл \"m\" (&amp;emsp;)</string>
     <string name="start_on_bottom">Починати внизу</string>
     <string name="start_on_bottom_when_loading_document">Після завантаження документа встановити курсор в кінець</string>
     <string name="unordered_list_character">Символ для невпорядкованих списків</string>
@@ -213,11 +203,13 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="edit_text_in_center_of_screen">Центрувати текст у редакторі</string>
     <string name="clipboard">Буфер обміну</string>
     <string name="select_existing_document">Обрати наявний документ</string>
+    <string name="select_create_document">Виберіть або створіть документ</string>
     <string name="open_source_licenses">Ліцензії з відкритим кодом</string>
     <string name="rate_this_app">Оцініть додаток</string>
     <string name="translate">Перекласти</string>
     <string name="more_info_and_help">Додаткова інформація та допомога</string>
     <string name="report_bugs">Повідомити про помилку</string>
+    <string name="do_you_have_a_question_or_problem">У вас є питання чи проблема?</string>
     <string name="join_community">Приєднатися до спільноти</string>
     <string name="bug_reports_suggest_improvements">Залиште відгук, повідомте про помилки або запропонуйте покращення</string>
     <string name="help_translating_this_app">Перекласти цей додаток на інші мови</string>
@@ -225,6 +217,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Ліцензія проекту</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Зробити внесок у код проекту. Запрошуются всі охочі, разом із новачками</string>
     <string name="project_team">Команда проекту</string>
+    <string name="community">Спільнота</string>
     <string name="contributors_public_add_yourself_description">Показати інформацію про учасників проекту, що зробили внесок та побажали бути доданими до цього списку</string>
     <string name="descending">за спаданням</string>
     <string name="ascending">за зростанням</string>
@@ -253,7 +246,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">Не встановлено додатку календаря!</string>
     <string name="popular_documents">Популярні документи</string>
     <string name="color">Колір</string>
-    <string name="zero_width_space">Пробіл нульової ширини</string>
     <string name="basic_color_scheme">Кольорова тема</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Змінює тло і колір тексту в редакторі. Допасовується до кольорів програми, тож є у світлій і темній темах. Колір підсвітки синтаксису не змінюється.</string>
     <string name="preset">Попередньо встановлене</string>
@@ -271,7 +263,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Оберіть дату</string>
     <string name="pick_time">Оберіть час</string>
     <string name="get_format_instead_date_or_time">Вжити формат замість дати або часу</string>
-    <string name="always_use_current_date_and_time">Завжди використовувати поточні дату і час</string>
     <string name="result">Результат</string>
     <string name="just_time">Лише час</string>
     <string name="just_date">Лише дата</string>
@@ -296,8 +287,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Чорний</string>
     <string name="white">Білий</string>
     <string name="view">Перегляд</string>
-    <string name="view_mode">Режим перегляду</string>
-    <string name="edit_mode">Режим редагування</string>
     <string name="mount_storage">Підключити сховище</string>
     <string name="application_needs_access_to_storage_mount_it">Для доступу до цього сховища потрібно отримати дозвіл. Монтуйте сховище, щоби отримати доступ. Погодьте цей діалог аби відкрити вікно вибору. Виділіть сховище там і натисніть «обрати».</string>
     <string name="share_into">Поділитися через</string>
@@ -310,9 +299,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">Обраний файл може бути текстовим файлом. Відкрити його редактором чи іншою програмою?\n\nНе намагайтесь відкривати двійкові файли. Якщо не впевнені, відкрийте іншим додатком.</string>
     <string name="list_in_recent_files">Показати в нещодавніх документах</string>
     <string name="reload">Перезавантажити</string>
-    <string name="wrap_words">Перенесення рядків</string>
-    <string name="line_numbers">Нумерація рядків</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Додавати м\'які переноси замість відображення смуги горизонтальної прокрутки, коли текст не вміщається у ширину екрану.</string>
+    <string name="recursive_search_in_location">Рекурсивний пошук у %s</string>
     <string name="always_open_with_this_app">Завжди відкривати цією програмою</string>
     <string name="always_open_files_with_this_app_when_list_contains_file_extension">Завжди відкривати файли цією програмою, якщо розширення є у списку. Наприклад, додайте \'None, .html, .css , .js\' для редагування веб-файлів і файлів без розширення.</string>
     <string name="open_file_with">Відкрити файл за допомогою</string>
@@ -335,6 +323,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="how_much_columns_press_table_button_long_to_start_table">Скільки колонок? Тривале натискання кнопки таблиці починає таблицю (вставляє заголовок), коротке натискання для додавання ряду.</string>
     <string name="example_of_a_markdown_table">Приклад таблиці в Markdown</string>
     <string name="delete_lines">Видалити рядки</string>
+    <string name="duplicate_lines">Повторювані рядки</string>
     <string name="unordered_list">Ненумерований список</string>
     <string name="ordered_list">Нумерований список</string>
     <string name="check_list">Список</string>
@@ -387,7 +376,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Формат опису файлу</string>
     <string name="file_description_format_dialog">Формат для опису під кожним файлом у браузері. Слідуйте правилам SimpleDateFormat з додатком FS для відображення розміру файлу. Залиште порожнім, аби використовувати типовий формат вашої локалі.\n\nПриклад введення:\nFS yyyy MMM dd h:mm:ss\nформат виведення продукту:\n30КБ 2020 Mar 20:24:2452 PM</string>
     <string name="loading_default_value">Завантаження типових значень</string>
-    <string name="file_settings">Налаштування файлів</string>
     <string name="search_and_replace">Пошук / заміна</string>
     <string name="search_for">Шукати</string>
     <string name="replace_with">Замінити на</string>
@@ -436,8 +424,16 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="match_all">Відповідає всім</string>
     <string name="dynamic_notebook_root_links">Динамічний пошук кореневого блокноту</string>
     <string name="search_dynamically_for_notebook_root">Для того, щоб перейти за посиланнями в вікі, динамічно шукати файл notebook.zim для визначення кореневої директорії для поточного записника. Поставте галочку, якщо ви використовуєте декілька самоблокнотів чи папку з нотатником у програмі не відповідає вашому зошит зошиту.</string>
+    <string name="share_into_format_prefix_for_text_shared">Формат/префікс для тексту, наданого в Markor. Відповідає правилам SimpleDateFormat Android.\n\nВикористовуйте заповнювач {{text}}, щоб розташувати спільний текст. Якщо не вказано, спільний текст додається, а формат використовується як префікс.</string>
     <string name="share_into_format">Поділитися у форматі - Формат</string>
+    <string name="attachment_folder_name">Назва теки вкладень</string>
+    <string name="attachment_folder_name_desc">Вкладена тека в поточній теці, де зберігатимуться вкладення. Якщо залишити порожнім, вкладення буде збережено в поточній теці.</string>
     <string name="auto_format">Автоматичний формат</string>
     <string name="insert_snippet">Insert snippet</string>
+    <string name="snippet_directory">Каталог фрагментів / шаблонів</string>
+    <string name="error_could_not_open_file">Помилка: Не вдалося відкрити файл.</string>
     <string name="document_error_clip">Помилка виявлення: текст скопійовано до буфера обміну.</string>
+    <string name="wont_save_min_length">Файли з менш ніж %d символами не зберігаються автоматично, щоб запобігти втраті даних.</string>
+    <string name="advanced_filtering_help"><![CDATA[<small><a href="https://www.github.com/gsantner/markor/discussions/1940">Розширений синтаксис фільтрації</a></small>]]></string>
+    <string name="filter">Фільтр</string>
 </resources>

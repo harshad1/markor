@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -18,7 +18,6 @@ import android.net.Uri;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 
-import net.gsantner.markor.ApplicationObject;
 import net.gsantner.markor.R;
 import net.gsantner.markor.model.AppSettings;
 import net.gsantner.opoc.format.GsSimpleMarkdownParser;
@@ -46,7 +45,7 @@ public class MoreInfoFragment extends GsPreferenceFragmentBase<AppSettings> {
 
     @Override
     protected AppSettings getAppSettings(Context context) {
-        return ApplicationObject.settings();
+        return AppSettings.get(context);
     }
 
     @Override

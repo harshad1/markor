@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2016-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2016-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2016-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2016-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -12,8 +12,7 @@ package net.gsantner.opoc.util;
 import static android.graphics.Bitmap.CompressFormat;
 
 import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
+import android.animation.ArgbEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -58,7 +57,6 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.os.VibrationEffect;
@@ -91,7 +89,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.inputmethod.InputMethodManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.WebView;
 import android.widget.ImageView;
@@ -123,6 +120,8 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.os.ConfigurationCompat;
 import androidx.core.text.TextUtilsCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
@@ -170,7 +169,7 @@ public class GsContextUtils {
     }
 
     protected <T extends GsContextUtils> T thisp() {
-        //noinspection unchecked
+        // noinspection unchecked
         return (T) this;
     }
 
@@ -181,7 +180,7 @@ public class GsContextUtils {
     public final static Locale INITIAL_LOCALE = Locale.getDefault();
     public final static String EXTRA_FILEPATH = "EXTRA_FILEPATH";
     public final static String EXTRA_URI = "EXTRA_URI";
-    public final static SimpleDateFormat DATEFORMAT_RFC3339ISH = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", INITIAL_LOCALE);
+    public final static SimpleDateFormat DATE_FORMAT_RFC3339ISH = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", INITIAL_LOCALE);
     public final static String MIME_TEXT_PLAIN = "text/plain";
     public final static String PREF_KEY__SAF_TREE_URI = "pref_key__saf_tree_uri";
     public final static String CONTENT_RESOLVER_FILE_PROXY_SEGMENT = "CONTENT_RESOLVER_FILE_PROXY_SEGMENT";
@@ -192,16 +191,15 @@ public class GsContextUtils {
     public final static int REQUEST_STORAGE_PERMISSION_M = 50004;
     public final static int REQUEST_STORAGE_PERMISSION_R = 50005;
     public final static int REQUEST_RECORD_AUDIO = 50006;
-    private final static int BLINK_ANIMATOR_TAG = -1206813720;
 
-    public static int TEXTFILE_OVERWRITE_MIN_TEXT_LENGTH = 2;
+    public static int TEXT_FILE_OVERWRITE_MIN_TEXT_LENGTH = 2;
     protected static Pair<File, List<Pair<String, String>>> m_cacheLastExtractFileMetadata;
     protected static String _lastCameraPictureFilepath = null;
     protected static WeakReference<GsCallback.a1<String>> _receivePathCallback = null;
     protected static String m_chooserTitle = "➥";
 
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //########################
     //## Resources
     //########################
@@ -289,11 +287,10 @@ public class GsContextUtils {
         return true;
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //########################
     //## App & Device information
     //########################
-
     public static String getAndroidVersion() {
         return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
     }
@@ -476,7 +473,7 @@ public class GsContextUtils {
      */
     public boolean isAppInstalled(final Context context, String appId) {
         try {
-            final PackageManager pm = context.getApplicationContext().getPackageManager();
+            final PackageManager pm = context.getPackageManager();
             pm.getPackageInfo(appId, PackageManager.GET_ACTIVITIES);
             return true;
         } catch (PackageManager.NameNotFoundException e) {
@@ -608,6 +605,17 @@ public class GsContextUtils {
                 + ((0.587 * Color.green(colorOnBottomInt))
                 + (0.114 * Color.blue(colorOnBottomInt)))));
     }
+
+    @ColorInt
+    public static int rgb(final int r, final int g, final int b) {
+        return argb(255, r, g, b);
+    }
+
+    @ColorInt
+    public static int argb(final int a, final int r, final int g, final int b) {
+        return (Math.max(0, Math.min(255, a)) << 24) | (Math.max(0, Math.min(255, r)) << 16) | (Math.max(0, Math.min(255, g)) << 8) | Math.max(0, Math.min(255, b));
+    }
+
 
     /**
      * Convert a html string to an android {@link Spanned} object
@@ -853,7 +861,7 @@ public class GsContextUtils {
         bitmap = bitmap.copy(bitmap.getConfig(), true);
         Canvas canvas = new Canvas(bitmap);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        paint.setColor(Color.rgb(61, 61, 61));
+        paint.setColor(GsContextUtils.rgb(61, 61, 61));
         paint.setTextSize((int) (textSize * scale));
         paint.setShadowLayer(1f, 0f, 1f, Color.WHITE);
 
@@ -869,7 +877,11 @@ public class GsContextUtils {
     /**
      * Try to tint all {@link Menu}s {@link MenuItem}s with given color
      */
-    public void tintMenuItems(final Menu menu, final boolean recurse, @ColorInt final int iconColor) {
+    public void tintMenuItems(final @Nullable Menu menu, final boolean recurse, @ColorInt final int iconColor) {
+        if (menu == null) {
+            return;
+        }
+
         for (int i = 0; i < menu.size(); i++) {
             MenuItem item = menu.getItem(i);
             try {
@@ -1173,8 +1185,6 @@ public class GsContextUtils {
      * @param title   Title of the item
      */
     public void createLauncherDesktopShortcut(final Context context, final Intent intent, @DrawableRes final int iconRes, final String title) {
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         if (intent.getAction() == null) {
             intent.setAction(Intent.ACTION_VIEW);
         }
@@ -1564,6 +1574,20 @@ public class GsContextUtils {
         return (!TextUtils.isEmpty(path) && (f = new File(path)).canRead()) ? f : null;
     }
 
+    private static Uri getUriFromIntent(final Intent intent, final @Nullable Context context) {
+        Uri uri = intent.getData();
+
+        if (uri == null) {
+            uri = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+        }
+
+        if (uri == null && context != null) {
+            uri = new ShareCompat.IntentReader(context, intent).getStream();
+        }
+
+        return uri;
+    }
+
     /**
      * Try to force extract a absolute filepath from an intent
      *
@@ -1571,15 +1595,17 @@ public class GsContextUtils {
      * @return A file or null if extraction did not succeed
      */
     @SuppressWarnings({"ResultOfMethodCallIgnored", "ConstantConditions"})
-    public File extractFileFromIntent(final Context context, final Intent receivingIntent) {
+    public static File extractFileFromIntent(final Intent receivingIntent, final Context context) {
         final String action = receivingIntent.getAction();
         final String type = receivingIntent.getType();
         final String extPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        final Uri fileUri = getUriFromIntent(receivingIntent, context);
+
         String tmps;
         String fileStr;
         File result = null;
 
-        if ((Intent.ACTION_VIEW.equals(action) || Intent.ACTION_EDIT.equals(action)) || Intent.ACTION_SEND.equals(action)) {
+        if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_EDIT.equals(action) || Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action)) {
 
             // Màrkor, SimpleMobileTools FileManager
             if (receivingIntent.hasExtra((tmps = EXTRA_FILEPATH))) {
@@ -1587,8 +1613,6 @@ public class GsContextUtils {
             }
 
             // Analyze data/Uri
-            Uri fileUri = receivingIntent.getData();
-            fileUri = (fileUri != null ? fileUri : receivingIntent.getParcelableExtra(Intent.EXTRA_STREAM));
             if (result == null && fileUri != null && (fileStr = fileUri.toString()) != null) {
                 // Uri contains file
                 if (fileStr.startsWith("file://")) {
@@ -1653,7 +1677,6 @@ public class GsContextUtils {
                 }
             }
 
-            fileUri = receivingIntent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (result == null && fileUri != null && !TextUtils.isEmpty(tmps = fileUri.getPath()) && tmps.startsWith("/")) {
                 result = checkPath(tmps);
             }
@@ -1673,15 +1696,14 @@ public class GsContextUtils {
         if (result == null) {
             try {
                 // Try detect content file & filename in Intent
-                Uri uri = new ShareCompat.IntentReader(context, receivingIntent).getStream();
-                uri = (uri != null ? uri : receivingIntent.getData());
+
                 final String[] sarr = contentColumnData(context, receivingIntent, OpenableColumns.DISPLAY_NAME);
-                tmps = sarr != null && !TextUtils.isEmpty(sarr[0]) ? sarr[0] : uri.getLastPathSegment();
+                tmps = sarr != null && !TextUtils.isEmpty(sarr[0]) ? sarr[0] : fileUri.getLastPathSegment();
 
                 // Proxy file to app-private storage (= java.io.File)
                 File f = new File(context.getCacheDir(), CONTENT_RESOLVER_FILE_PROXY_SEGMENT + "/" + tmps);
                 f.getParentFile().mkdirs();
-                byte[] data = GsFileUtils.readCloseBinaryStream(context.getContentResolver().openInputStream(uri));
+                byte[] data = GsFileUtils.readCloseBinaryStream(context.getContentResolver().openInputStream(fileUri));
                 GsFileUtils.writeFile(f, data, null);
                 f.setReadable(true);
                 f.setWritable(true);
@@ -1694,11 +1716,12 @@ public class GsContextUtils {
     }
 
     public static String[] contentColumnData(final Context context, final Intent intent, final String... columns) {
+        final Uri uri = getUriFromIntent(intent, context);
         final String[] out = (new String[columns.length]);
         final int INVALID = -1;
         Cursor cursor;
         try {
-            cursor = context.getContentResolver().query(intent.getData(), columns, null, null, null);
+            cursor = context.getContentResolver().query(uri, columns, null, null, null);
         } catch (Exception ignored) {
             cursor = null;
         }
@@ -1739,11 +1762,6 @@ public class GsContextUtils {
         } catch (Exception ignored) {
         }
         return false;
-    }
-
-    public String extractFileFromIntentStr(final Context context, final Intent receivingIntent) {
-        File f = extractFileFromIntent(context, receivingIntent);
-        return f != null ? f.getAbsolutePath() : null;
     }
 
     /**
@@ -1829,7 +1847,7 @@ public class GsContextUtils {
 
                     // Try to grab via file extraction method
                     intent.setAction(Intent.ACTION_VIEW);
-                    picturePath = picturePath != null ? picturePath : extractFileFromIntentStr(context, intent);
+                    picturePath = picturePath != null ? picturePath : GsFileUtils.getPath(extractFileFromIntent(intent, context));
 
                     // Retrieve image from file descriptor / Cloud, e.g.: Google Drive, Picasa
                     if (picturePath == null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -1860,7 +1878,7 @@ public class GsContextUtils {
                 if (resultCode == Activity.RESULT_OK && intent != null && intent.getData() != null) {
                     final Uri uri = intent.getData();
                     final String uriPath = uri.getPath();
-                    final String ext = uriPath.substring(uriPath.lastIndexOf("."));
+                    final String ext = uriPath == null || !uriPath.contains(".") ? "" : uriPath.substring(uriPath.lastIndexOf("."));
                     final String datestr = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.ENGLISH).format(new Date());
                     final File temp = new File(context.getCacheDir(), datestr + ext);
                     GsFileUtils.copyUriToFile(context, uri, temp);
@@ -2047,7 +2065,7 @@ public class GsContextUtils {
             // and launch the desired Url with CustomTabsIntent.launchUrl()
             CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
             builder.setToolbarColor(ContextCompat.getColor(context, getResId(context, GsContextUtils.ResType.COLOR, "primary")));
-            builder.setSecondaryToolbarColor(ContextCompat.getColor(context, getResId(context, GsContextUtils.ResType.COLOR, "primary_dark")));
+            builder.setSecondaryToolbarColor(ContextCompat.getColor(context, getResId(context, GsContextUtils.ResType.COLOR, "dark__background")));
             builder.addDefaultShareMenuItem();
             CustomTabsIntent customTabsIntent = builder.build();
             enableChromeCustomTabsForOtherBrowsers(context, customTabsIntent.intent);
@@ -2118,7 +2136,7 @@ public class GsContextUtils {
     public boolean isUnderStorageAccessFolder(final Context context, final File file, boolean isDir) {
         if (file != null) {
             isDir = isDir || (file.exists() && file.isDirectory());
-            // When file writeable as is, it's the fastest way to learn SAF isn't required
+            // When file writable as is, it's the fastest way to learn SAF isn't required
             if (canWriteFile(context, file, isDir, false)) {
                 return false;
             }
@@ -2258,7 +2276,7 @@ public class GsContextUtils {
         try {
             OutputStream fileOutputStream = null;
             ParcelFileDescriptor pfd = null;
-            final boolean existingEmptyFile = file.canWrite() && file.length() < TEXTFILE_OVERWRITE_MIN_TEXT_LENGTH;
+            final boolean existingEmptyFile = file.canWrite() && file.length() < TEXT_FILE_OVERWRITE_MIN_TEXT_LENGTH;
             final boolean nonExistingCreatableFile = !file.exists() && file.getParentFile() != null && file.getParentFile().canWrite();
             if (isContentResolverProxyFile(file)) {
                 // File initially read from Activity, Intent & ContentResolver -> write back to it
@@ -2529,18 +2547,32 @@ public class GsContextUtils {
     }
 
     public <T extends GsContextUtils> T showSoftKeyboard(final Activity activity, final boolean show, final View... view) {
-        if (activity != null) {
-            final InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-            final View focus = (view != null && view.length > 0) ? view[0] : activity.getCurrentFocus();
-            final IBinder token = focus != null ? focus.getWindowToken() : null;
-            if (imm != null && focus != null) {
-                if (show) {
-                    imm.showSoftInput(focus, InputMethodManager.SHOW_IMPLICIT);
-                } else if (token != null) {
-                    imm.hideSoftInputFromWindow(token, InputMethodManager.HIDE_IMPLICIT_ONLY);
-                }
+        if (activity == null) {
+            return thisp();
+        }
+
+        final Window win = activity.getWindow();
+        if (win == null) {
+            return thisp();
+        }
+
+        View focus = (view != null && view.length > 0) ? view[0] : activity.getCurrentFocus();
+
+        if (focus == null) {
+            focus = win.getDecorView();
+        }
+
+        if (focus != null) {
+            final WindowInsetsControllerCompat ctrl = new WindowInsetsControllerCompat(win, focus);
+            if (show) {
+                focus.requestFocus();
+                ctrl.show(WindowInsetsCompat.Type.ime());
+            } else {
+                focus.clearFocus();
+                ctrl.hide(WindowInsetsCompat.Type.ime());
             }
         }
+
         return thisp();
     }
 
@@ -2687,6 +2719,21 @@ public class GsContextUtils {
                     final Window window = context.getWindow();
                     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
                     window.setNavigationBarColor(color);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        final View decorView = window.getDecorView();
+                        final boolean useDarkNavIcons = !shouldColorOnTopBeLight(color);
+                        final WindowInsetsControllerCompat controller = new WindowInsetsControllerCompat(window, decorView);
+                        controller.setAppearanceLightNavigationBars(useDarkNavIcons);
+
+                        // Keep the legacy flag in sync for OEMs that still depend on decor view UI flags.
+                        int systemUiVisibility = decorView.getSystemUiVisibility();
+                        if (useDarkNavIcons) {
+                            systemUiVisibility |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                        } else {
+                            systemUiVisibility &= ~View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                        }
+                        decorView.setSystemUiVisibility(systemUiVisibility);
+                    }
                 }
             } catch (Exception ignored) {
             }
@@ -2741,12 +2788,14 @@ public class GsContextUtils {
         }
     }
 
-    public static void windowAspectRatio(final Window window,
-                                         final DisplayMetrics displayMetrics,
-                                         float portraitWidthRatio,
-                                         float portraitHeightRatio,
-                                         float landscapeWidthRatio,
-                                         float landscapeHeightRatio) {
+    public static void windowAspectRatio(
+            final Window window,
+            final DisplayMetrics displayMetrics,
+            float portraitWidthRatio,
+            float portraitHeightRatio,
+            float landscapeWidthRatio,
+            float landscapeHeightRatio
+    ) {
         if (window == null) {
             return;
         }
@@ -2872,62 +2921,47 @@ public class GsContextUtils {
         if (view == null) {
             return;
         }
-
-        final ObjectAnimator animator = ObjectAnimator
+        ObjectAnimator
                 .ofFloat(view, View.ALPHA, 0.2f, 1.0f)
-                .setDuration(500L);
-
-        view.setTag(BLINK_ANIMATOR_TAG, new WeakReference<>(animator));
-
-        animator.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                view.setAlpha(1.0f);
-                view.setTag(BLINK_ANIMATOR_TAG, null);
-            }
-        });
-
-        animator.start();
+                .setDuration(500L)
+                .start();
     }
 
-    public static void stopBlinking(final View view) {
+    public static void blinkView2(final View view) {
         if (view == null) {
             return;
         }
-
-        final Object tagRef = view.getTag(BLINK_ANIMATOR_TAG);
-        if (tagRef instanceof WeakReference) {
-            final Object tag = ((WeakReference<?>) tagRef).get();
-            if (tag instanceof ObjectAnimator) {
-                final ObjectAnimator anim = ((ObjectAnimator) tag);
-                if (anim.isRunning()) {
-                    anim.cancel();
-                }
-            }
-        }
+        ObjectAnimator animator = ObjectAnimator.
+                ofInt(view, "backgroundColor", 0x30888888, 0x50888888, 0x00888888)
+                .setDuration(600);
+        animator.setEvaluator(new ArgbEvaluator());
+        animator.start();
     }
 
     public static boolean fadeInOut(final View in, final View out, final boolean animate) {
-        // Do nothing if we are already in the correct state
-        if (in.getVisibility() == View.VISIBLE && out.getVisibility() == View.GONE) {
+        if (in == null || out == null) {
             return false;
         }
 
-        in.setVisibility(View.VISIBLE);
+        // Do nothing if we are already in the correct state
+        if (in.getVisibility() == View.VISIBLE && out.getVisibility() == View.INVISIBLE) {
+            return false;
+        }
+
         if (animate) {
-            in.setAlpha(0);
-            in.animate().alpha(1).setDuration(200).setListener(null);
             out.animate()
-                    .alpha(0)
-                    .setDuration(200)
-                    .setListener(new AnimatorListenerAdapter() {
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            out.setVisibility(View.GONE);
-                        }
-                    });
+                    .alpha(0f)
+                    .setDuration(400)
+                    .withEndAction(() -> out.setVisibility(View.INVISIBLE));
+
+            in.setAlpha(0f);
+            in.setVisibility(View.VISIBLE);
+            in.animate()
+                    .alpha(1f)
+                    .setDuration(400);
         } else {
-            out.setVisibility(View.GONE);
+            out.setVisibility(View.INVISIBLE);
+            in.setVisibility(View.VISIBLE);
         }
 
         return true;

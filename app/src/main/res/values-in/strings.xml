@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -119,7 +119,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Berkas tidak terletak di folder saat ini. Apakah Anda ingin menyalinnya ke folder saat ini? Ini akan menimpa berkas yang ada dengan nama yang sama.</string>
     <string name="files_and_folders">Berkas dan folder</string>
     <string name="document_browser">Penjelajah dokumen</string>
-    <string name="file_browser">Penjelajah berkas</string>
     <string name="set_due_date">Atur batas waktu</string>
     <string name="insert_replace_date">Sisipkan tanggal</string>
     <string name="create_note" needed="false">Buat catatan</string>
@@ -135,12 +134,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Tampilan Utama</string>
     <string name="overall_theme_used_in_app">Tema keseluruhan yang digunakan di dalam aplikasi</string>
     <string name="remember_last_directory">Ingatkan direktori terakhir</string>
-    <string name="syntax_highlighting">Penyorotan sintaks</string>
-    <string name="dynamic_highlighting">Penyorotan dinamis</string>
     <string name="highlighting_delay">Menyoroti penundaan</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Keterlambatan dalam milidetik untuk menyegarkan kembali penyorotan. Nilai yang lebih rendah akan mulai disorot lebih awal, tetapi akan menguras baterai Anda dan dapat memperlambat aplikasi pada perangkat yang lebih lama.</string>
     <string name="highlighting_enabled_or_not__appspecific">Mengontrol apakah teks yang dimasukkan harus disorot atau tidak</string>
-    <string name="dynamic_highlighting_effect">Penyorotan dinamis meningkatkan performa. Dapat menyebabkan rendering artifacts.</string>
     <string name="control_font_size_in_editor">Atur ukuran huruf yang pada editor</string>
     <string name="textactions_show_useful_actions_description__appspecific">Tampilkan bilah dengan tombol praktis di bawah. Aksi teks ini mengubah teks atau menjalankan aksi berdasar teks.</string>
     <string name="load_last_opened_folder_at_startup">Muat folder yang dibuka terakhir</string>
@@ -175,17 +171,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">Urutkan tugas dari daftar yang dipilih</string>
     <string name="special_key">Kunci Spesial</string>
     <string name="asciidoc_special_key">Isi AsciiDoc khusus</string>
-    <string name="key_page_up">Halaman atas (Halaman atas)</string>
-    <string name="key_page_down">Halaman bawah (Halaman bawah)</string>
-    <string name="move_text_one_line_up">Pindah teks ke satu baris atas</string>
-    <string name="move_text_one_line_down">Pindah teks ke satu baris bawah</string>
-    <string name="start_new_line_below">Mulai baris baru dibawah</string>
-    <string name="key_pos_1">Baris memulai (Pos beranda)</string>
-    <string name="key_pos_end">Baris terakhir (Pos akhir)</string>
-    <string name="key_pos_1_document">Memulai dokumen</string>
-    <string name="key_pos_end_document">Dokumen akhir</string>
     <string name="key_ctrl_a">Pilih semua (Ctrl+A)</string>
-    <string name="key_tab">Tabulator</string>
     <string name="start_on_bottom">Mulai dari bawah</string>
     <string name="start_on_bottom_when_loading_document">Setelah memuat dokumen, posisikan kursor di ujungnya</string>
     <string name="unordered_list_character">Karakter daftar yang tidak diurutkan</string>
@@ -224,6 +210,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Lisensi Proyek</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Kode kontribusi untuk proyek. Semua orang dipersilakan untuk melakukannya, termasuk pendatang baru</string>
     <string name="project_team">Tim proyek</string>
+    <string name="community">Komunitas</string>
     <string name="contributors_public_add_yourself_description">Tampilkan info kontributor. Berikan untuk ditampilkan di sini secara opt-in setelah berkontribusi</string>
     <string name="descending">menurun</string>
     <string name="ascending">menaik</string>
@@ -251,7 +238,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">Tidak ada aplikasi kalender yang diinstal!</string>
     <string name="popular_documents">Dokumen populer</string>
     <string name="color">Warna</string>
-    <string name="zero_width_space">Spasi jarak nol</string>
     <string name="basic_color_scheme">Skema warna dasar</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Mengubah latar belakang dan warna latar depan editor teks. Menyesuaikan dengan tema aplikasi sehingga tersedia dalam tema terang dan gelap. Sintaks menyoroti warna tetap sama.</string>
     <string name="preset">Pengaturan tersimpan</string>
@@ -269,7 +255,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Pilih tanggal</string>
     <string name="pick_time">Pilih waktu</string>
     <string name="get_format_instead_date_or_time">Dapatkan format sebagai gantinya tanggal atau waktu</string>
-    <string name="always_use_current_date_and_time">Selalu gunakan tanggal &amp; waktu saat ini</string>
     <string name="result">Hasil</string>
     <string name="just_time">Hanya waktu</string>
     <string name="just_date">Hanya tanggal</string>
@@ -294,8 +279,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Hitam</string>
     <string name="white">Putih</string>
     <string name="view">Lihat</string>
-    <string name="view_mode">Mode tampilan</string>
-    <string name="edit_mode">Mode edit</string>
     <string name="mount_storage">Penyimpanan mount</string>
     <string name="application_needs_access_to_storage_mount_it">Izin diperlukan untuk mengakses penyimpanan ini. Mount penyimpanan untuk memberikan akses. Konfirmasikan dialog ini untuk mendapatkan popup. Pilih penyimpanan di sana dan tekan pilih.</string>
     <string name="share_into">Berbagi ke</string>
@@ -308,8 +291,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">File yang dipilih mungkin adalah file plaintext. Apakah Anda ingin membukanya di editor, atau di aplikasi lain? \n\nApakah Anda tidak mencoba membuka file binary. Jika Anda tidak yakin, buka dengan aplikasi lain.</string>
     <string name="list_in_recent_files">Daftar dalam file terbaru</string>
     <string name="reload">Muat ulang</string>
-    <string name="wrap_words">Pembungkus kata</string>
-    <string name="line_numbers">Nomor baris</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Break ringan jika teks tidak sesuai dengan lebar layar. Lainnya, mengaktifkan pengguliran horizontal.</string>
     <string name="always_open_with_this_app">Selalu buka dengan aplikasi ini</string>
     <string name="always_open_files_with_this_app_when_list_contains_file_extension">Selalu buka file dengan aplikasi ini saat daftar berisi ekstensi file. Gunakan \'None, .html, .css, .js\' misalnya jika Anda ingin mengedit file web dan yang tanpa ekstensi file.</string>
@@ -384,7 +365,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Deskripsi format file</string>
     <string name="file_description_format_dialog">Format untuk deskripsi di bawah setiap file di browser file. Mengikuti aturan SimpleDateFormat Android, dengan penambahan FS untuk menampilkan ukuran file. Biarkan kosong untuk menggunakan format default untuk lokal Anda.\n\nContoh input:\nFS yyyy MMM dd hh:mm:ss aa\nOutput format:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">Memuat nilai default</string>
-    <string name="file_settings">Setelan file</string>
     <string name="search_and_replace">Cari / Ganti</string>
     <string name="search_for">Cari untuk</string>
     <string name="replace_with">Ganti dengan</string>

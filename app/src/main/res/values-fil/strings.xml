@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -117,7 +117,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Wala sa kasalukuyang folder ang file. Gusto mo ba itong kopyahin sa kasalukuyang folder? Susulatan nito ang kahit anong file na may kaparehong pangalan.</string>
     <string name="files_and_folders">Mga File at folder</string>
     <string name="document_browser">Browser ng Dokumento</string>
-    <string name="file_browser">Browser ng File</string>
     <string name="set_due_date">Magtakda ng due date</string>
     <string name="insert_replace_date">Magsingit ng petsa</string>
     <string name="create_note" needed="false">Gumawa ng Tala</string>
@@ -132,7 +131,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Pangunahing View</string>
     <string name="overall_theme_used_in_app">Ang pangkalahatang temang gagamitin ng app</string>
     <string name="remember_last_directory">Alalahanin ang huling direktorya</string>
-    <string name="syntax_highlighting">Pagha-highlight ng syntax</string>
     <string name="highlighting_delay">Antala ng pagha-highlight</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Antala sa milisegundo para sa refresh ng pagha-highlight. Magsisimula ang pagha-highlight nang mas maaga kapag mababa ang nakalagay, pero uubusin nito ang iyong baterya at maaring pabagalin ang app sa mga lumang device.</string>
     <string name="highlighting_enabled_or_not__appspecific">Kontrolin kung ang pinasok na teksto ay kailangan bang i-highlight o hindi</string>
@@ -169,17 +167,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="archive_does_move_done_tasks">Ilipat ang mga natapos na gawain sa tinukoy na file sa parehong folder</string>
     <string name="sort_tasks_by_selected_order">Ayusin ang mga gawain sa piniling ayos</string>
     <string name="special_key">Espesyal na Key</string>
-    <string name="key_page_up">Pahina Pataas (Page Up)</string>
-    <string name="key_page_down">Pahina Pababa (Page Down)</string>
-    <string name="move_text_one_line_up">Itaas ang text</string>
-    <string name="move_text_one_line_down">Ibaba ang text</string>
-    <string name="start_new_line_below">Magsimula ng bagong linya sa baba</string>
-    <string name="key_pos_1">Linya Umpisa (Pos Home)</string>
-    <string name="key_pos_end">Linya Dulo (Pos End)</string>
-    <string name="key_pos_1_document">Simula ng dokumento</string>
-    <string name="key_pos_end_document">Dulo ng dokumento</string>
     <string name="key_ctrl_a">Piliin lahat (Ctrl+A)</string>
-    <string name="key_tab">Tab</string>
     <string name="start_on_bottom">Magsimula sa ibaba</string>
     <string name="start_on_bottom_when_loading_document">Pagka-load ng dokumento, ilagay ang panuro sa dulo nito</string>
     <string name="unordered_list_character">Karakter ng di-nakanumerong listahan</string>
@@ -213,6 +201,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Lisensiya ng Proyekto</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Mag-ambag ng code sa proyekto. Maaring gawin ito ng kahit sinuman, pati na ang mga bagong-pasok</string>
     <string name="project_team">Project Team</string>
+    <string name="community">Komunidad</string>
     <string name="contributors_public_add_yourself_description">Ipakita ang impormasyon ng mga nag-ambag. Nasa opt-in basis ang pagpapakita dito matapos mag-ambag</string>
     <string name="descending">pababa</string>
     <string name="ascending">pataas</string>
@@ -240,7 +229,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">Walang naka-install na app na kalendaryo!</string>
     <string name="popular_documents">Mga popular na dokumento</string>
     <string name="color">Kulay</string>
-    <string name="zero_width_space">Space na walang lapad</string>
     <string name="basic_color_scheme">Batayang iskima ng kulay</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Binabago ang kulay likuran at harapan ng text editor. Sumasaayos sa tema ng app kaya mayroon ito sa temang malinaw at madilim. Ganoon pa rin ang mga kulay sa pagha-highlight ng syntax.</string>
     <string name="preset">Preset</string>
@@ -258,7 +246,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Pumili ng petsa</string>
     <string name="pick_time">Pumili ng oras</string>
     <string name="get_format_instead_date_or_time">Kunin mismo ang ayos imbes ang petsa o oras</string>
-    <string name="always_use_current_date_and_time">Palaging gamitin ang petsa ngayon &amp; oras</string>
     <string name="result">Resulta</string>
     <string name="just_time">Oras lamang</string>
     <string name="just_date">Petsa lamang</string>
@@ -283,8 +270,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Itim</string>
     <string name="white">Puti</string>
     <string name="view">View</string>
-    <string name="view_mode">Mode sa Pag-view</string>
-    <string name="edit_mode">Mode sa Pag-edit</string>
     <string name="mount_storage">Magpasok ng storage</string>
     <string name="application_needs_access_to_storage_mount_it">Kailangan ng permiso para ma-access ang storage na ito. Ipasok ang storage para makapagbigay ng access. Kumpirmahin ang dialog na ito para makakuha ng popup. Piliin ang storage doon at pindutin ang select.</string>
     <string name="share_into">Ibahagi sa</string>
@@ -296,7 +281,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="amount_of_space_for_tab">Bilang ng mga space character para ipakita ang tabulator</string>
     <string name="list_in_recent_files">Listahan sa mga kamakailang file</string>
     <string name="reload">I-reload</string>
-    <string name="wrap_words">I-wrap ang mga salita</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">I-soft break kung hindi kakasya sa lapad ng screen ang teksto. Kung ayaw, i-enable ang pag-i-scroll na pahiga.</string>
     <string name="always_open_with_this_app">Palaging buksan sa app na ito</string>
     <string name="always_open_files_with_this_app_when_list_contains_file_extension">Palaging buksan ang mga file sa app na ito kung ang listahan ay mayroon mga file extension. Gamitin ang \'Wala, .html, .css, .js\' bilang halimbawa kung gusto mong baguhin ang mga web file at yung mga walang file extension.</string>

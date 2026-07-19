@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2017-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2017-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2018-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2018-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -17,10 +17,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import net.gsantner.opoc.format.GsTextUtils;
+import net.gsantner.opoc.frontend.filebrowser.GsFileBrowserListAdapter;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -52,11 +54,14 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -413,34 +418,44 @@ public class GsFileUtils {
     }
 
     // Get relative path to specified destination
-    public static String relativePath(File src, File dest) {
-        try {
-            String[] srcSplit = (src.isDirectory() ? src : src.getParentFile()).getCanonicalPath().split(Pattern.quote(File.separator));
-            String[] destSplit = dest.getCanonicalPath().split(Pattern.quote(File.separator));
-            StringBuilder sb = new StringBuilder();
-            int i = 0;
+    public static String relativePath(final File src, final File dest) {
+        final File srcDir = src.isFile() ? src.getParentFile() : src;
+        final String srcStr = getPath(srcDir);
+        final String destStr = getPath(dest);
 
-            for (; i < destSplit.length && i < srcSplit.length; ++i) {
-                if (!destSplit[i].equals(srcSplit[i]))
-                    break;
-            }
-            if (i != srcSplit.length) {
-                for (int iUpperDir = i; iUpperDir < srcSplit.length; ++iUpperDir) {
-                    sb.append("..");
-                    sb.append(File.separator);
-                }
-            }
-            for (; i < destSplit.length; ++i) {
-                sb.append(destSplit[i]);
+        final String[] srcSplit = srcStr.split(Pattern.quote(File.separator));
+        final String[] destSplit = destStr.split(Pattern.quote(File.separator));
+
+        int commonLength = 0;
+        for (; commonLength < destSplit.length && commonLength < srcSplit.length; ++commonLength) {
+            if (!destSplit[commonLength].equals(srcSplit[commonLength]))
+                break;
+        }
+
+        final StringBuilder sb = new StringBuilder();
+
+        if (commonLength != srcSplit.length) {
+            for (int iUpperDir = commonLength; iUpperDir < srcSplit.length; ++iUpperDir) {
+                sb.append("..");
                 sb.append(File.separator);
             }
-            if (!dest.getPath().endsWith("/") && !dest.getPath().endsWith("\\")) {
-                sb.delete(sb.length() - File.separator.length(), sb.length());
-            }
-            return sb.toString();
-        } catch (IOException | NullPointerException exception) {
-            return null;
         }
+
+        for (; commonLength < destSplit.length; ++commonLength) {
+            sb.append(destSplit[commonLength]);
+            sb.append(File.separator);
+        }
+
+        if (GsTextUtils.endsWith(sb, File.separator)) {
+            // Strip trailing separator so file selections don't keep a trailing slash
+            sb.delete(sb.length() - File.separator.length(), sb.length());
+        }
+
+        if (sb.length() == 0) {
+            sb.append(".");
+        }
+
+        return sb.toString();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -460,6 +475,8 @@ public class GsFileUtils {
             return "text/markdown";
         } else if (ext.matches("(te?xt)|(taskpaper)")) {
             return "text/plain";
+        } else if (ext.matches("org")) {
+            return "text/org";
         } else if (ext.matches("webp")) {
             return "image/webp";
         } else if (ext.matches("jpe?g")) {
@@ -642,12 +659,33 @@ public class GsFileUtils {
         }
     }
 
-    public static String md5(final byte[] data) {
-        return hash(data, "MD5");
-    }
+    public static String sha256(final File file) {
+        if (file == null || !file.exists() || !file.isFile()) {
+            return null;
+        }
 
-    public static String sha512(final byte[] data) {
-        return hash(data, "SHA-512");
+        try (final FileInputStream fis = new FileInputStream(file)) {
+            final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            final byte[] buffer = new byte[BUFFER_SIZE];
+            int bytesRead;
+
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                digest.update(buffer, 0, bytesRead);
+            }
+
+            byte[] hashBytes = digest.digest();
+            StringBuilder hexString = new StringBuilder();
+
+            for (byte b : hashBytes) {
+                hexString.append(String.format("%02x", b));
+            }
+
+            return hexString.toString();
+
+        } catch (IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static long crc32(final CharSequence data) {
@@ -691,16 +729,22 @@ public class GsFileUtils {
         return getNameWithoutExtension(file.getName());
     }
 
-    public static String getNameWithoutExtension(final String fileName) {
+    public static String getNameWithoutExtension(String fileName) {
+        fileName = fileName.replace(".jenc", "");
         final int doti = fileName.lastIndexOf(".");
         return (doti < 0) ? fileName : fileName.substring(0, doti);
     }
 
-    /// Get the file extension of the file, including dot
     public static String getFilenameExtension(final File file) {
-        final String name = file.getName().replace(".jenc", "");
-        final int doti = name.lastIndexOf(".");
-        return (doti < 0) ? "" : name.substring(doti).toLowerCase();
+        return getFilenameExtension(file.getName());
+    }
+
+    /// Get the file extension of the file, with dot
+    ///
+    /// @return "" -> "", "index" -> "", "index.html" -> ".html", "my.website.html" -> ".html"
+    public static String getFilenameExtension(String name) {
+        name = name.replace(".jenc", "");
+        return name.contains(".") ? name.replaceAll(".*?(\\.[^.]+)$", "$1") : "";
     }
 
     public static String getFilteredFilenameWithoutDisallowedChars(String str, final boolean... a1NoRCEguard) {
@@ -765,20 +809,57 @@ public class GsFileUtils {
         }
     }
 
-    public static void sortFiles(
-            final List<File> filesToSort,
-            final String sortBy,
-            final boolean folderFirst,
-            final boolean reverse
-    ) {
+    public static class SortOrder {
+        public String sortByType = SORT_BY_NAME;
+        public boolean reverse = false;
+        public boolean showDotFiles = false;
+        public boolean folderFirst = true;
+        public boolean isFolderLocal = false;
+
+        private final static String SORT_BY_KEY = "SORT_BY";
+        private final static String REVERSE_KEY = "REVERSE";
+        private final static String SHOW_DOT_FILES_KEY = "SHOW_DOT_FILES";
+        private final static String FOLDER_FIRST_KEY = "FOLDER_FIRST";
+
+        @NonNull
+        @Override
+        public String toString() {
+            final Map<String, String> map = new HashMap<>();
+            map.put(SORT_BY_KEY, sortByType);
+            map.put(REVERSE_KEY, String.valueOf(reverse));
+            map.put(SHOW_DOT_FILES_KEY, String.valueOf(showDotFiles));
+            map.put(FOLDER_FIRST_KEY, String.valueOf(folderFirst));
+            return GsTextUtils.mapToJsonString(map);
+        }
+
+        public static SortOrder fromString(final String json) {
+            final SortOrder fso = new SortOrder();
+            final Map<String, String> map = GsTextUtils.jsonStringToMap(json);
+            fso.sortByType = GsCollectionUtils.getOrDefault(map, SORT_BY_KEY, SORT_BY_NAME);
+            fso.reverse = Boolean.parseBoolean(GsCollectionUtils.getOrDefault(map, REVERSE_KEY, "false"));
+            fso.showDotFiles = Boolean.parseBoolean(GsCollectionUtils.getOrDefault(map, SHOW_DOT_FILES_KEY, "false"));
+            fso.folderFirst = Boolean.parseBoolean(GsCollectionUtils.getOrDefault(map, FOLDER_FIRST_KEY, "true"));
+            return fso;
+        }
+    }
+
+    public static void sortFiles(final Collection<File> filesToSort, final SortOrder order) {
         if (filesToSort != null && !filesToSort.isEmpty()) {
             try {
-                GsCollectionUtils.keySort(filesToSort, (f) -> makeSortKey(sortBy, f));
-                if (reverse) {
-                    Collections.reverse(filesToSort);
+                final boolean copy = !(filesToSort instanceof List);
+                final List<File> sortable = copy ? new ArrayList<>(filesToSort) : (List<File>) filesToSort;
+
+                GsCollectionUtils.keySort(sortable, (f) -> makeSortKey(order.sortByType, f), new AlphanumComparator());
+                if (order.reverse) {
+                    Collections.reverse(sortable);
                 }
-                if (folderFirst) {
-                    GsCollectionUtils.keySort(filesToSort, (f) -> !f.isDirectory());
+                if (order.folderFirst) {
+                    GsCollectionUtils.keySort(sortable, (f) -> !f.isDirectory());
+                }
+
+                if (copy) {
+                    filesToSort.clear();
+                    filesToSort.addAll(sortable);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -799,10 +880,10 @@ public class GsFileUtils {
 
     /**
      * Check if a file can be created.
-     * Checks if closest ancestor is writeable.
+     * Checks if closest ancestor is writable.
      */
     public static boolean canCreate(File file) {
-        // A file is creatable if the first existing ancestor is writeable
+        // A file is creatable if the first existing ancestor is writable
         while (file != null && !file.exists()) {
             file = file.getParentFile();
         }
@@ -876,19 +957,40 @@ public class GsFileUtils {
     }
 
     public static File makeAbsolute(final String path, final File base) {
-        return path != null ? makeAbsolute(new File(path.trim()), base) : null;
+        if (path == null) {
+            return null;
+        }
+
+        final String decodedPath = GsTextUtils.decodeUrl(path).trim();
+        if (decodedPath.isEmpty()) {
+            return null;
+        }
+
+        return makeAbsolute(new File(decodedPath), base);
     }
 
     public static File makeAbsolute(final File file, final File base) {
-        if (file == null) {
-            return null;
-        } else if (file.isAbsolute()) {
-            return file;
-        } else if (base != null) {
-            return new File(base, file.getPath()).getAbsoluteFile();
-        } else {
+        if (file == null || base == null) {
             return null;
         }
+
+        if (file.isAbsolute()) {
+            return file;
+        }
+
+        final String full = base.getAbsolutePath() + File.separator + file.getPath();
+        final String[] parts = full.split(Pattern.quote(File.separator));
+
+        final Stack<String> stack = new Stack<>();
+        for (final String part : parts) {
+            if (part.equals("..") && !stack.isEmpty()) {
+                stack.pop();
+            } else if (!part.equals(".")) {
+                stack.add(part);
+            }
+        }
+
+        return new File(String.join(File.separator, stack));
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
@@ -913,5 +1015,37 @@ public class GsFileUtils {
             Log.d(GsFileUtils.class.getName(), e.toString());
         }
         return null;
+    }
+
+    public static String getPath(final File file) {
+        try {
+            return file.getCanonicalPath();
+        } catch (IOException e) {
+            return file.getAbsolutePath();
+        } catch (NullPointerException e) {
+            return "";
+        }
+    }
+
+    public static boolean isDirectory(final File file) {
+        return file != null && (GsFileBrowserListAdapter.isVirtualFolder(file) || file.isDirectory());
+    }
+
+    public static boolean exists(final File file) {
+        return file != null && (GsFileBrowserListAdapter.isVirtualFolder(file) || file.exists());
+    }
+
+    public static boolean isSymbolicLink(final File file) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            return Files.isSymbolicLink(file.toPath());
+        } else {
+            try {
+                final File actualParent = file.getCanonicalFile().getParentFile();
+                final File parent = file.getParentFile();
+                return actualParent == null || !actualParent.equals(parent);
+            } catch (IOException | NullPointerException ignored) {
+                return false;
+            }
+        }
     }
 }

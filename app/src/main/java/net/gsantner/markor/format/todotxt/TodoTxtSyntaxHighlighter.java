@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2018-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2018-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -9,21 +9,20 @@ package net.gsantner.markor.format.todotxt;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.text.Spannable;
 import android.text.style.LineBackgroundSpan;
 import android.text.style.LineHeightSpan;
-import android.text.style.UpdateLayout;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 
 import net.gsantner.markor.frontend.textview.SyntaxHighlighterBase;
 import net.gsantner.markor.model.AppSettings;
-
-import java.util.regex.Pattern;
+import net.gsantner.markor.util.MarkorContextUtils;
 
 public class TodoTxtSyntaxHighlighter extends TodoTxtBasicSyntaxHighlighter {
 
-    private final static Pattern LINE_OF_TEXT = Pattern.compile("(?m)(.*)?");
+    private ParagraphDividerSpan _paragraphSpan;
 
     public TodoTxtSyntaxHighlighter(final AppSettings as) {
         super(as);
@@ -31,46 +30,71 @@ public class TodoTxtSyntaxHighlighter extends TodoTxtBasicSyntaxHighlighter {
 
     @Override
     public SyntaxHighlighterBase configure(Paint paint) {
+        super.configure(paint);
+
         _delay = _appSettings.getHighlightingDelayTodoTxt();
-        return super.configure(paint);
+        final boolean dark = MarkorContextUtils.instance.isDarkModeEnabled(_appSettings.getContext());
+        _paragraphSpan = new ParagraphDividerSpan(paint, dark ? 0x44FFFFFF : 0xFFDDDDDD);
+
+        return this;
     }
 
     @Override
     public void generateSpans() {
 
-        super.generateSpans();
+        // Single span for the whole text - highly performant
+        addSpanGroup(_paragraphSpan, 0, _spannable.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
 
-        // Paragraph space and divider half way up the space
-        createSpanForMatches(LINE_OF_TEXT, matcher -> new ParagraphDividerSpan(_textColor));
+        super.generateSpans();
     }
 
     // Adds spacing and divider line between paragraphs
-    public static class ParagraphDividerSpan implements LineBackgroundSpan, LineHeightSpan, UpdateLayout {
-        private final int _lineColor;
-        private Integer _origAscent = null;
+    public static class ParagraphDividerSpan implements LineBackgroundSpan, LineHeightSpan, StaticSpan {
+        private final @ColorInt int _lineColor;
+        private final int _top, _ascent, _descent, _bottom, _offset;
 
-        public ParagraphDividerSpan(@ColorInt int lineColor) {
+        public ParagraphDividerSpan(final Paint paint, final @ColorInt int lineColor) {
+            final Paint.FontMetricsInt fm = paint.getFontMetricsInt();
             _lineColor = lineColor;
+            _offset = Math.abs(fm.ascent) / 2;
+            _top = fm.top;
+            _ascent = fm.ascent;
+            _descent = fm.descent;
+            _bottom = fm.bottom;
         }
 
         @Override
         public void drawBackground(@NonNull Canvas canvas, @NonNull Paint paint, int left, int right, int top, int baseline, int bottom, @NonNull CharSequence text, int start, int end, int lineNumber) {
-            if (start > 0 && text.charAt(start - 1) == '\n') {
-                paint.setColor(_lineColor);
-                paint.setStrokeWidth(0);
-                final float spacing = paint.getTextSize();
-                canvas.drawLine(left, top + spacing / 2, right, top + spacing / 2, paint);
+            if (end > 0 && text.charAt(end - 1) == '\n') {
+                final int prevColor = paint.getColor();
+                final float prevStrokeWidth = paint.getStrokeWidth();
+                try {
+                    paint.setColor(_lineColor);
+                    paint.setStrokeWidth(0);
+                    canvas.drawLine(left, bottom, right, bottom, paint);
+                } finally {
+                    paint.setColor(prevColor);
+                    paint.setStrokeWidth(prevStrokeWidth);
+                }
             }
         }
 
         @Override
         public void chooseHeight(CharSequence text, int start, int end, int spanstartv, int v, Paint.FontMetricsInt fm) {
-            if (_origAscent == null) {
-                _origAscent = fm.ascent;
+            fm.top = _top;
+            fm.ascent = _ascent;
+            fm.descent = _descent;
+            fm.bottom = _bottom;
+
+            if (start > 0 && text.charAt(start - 1) == '\n') {
+                fm.top = _top - _offset;
+                fm.ascent = _ascent - _offset;
             }
-            boolean isFirstLineInParagraph = start > 0 && text.charAt(start - 1) == '\n';
-            fm.ascent = (isFirstLineInParagraph) ? (2 * _origAscent) : _origAscent;
+
+            if (end > 0 && text.charAt(end - 1) == '\n') {
+                fm.descent = _descent + _offset;
+                fm.bottom = _bottom + _offset;
+            }
         }
     }
 }
-

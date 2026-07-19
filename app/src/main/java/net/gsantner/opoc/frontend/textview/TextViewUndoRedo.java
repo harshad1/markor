@@ -43,7 +43,11 @@ import android.text.Editable;
 import android.text.Selection;
 import android.text.TextWatcher;
 import android.text.style.UnderlineSpan;
+import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
 
 import net.gsantner.markor.frontend.textview.TextViewUtils;
 
@@ -75,23 +79,19 @@ public class TextViewUndoRedo {
     /**
      * The edit text.
      */
-    private TextView mTextView;
+    private TextView mTextView = null;
 
     // =================================================================== //
 
     /**
-     * Create a new TextViewUndoRedo and attach it to the specified TextView.
-     *
-     * @param textView The text view for which the undo/redo is implemented.
+     * Create a new TextViewUndoRedo
      */
-    public TextViewUndoRedo(TextView textView) {
-        mTextView = textView;
+    public TextViewUndoRedo() {
         mEditHistory = new EditHistory();
         mChangeListener = new EditTextChangeListener();
-        mTextView.addTextChangedListener(mChangeListener);
     }
 
-    public void setTextView(TextView textView) {
+    public void setTextView(final TextView textView) {
         disconnect();
         mTextView = textView;
         mTextView.addTextChangedListener(mChangeListener);
@@ -109,7 +109,15 @@ public class TextViewUndoRedo {
     public void disconnect() {
         if (mTextView != null) {
             mTextView.removeTextChangedListener(mChangeListener);
+            clearHistory();
         }
+    }
+
+    /**
+     * Get the currently attached TextView
+     */
+    public @Nullable TextView getTextView() {
+        return mTextView;
     }
 
     /**
@@ -148,7 +156,14 @@ public class TextViewUndoRedo {
         final int end = start + (edit.after != null ? edit.after.length() : 0);
 
         mIsUndoOrRedo = true;
-        text.replace(start, end, edit.before);
+        try {
+            text.replace(start, end, edit.before);
+        } catch (Exception ex) {
+            // In case a undo would crash the app, don't do it instead
+            Log.e(getClass().getName(), "undo() Error in text.replace" + ex);
+            Toast.makeText(mTextView.getContext(), "undo() Error in text.replace" + ex, Toast.LENGTH_LONG).show();
+            return;
+        }
         mIsUndoOrRedo = false;
 
         // This will get rid of underlines inserted when editor tries to come

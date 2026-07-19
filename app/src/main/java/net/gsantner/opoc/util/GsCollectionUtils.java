@@ -18,9 +18,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 // Class for general utilities
@@ -126,14 +128,8 @@ public class GsCollectionUtils {
     /**
      * Check if 2 collections have the same elements
      */
-    public static <T> boolean setEquals(Collection<T> a, Collection<T> b) {
-        a = a != null ? a : Collections.emptySet();
-        b = b != null ? b : Collections.emptySet();
-
-        a = a instanceof Set ? a : new HashSet<>(a);
-        b = b instanceof Set ? b : new HashSet<>(b);
-
-        return a.equals(b);
+    public static <T> boolean setEquals(final Collection<T> a, final Collection<T> b) {
+        return (a == b) || (a != null && b != null && a.size() == b.size() && a.containsAll(b));
     }
 
     /**
@@ -258,28 +254,45 @@ public class GsCollectionUtils {
         return values;
     }
 
-    public static class Holder<T> {
-        private T value;
-
-        public Holder(T value) {
-            this.value = value;
+    public static <K, V> Map<V, K> reverse(final Map<K, V> map) {
+        final Map<V, K> reversed = new HashMap<>();
+        for (final Map.Entry<K, V> entry : map.entrySet()) {
+            reversed.put(entry.getValue(), entry.getKey());
         }
+        return reversed;
+    }
 
-        public T get() {
-            return value;
-        }
+    public static <K, V> V getOrDefault(final Map<K, V> map, final K key, final V defaultValue) {
+        return map.containsKey(key) ? map.get(key) : defaultValue;
+    }
 
-        public Holder<T> set(T value) {
-            this.value = value;
-            return this;
-        }
-
-        public T clear() {
-            try {
-                return value;
-            } finally {
-                value = null;
+    public static <K, V> K reverseSearch(final Map<K, V> map, final V value) {
+        for (final Map.Entry<K, V> entry : map.entrySet()) {
+            if (entry.getValue().equals(value)) {
+                return entry.getKey();
             }
         }
+        return null;
+    }
+
+    public static <T> void deduplicate(final Collection<T> data) {
+        if (!(data instanceof Set)) {
+            final LinkedHashSet<T> deduped = new LinkedHashSet<>(data);
+            data.clear();
+            data.addAll(deduped);
+        }
+    }
+
+    public static <T> void removeIf(final Collection<T> data, final GsCallback.b1<? super T> predicate) {
+        final Iterator<T> iter = data.iterator();
+        while (iter.hasNext()) {
+            if (predicate.callback(iter.next())) {
+                iter.remove();
+            }
+        }
+    }
+
+    public static <T> void keepIf(final Collection<T> data, final GsCallback.b1<? super T> predicate) {
+        removeIf(data, (v) -> !predicate.callback(v));
     }
 }

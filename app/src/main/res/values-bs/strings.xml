@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -117,7 +117,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">Datoteka se ne nalazi u ovom direktoriju. Želite li je kopirati u otvoreni direktorij? Time ćete prepisati datoteku s istom nazivom, ukoliko postoji.</string>
     <string name="files_and_folders">Datoteke i direktoriji</string>
     <string name="document_browser">Preglednik dokumenata</string>
-    <string name="file_browser">Preglednik datoteka</string>
     <string name="set_due_date">Odredi dan dospjeća</string>
     <string name="insert_replace_date">Unesi datum</string>
     <string name="create_note" needed="false">Kreiraj bilješku</string>
@@ -132,7 +131,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Glavni prikaz</string>
     <string name="overall_theme_used_in_app">Osnovna tema programa</string>
     <string name="remember_last_directory">Zapamti zadnji direktorij</string>
-    <string name="syntax_highlighting">Obilježavanje sintakse</string>
     <string name="highlighting_delay">Odgoda markiranja</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Koliko će milisekundi biti odgođeno osvježavanje. Niža vrijednost znači da će markiranje početi ranije, ali će se to odraziti na bateriju i može usporiti program na starijim uređajima.</string>
     <string name="highlighting_enabled_or_not__appspecific">Hoće li uneseni tekst biti markiran ili ne</string>
@@ -169,17 +167,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="archive_does_move_done_tasks">Premjesti obavljene zadatke u zadatu datoteku u istom direktoriju</string>
     <string name="sort_tasks_by_selected_order">Sortiraj zadatke po odabranom redoslijedu</string>
     <string name="special_key">Specijalni ključ</string>
-    <string name="key_page_up">Prethodna stranica (Page Up)</string>
-    <string name="key_page_down">Sljedeća stranica (Page Down)</string>
-    <string name="move_text_one_line_up">Pomjeri tekst gore za jedan red</string>
-    <string name="move_text_one_line_down">Pomjeri tekst dolje za jedan red</string>
-    <string name="start_new_line_below">Započni novi red ispod</string>
-    <string name="key_pos_1">Početak reda (Pos Home)</string>
-    <string name="key_pos_end">Kraj reda (Pos End)</string>
-    <string name="key_pos_1_document">Početak dokumenta</string>
-    <string name="key_pos_end_document">Kraj dokumenta</string>
     <string name="key_ctrl_a">Označi sve (Ctrl+A)</string>
-    <string name="key_tab">Tabulator</string>
     <string name="start_on_bottom">Počni na dnu</string>
     <string name="start_on_bottom_when_loading_document">Nakon otvaranja dokumenta, kursor pozicioniraj na kraj</string>
     <string name="unordered_list_character">Znak za nenumerisana nabrajanja</string>
@@ -215,6 +203,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Licenca projekta</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Doprinesite projektu vlastitim kōdom. Svačiji je doprinos dobrodošao.</string>
     <string name="project_team">Tim</string>
+    <string name="community">Zajednica</string>
     <string name="contributors_public_add_yourself_description">Prikaži informacije o saradnicima. Priložite informacije o sebi ako želite da budu prikazane ovdje nakon Vašeg doprinosa</string>
     <string name="descending">inverzno</string>
     <string name="ascending">redom</string>
@@ -242,7 +231,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">Nije instalirana aplikacija za upravljanje kalendarima.</string>
     <string name="popular_documents">Popularni dokumenti</string>
     <string name="color">Boja</string>
-    <string name="zero_width_space">Bjelina nulte širine</string>
     <string name="basic_color_scheme">Boje</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Mijenja boju pozadine i teksta u tekstnom uređivaču. Prilagođava se bojama programa kako bi odgovaralo svijetloj i tamnoj temi. Boje kojima se obilježava sintaksa ostaju nepromijenjene.</string>
     <string name="preset">Šablon</string>
@@ -260,7 +248,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Izaberi datum</string>
     <string name="pick_time">Odredi vrijeme</string>
     <string name="get_format_instead_date_or_time">Format umjesto datuma ili vremena</string>
-    <string name="always_use_current_date_and_time">Uvijek prikaži trenutni datum i vrijeme</string>
     <string name="result">Rezultat</string>
     <string name="just_time">Samo vrijeme</string>
     <string name="just_date">Samo datum</string>
@@ -285,8 +272,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Crna</string>
     <string name="white">Bijela</string>
     <string name="view">Prikaz</string>
-    <string name="view_mode">Pregled</string>
-    <string name="edit_mode">Uređivanje</string>
     <string name="mount_storage">Pripremi memoriju</string>
     <string name="application_needs_access_to_storage_mount_it">Potrebno je dopuštenje za pristupanje memoriji. Pripremite memoriju da omogućite pristup. Potvrdite ovdje za nastavak. Označite memoriju i pritisnite odaberi.</string>
     <string name="share_into">Podijeli sa</string>
@@ -299,7 +284,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">Odabrana datoteka može biti obična tekstualna datoteka. Želite li je otvoriti u Markoru ili drugoj aplikaciji?\n\nNe pokušavajte otvoriti binarne datoteke. Ukoliko ste u nedoumici, otvorite je pomoću druge aplikacije.</string>
     <string name="list_in_recent_files">Prikaži u nedavno otvorenim datotekama</string>
     <string name="reload">Učitaj ponovo</string>
-    <string name="wrap_words">Prijelom redova</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Kad tekst prelazi širinu ekrana, koristiti blagi prijelom. Ako ne, tad aktivirati vodoravno pomjeranje.</string>
     <string name="always_open_with_this_app">Uvijek otvori u ovoj aplikaciji</string>
     <string name="always_open_files_with_this_app_when_list_contains_file_extension">Datoteke uvijek otvori u ovoj aplikaciji kad popis sadržava ekstenziju. Koristi \'None, .html, .css, .js\' i slično za uređivanje web-datoteka i datoteka bez ekstenzije.</string>
@@ -372,7 +356,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Format opisa datoteke</string>
     <string name="file_description_format_dialog">Format za opis ispod svake datoteke u pregledniku datoteka. Slijedi Androidova SimpleDateFormat pravila, s dodatkom FS za prikazivanje veličine datoteke. Ostavite prazno da biste koristili predefinisani format za Vaše područje.\n\nPrimjer:\nFS yyyy MMM dd hh:mm:ss aa\nRezultat:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">Učitavam predefinisane vrijednosti</string>
-    <string name="file_settings">Postavke</string>
     <string name="search_and_replace">Traži / zamijeni</string>
     <string name="search_for">Traži</string>
     <string name="replace_with">Zamijeni sa</string>

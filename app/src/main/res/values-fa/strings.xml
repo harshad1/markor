@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -118,7 +118,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">فایل انتخاب شده در پوشه یادداشت های برنامه نیست. آیا می‌خواهید آن را به پوشه کنونی کپی کنید؟ این موجب بازنویسی آن فایل روی فایل‌های هم نام خواهد شد.</string>
     <string name="files_and_folders">فایل‌ها و پوشه‌ها</string>
     <string name="document_browser">مرورگر پرونده</string>
-    <string name="file_browser">کاوش فایل ها</string>
     <string name="set_due_date">تعیین زمان پایان‌کار</string>
     <string name="insert_replace_date">وارد کردن تاریخ</string>
     <string name="create_note" needed="false">ایجاد یادداشت</string>
@@ -134,12 +133,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">نمای اصلی</string>
     <string name="overall_theme_used_in_app">پوسته‌ای که در تمام برنامه استفاده خواهد شد</string>
     <string name="remember_last_directory">به خاطر سپردن آخرین پوشه</string>
-    <string name="syntax_highlighting">مشخص کردن نحو</string>
-    <string name="dynamic_highlighting">رنگ‌آمیزی پویا</string>
     <string name="highlighting_delay">زمان‌بندی رنگی کردن</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">فاصله زمانی برای به روز رسانی عملیات مشخص کردن را تعیین کنید. عدد پایان تر، مشخص کردن را سریع‌ تر انجام می‌دهد؛ ولی باتری بیشتری مصرف خواهد کرد و شاید باعث کاهش سرعت اپ در دستگاه های ضعیف تر شود.</string>
     <string name="highlighting_enabled_or_not__appspecific">مشخص کنید که آیا متن وارد شده باید مشخص شود(هایلایت) یا نه</string>
-    <string name="dynamic_highlighting_effect">رنگ‌آمیزی پویا عملکرد را شدت می‌بخشد. ممکن است مشکلاتی در زمینه‌ی رندرینگ گرافیکی برنامه ایجاد کند.</string>
     <string name="control_font_size_in_editor">کنترل اندازه قلم ویرایشگر</string>
     <string name="textactions_show_useful_actions_description__appspecific">نمایش یک نوار با عملکردهای کاربردی. این دکمه‌ها فرایندهایی جهت ویرایش متن فراهم می‌کنند.</string>
     <string name="load_last_opened_folder_at_startup">بارگزاری آخرین پوشه باز شده هنگام راه‌اندازی</string>
@@ -174,17 +170,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">مرتب سازی لیست کار ها بر اساس گزینه انتخاب شده</string>
     <string name="special_key">کلید ویژه</string>
     <string name="asciidoc_special_key">محتوای خاص اَسکیداک</string>
-    <string name="key_page_up">بالا بردن صفحه (Page Up)</string>
-    <string name="key_page_down">پایین بردن صفحه (Page Down)</string>
-    <string name="move_text_one_line_up">یک خط بالا بردن متن</string>
-    <string name="move_text_one_line_down">یک خط پایین بردن متن</string>
-    <string name="start_new_line_below">باز کردن خط جدید زیر نشانگر</string>
-    <string name="key_pos_1">ابتدای خط (کلید Home)</string>
-    <string name="key_pos_end">انتهای خط (کلید End)</string>
-    <string name="key_pos_1_document">آغاز پرونده</string>
-    <string name="key_pos_end_document">پایان پرونده</string>
     <string name="key_ctrl_a">انتخاب همه (Ctrl + A)</string>
-    <string name="key_tab">Tabulator</string>
     <string name="start_on_bottom">شروع از پایین</string>
     <string name="start_on_bottom_when_loading_document">بعد از اینکه پرونده بارگزاری شد، موقعیت مکان‌نما در انتهای پرونده قرار بگیرد</string>
     <string name="unordered_list_character">نشانه‌ی کنار لیست‌های غیر عددی</string>
@@ -224,6 +210,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">پروانه‌ی پروژه</string>
     <string name="contribute_code_to_this_project_anybody_welcome">همه آزادند تا به این پروژه کد اضافه کنند. حتا تازه‌کارها</string>
     <string name="project_team">تیم پروژه</string>
+    <string name="community">انجمن</string>
     <string name="contributors_public_add_yourself_description">Show contributor info. Provide it to be shown here on an opt-in basis after contributing</string>
     <string name="descending">رو به پایین</string>
     <string name="ascending">رو به بالا</string>
@@ -251,7 +238,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">برنامه‌ای برای تقویم نصب نشده است!</string>
     <string name="popular_documents">اسناد محبوب</string>
     <string name="color">رنگ</string>
-    <string name="zero_width_space">نیم‌فاصله</string>
     <string name="basic_color_scheme">Basic color scheme</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Changes background and foreground color of the text editor. Adjusts to app theme so available in light and dark theme. Syntax highlighting colors remain the same.</string>
     <string name="preset">پیش‌تنظیم</string>
@@ -269,7 +255,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">انتخاب تاریخ</string>
     <string name="pick_time">انتخاب زمان</string>
     <string name="get_format_instead_date_or_time">Get format instead date or time</string>
-    <string name="always_use_current_date_and_time">همیشه از تاریخ و زمان جاری استفاده شود</string>
     <string name="result">نتیجه</string>
     <string name="just_time">فقط زمان</string>
     <string name="just_date">Date only</string>
@@ -294,8 +279,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">سیاه</string>
     <string name="white">سفید</string>
     <string name="view">نمایش</string>
-    <string name="view_mode">حالت نمایش</string>
-    <string name="edit_mode">حالت ویرایش</string>
     <string name="mount_storage">سوار کردن حافظه</string>
     <string name="application_needs_access_to_storage_mount_it">Permission is required to access this storage. Mount the storage to give access. Confirm this dialog to get a popup. Select the storage there and press select.</string>
     <string name="share_into">Share into</string>
@@ -308,8 +291,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">The selected file may be a plaintext file. Do you want to open it in the editor, or in another app?\n\nDo not try to open binary files. If you are not sure, open with other app.</string>
     <string name="list_in_recent_files">List in recent files</string>
     <string name="reload">بارگزاری مجدد</string>
-    <string name="wrap_words">Wrap words</string>
-    <string name="line_numbers">شماره‌ی خطوط</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Soft break if text doesn\'t fit to screen width. Else enable horizontal scrolling.</string>
     <string name="always_open_with_this_app">Always open with this app</string>
     <string name="always_open_files_with_this_app_when_list_contains_file_extension">Always open files with this app when the list contains the file extension. Use \'None, .html, .css , .js\' for example if you want to edit web files and those without file extension.</string>
@@ -384,7 +365,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">قالب توضیحات پرونده</string>
     <string name="file_description_format_dialog">قالب برای توضیحات هر پرونده در مرور پرونده. از قوائد SimpleDateFormat اندروید پیروی می‌کند به اضافه FS برای نمایش اندازه پرونده. خالی بگذارید تا از قالب پیش‌فرض برای محل شما استفاده کند.\n\nمثال‌هایی از ورودی:\nFS yyyy MMM dd hh:mm:ss aa\nقالب خروجی:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">بارکردن مقادیر پیش‌فرض</string>
-    <string name="file_settings">تنظیمات پرونده</string>
     <string name="search_and_replace">یافتن / جایگزینی</string>
     <string name="search_for">جستجو برای</string>
     <string name="replace_with">جایگزینی با</string>

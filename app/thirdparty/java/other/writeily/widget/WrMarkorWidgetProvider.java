@@ -1,7 +1,7 @@
 /*#######################################################
  * Copyright (c) 2014 Jeff Martin
  * Copyright (c) 2015 Pedro Lafuente
- * Copyright (c) 2017-2024 Gregor Santner
+ * Copyright (c) 2017-2025 Gregor Santner
  *
  * Licensed under the MIT license.
  * You can get a copy of the license text here:
@@ -40,7 +40,7 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 
         int requestCode = 1;
-        final AppSettings appSettings = ApplicationObject.settings();
+        final AppSettings appSettings = AppSettings.get(context);
 
         final int staticFlags = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0);
         final int mutableFlags = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ? PendingIntent.FLAG_MUTABLE : 0);
@@ -65,6 +65,7 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
 
             // Open Folder
             final Intent goToFolder = new Intent(context, MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                     .setAction(Intent.ACTION_VIEW)
                     .putExtra(Document.EXTRA_FILE, directoryF);
             views.setOnClickPendingIntent(R.id.widget_header, PendingIntent.getActivity(context, requestCode++, goToFolder, staticFlags));
@@ -73,7 +74,7 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
             final Intent openTodo = new Intent(context, OpenFromShortcutOrWidgetActivity.class)
                     .setAction(Intent.ACTION_EDIT)
                     .putExtra(Document.EXTRA_FILE, appSettings.getTodoFile())
-                    .putExtra(Document.EXTRA_FILE_LINE_NUMBER, Document.EXTRA_FILE_LINE_NUMBER_LAST);
+                    .putExtra(Document.EXTRA_FILE_LINE_NUMBER, -1);
             views.setOnClickPendingIntent(R.id.widget_todo, PendingIntent.getActivity(context, requestCode++, openTodo, staticFlags));
             views.setInt(R.id.widget_todo, "setColorFilter", color);
 
@@ -81,12 +82,13 @@ public class WrMarkorWidgetProvider extends AppWidgetProvider {
             final Intent openQuickNote = new Intent(context, OpenFromShortcutOrWidgetActivity.class)
                     .setAction(Intent.ACTION_EDIT)
                     .putExtra(Document.EXTRA_FILE, appSettings.getQuickNoteFile())
-                    .putExtra(Document.EXTRA_FILE_LINE_NUMBER, Document.EXTRA_FILE_LINE_NUMBER_LAST);
+                    .putExtra(Document.EXTRA_FILE_LINE_NUMBER, -1);
             views.setOnClickPendingIntent(R.id.widget_quicknote, PendingIntent.getActivity(context, requestCode++, openQuickNote, staticFlags));
             views.setInt(R.id.widget_quicknote, "setColorFilter", color);
 
             // Open Notebook
             final Intent goHome = new Intent(context, MainActivity.class)
+                    .addFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT)
                     .setAction(Intent.ACTION_VIEW)
                     .putExtra(Document.EXTRA_FILE, appSettings.getNotebookDirectory());
             views.setOnClickPendingIntent(R.id.widget_main, PendingIntent.getActivity(context, requestCode++, goHome, staticFlags));

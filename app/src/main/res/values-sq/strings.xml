@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -43,6 +43,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Licenca e projektit</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Kontribuoni kodin në projekt. Të gjithë janë të mirëpritur ta bëjnë këtë, përfshirë të sapoardhurit</string>
     <string name="project_team">Ekipi i projektit</string>
+    <string name="community">Komuniteti</string>
     <string name="contributors_public_add_yourself_description">Shfaq informacionin e kontribuesit. Siguroni që të shfaqet këtu në bazë të zgjedhjes pasi të kontribuoni</string>
     <string name="error_picture_selection">Asnjë foto nuk është zgjedhur, marrë apo ruajtur.</string>
     <string name="edit_picture">Redakto foton</string>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -25,6 +25,12 @@
         app:showAsAction="always" />
 
     <item
+        android:id="@+id/action_save"
+        android:icon="@drawable/ic_save_black_24dp"
+        android:title="@string/save"
+        app:showAsAction="always" />
+
+    <item
         android:id="@+id/action_preview_edit_toggle"
         android:icon="@drawable/ic_visibility_black_24dp"
         android:title="@string/view"
@@ -44,12 +50,6 @@
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/action_save"
-        android:icon="@drawable/ic_save_black_24dp"
-        android:title="@string/save"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_black_24dp"
         android:title="@string/search"
@@ -59,7 +59,7 @@
         android:id="@+id/action_search_view"
         android:icon="@drawable/ic_search_black_24dp"
         android:title="@string/search"
-        app:actionViewClass="android.widget.SearchView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="always" />
 
     <item
@@ -167,7 +167,7 @@
                 android:title="@string/url_or_path" />
             <item
                 android:id="@+id/action_share_text"
-                android:icon="@drawable/ic_file_white_24dp"
+                android:icon="@drawable/ic_format_text_case_black_24dp"
                 android:title="@string/plaintext" />
             <item
                 android:id="@+id/action_share_pdf"
@@ -192,7 +192,7 @@
                 android:title="@string/image" />
             <item
                 android:id="@+id/action_share_screenshot"
-                android:icon="@drawable/ic_image_black_24dp"
+                android:icon="@drawable/ic_photo_camera_black_24dp"
                 android:title="@string/screenshot" />
             <item
                 android:id="@+id/action_share_calendar_event"

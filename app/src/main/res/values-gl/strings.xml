@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -84,7 +84,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="help">Axuda</string>
     <string name="main_view">Vista principal</string>
     <string name="remember_last_directory">Lembrar o último cartafol</string>
-    <string name="syntax_highlighting">Realzado de sintaxe</string>
     <string name="highlighting_delay">Aprazamento do realzado de sintaxe</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Tempo en milisegundos para o refresco do resaltado de sintaxe. Un valor mais baixo fará que o resaltado empeze antes, pero consumirá a batería e pode ralentizar a aplicación en dispositivos vellos.</string>
     <string name="highlighting_enabled_or_not__appspecific">Controla se o texto introducido debe resaltarse ou non</string>
@@ -117,6 +116,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Licencia de proxecto</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Contribuír código ao proxecto. Todo o mundo é benvido para facelo, incluídos os recén chegados</string>
     <string name="project_team">Equipo de proxecto</string>
+    <string name="community">Comunidade</string>
     <string name="contributors_public_add_yourself_description">Amosar información do colaborador. Proporcione que se mostre aquí de xeito opt-in despois de contribuír</string>
     <string name="error_picture_selection">Non hai ningunha imaxe seleccionada, tomada ou gardada.</string>
     <string name="edit_picture">Editar imaxe</string>

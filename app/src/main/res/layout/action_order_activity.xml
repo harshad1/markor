@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:orientation="vertical"
     tools:context=".activity.ActionButtonSettingsActivity">
 
@@ -24,6 +25,18 @@
         </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
+
+    <Switch
+        android:id="@+id/showActionBarSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:color="@color/primary_text"
+        android:paddingStart="12dp"
+        android:paddingTop="@dimen/activity_horizontal_margin"
+        android:paddingEnd="12dp"
+        android:paddingBottom="@dimen/activity_horizontal_margin"
+        android:text="@string/show_bottom_action_bar"
+        android:textAppearance="@style/TextAppearance.AppCompat.Menu" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/action_order_activity_recycler"

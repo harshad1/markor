@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -17,11 +17,14 @@ import androidx.annotation.StringRes;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.activity.DocumentActivity;
+import net.gsantner.markor.activity.DocumentEditAndViewFragment;
 import net.gsantner.markor.format.ActionButtonBase;
 import net.gsantner.markor.frontend.MarkorDialogFactory;
 import net.gsantner.markor.frontend.textview.AutoTextFormatter;
+import net.gsantner.markor.frontend.textview.HighlightingEditor;
 import net.gsantner.markor.frontend.textview.TextViewUtils;
 import net.gsantner.markor.model.Document;
+import net.gsantner.opoc.format.GsTextUtils;
 import net.gsantner.opoc.util.GsContextUtils;
 import net.gsantner.opoc.util.GsFileUtils;
 
@@ -34,8 +37,6 @@ import java.util.regex.Pattern;
 public class MarkdownActionButtons extends ActionButtonBase {
 
     private static final Pattern WEB_URL = Pattern.compile("https?://[^\\s/$.?#].[^\\s]*");
-
-    private final MarkorDialogFactory.HeadlineDialogState _headlineDialogState = new MarkorDialogFactory.HeadlineDialogState();
 
     public static final String LINE_PREFIX = "^(>\\s|#{1,6}\\s|\\s*[-*+](?:\\s\\[[ xX]\\])?\\s|\\s*\\d+[.)]\\s)?";
 
@@ -87,6 +88,7 @@ public class MarkdownActionButtons extends ActionButtonBase {
         );
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onActionClick(final @StringRes int action) {
         switch (action) {
@@ -160,29 +162,45 @@ public class MarkdownActionButtons extends ActionButtonBase {
      * Used to surround selected text with a given delimiter (and remove it if present)
      * <p>
      * Not super intelligent about how patterns can be combined.
-     * Current regexes just look for the litera delimiters.
+     * Current regexes just look for the literal delimiters.
      *
-     * @param pattern - Pattern to match if delimiter is present
-     * @param delim   - Delimiter to surround text with
+     * @param pattern   - the pattern to match if delimiter is present
+     * @param delimiter - the delimiter to surround text with
      */
-    private void runLineSurroundAction(final Pattern pattern, final String delim) {
+    private void runLineSurroundAction(final Pattern pattern, final String delimiter) {
         final int[] sel = TextViewUtils.getSelection(_hlEditor);
-        final String lineBefore = sel[0] == sel[1] ? TextViewUtils.getSelectedLines(_hlEditor, sel[0]) : null;
+        if (sel[0] < 0) {
+            return;
+        }
 
+        final String lineBefore = sel[0] == sel[1] ? TextViewUtils.getSelectedLines(_hlEditor, sel[0]) : null;
         runRegexReplaceAction(
                 new ReplacePattern(pattern, "$1$2$4$6"),
-                new ReplacePattern(LINE_NONE, "$1$2" + delim + "$3" + delim + "$4")
+                new ReplacePattern(LINE_NONE, "$1$2" + delimiter + "$3" + delimiter + "$4")
         );
 
-        // This logic sets the cursor to the inside of the delimiters if the delimiters were empty
+        // Set the cursor to the inside of the delimiters if the delimiters were empty
+        int delimiterLength = delimiter.length();
         if (lineBefore != null) {
             final String lineAfter = TextViewUtils.getSelectedLines(_hlEditor, sel[0]);
-            final String pair = delim + delim;
+            final String pair = delimiter + delimiter;
             if (lineAfter.length() - lineBefore.length() == pair.length() && lineAfter.trim().endsWith(pair)) {
                 final Editable text = _hlEditor.getText();
                 final int end = TextViewUtils.getLineEnd(text, sel[0]);
-                final int ns = TextViewUtils.getLastNonWhitespace(text, end) - delim.length();
+                final int ns = TextViewUtils.getLastNonWhitespace(text, end) - delimiterLength;
                 _hlEditor.setSelection(ns);
+            }
+            if (lineAfter.length() > lineBefore.length()) {
+                _hlEditor.setSelection(_hlEditor.getSelectionStart() - delimiterLength);
+            } else {
+                _hlEditor.setSelection(_hlEditor.getSelectionStart() + delimiterLength);
+            }
+        } else { // Offset selection if text is selected
+            int newSelectionStart = _hlEditor.getSelectionStart();
+            if (sel[0] < newSelectionStart) {
+                _hlEditor.setSelection(sel[0] + delimiterLength, sel[1] + delimiterLength);
+            } else {
+                _hlEditor.setSelection(sel[0] - delimiterLength, sel[1] - delimiterLength);
             }
         }
     }
@@ -196,12 +214,7 @@ public class MarkdownActionButtons extends ActionButtonBase {
                 return true;
             }
             case R.string.abid_markdown_code_inline: {
-                _hlEditor.withAutoFormatDisabled(() -> {
-                    final int c = _hlEditor.setSelectionExpandWholeLines();
-                    _hlEditor.getText().insert(_hlEditor.getSelectionStart(), "\n```\n");
-                    _hlEditor.getText().insert(_hlEditor.getSelectionEnd(), "\n```\n");
-                    _hlEditor.setSelection(c + "\n```\n".length());
-                });
+                _hlEditor.withAutoFormatDisabled(() -> surroundBlock(_hlEditor.getText(), "```"));
                 return true;
             }
             case R.string.abid_markdown_bold: {
@@ -247,22 +260,23 @@ public class MarkdownActionButtons extends ActionButtonBase {
 
         public static Link extract(final CharSequence text, final int pos) {
             final int[] sel = TextViewUtils.getLineSelection(text, pos);
-            if (sel != null && sel[0] != -1 && sel[1] != -1) {
+            if (sel[0] != -1 && sel[1] != -1) {
                 final String line = text.subSequence(sel[0], sel[1]).toString();
                 final Matcher m = MarkdownSyntaxHighlighter.LINK.matcher(line);
-                final int po = pos - sel[0];
 
                 while (m.find()) {
-                    final int start = m.start(), end = m.end();
-                    if (start <= po && end >= po) {
+                    final int start = m.start() + sel[0], end = m.end() + sel[0];
+                    if (start <= pos && end >= pos) {
                         final boolean isImage = m.group(1) != null;
-                        return new Link(m.group(2), m.group(3), isImage, start, end);
+                        final String link = GsTextUtils.decodeUrl(m.group(3));
+                        return new Link(m.group(2), link.trim(), isImage, start, end);
                     }
                 }
             }
 
             return new Link("", "", false, -1, -1);
         }
+
     }
 
     private boolean followLinkUnderCursor() {
@@ -277,8 +291,8 @@ public class MarkdownActionButtons extends ActionButtonBase {
                 GsContextUtils.instance.openWebpageInExternalBrowser(getActivity(), link.link);
                 return true;
             } else {
-                final File f = GsFileUtils.makeAbsolute(link.link, _document.getFile().getParentFile());
-                if (GsFileUtils.canCreate(f)) {
+                final File f = GsFileUtils.makeAbsolute(link.link, _document.file.getParentFile());
+                if (GsFileUtils.isDirectory(f) || f.isFile() || GsFileUtils.canCreate(f)) {
                     DocumentActivity.launch(getActivity(), f, null, null);
                     return true;
                 }
@@ -318,6 +332,8 @@ public class MarkdownActionButtons extends ActionButtonBase {
         }
     }
 
+    private final HeadlineState _headlineDialogState = new HeadlineState();
+
     @Override
     public boolean runTitleClick() {
         final Matcher m = MarkdownReplacePatternGenerator.PREFIX_ATX_HEADING.matcher("");
@@ -333,5 +349,73 @@ public class MarkdownActionButtons extends ActionButtonBase {
     @Override
     protected void renumberOrderedList() {
         AutoTextFormatter.renumberOrderedList(_hlEditor.getText(), MarkdownReplacePatternGenerator.formatPatterns);
+    }
+
+    private void underline() {
+        runSurroundAction("<u>", "</u>", false);
+    }
+
+    private void mark() {
+        runSurroundAction("<mark>", "</mark>", false);
+    }
+
+    private void mathBlock() {
+        int selectionStart = _hlEditor.getSelectionStart();
+        _hlEditor.insertOrReplaceTextOnCursor("$$\n\n$$\n");
+        _hlEditor.setSelection(selectionStart + 3);
+    }
+
+    @Override
+    public boolean onKeyPress(Object source, int keyCode, KeyEvent event, DocumentEditAndViewFragment fragment) {
+        if (source instanceof HighlightingEditor) {
+            if (event.isCtrlPressed()) {
+                if (event.isShiftPressed()) {
+                    if (keyCode == KeyEvent.KEYCODE_I) {
+                        onActionClick(R.string.abid_common_insert_image);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_K) {
+                        onActionLongClick(R.string.abid_markdown_code_inline);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_L) {
+                        onActionClick(R.string.abid_common_insert_link);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_M) {
+                        mathBlock();
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_GRAVE) {
+                        onActionClick(R.string.abid_markdown_strikeout);
+                        return true;
+                    }
+                } else {
+                    if (keyCode == KeyEvent.KEYCODE_1) {
+                        onActionClick(R.string.abid_markdown_h1);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_2) {
+                        onActionClick(R.string.abid_markdown_h2);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_3) {
+                        onActionClick(R.string.abid_markdown_h3);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_B) {
+                        onActionClick(R.string.abid_markdown_bold);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_I) {
+                        onActionClick(R.string.abid_markdown_italic);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_M) {
+                        mark();
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_T) {
+                        onActionClick(R.string.abid_markdown_table_insert_columns);
+                        return true;
+                    } else if (keyCode == KeyEvent.KEYCODE_U) {
+                        underline();
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return super.onKeyPress(source, keyCode, event, fragment);
     }
 }

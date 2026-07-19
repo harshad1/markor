@@ -1,7 +1,7 @@
 /*#######################################################
  * Copyright (c) 2014 Jeff Martin
  * Copyright (c) 2015 Pedro Lafuente
- * Copyright (c) 2017-2024 Gregor Santner
+ * Copyright (c) 2017-2025 Gregor Santner
  *
  * Licensed under the MIT license.
  * You can get a copy of the license text here:
@@ -15,7 +15,6 @@ import android.content.Intent;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
 
-import net.gsantner.markor.ApplicationObject;
 import net.gsantner.markor.R;
 import net.gsantner.markor.model.AppSettings;
 import net.gsantner.markor.model.Document;
@@ -50,20 +49,21 @@ public class WrFilesWidgetFactory implements RemoteViewsService.RemoteViewsFacto
 
         _widgetFilesList.clear();
         final File dir = WrWidgetConfigure.getWidgetDirectory(_context, _appWidgetId);
-        final AppSettings as = ApplicationObject.settings();
+        final AppSettings as = AppSettings.get(_context);
+        final GsFileUtils.SortOrder order = as.getFolderSortOrder(dir);
 
         if (dir.equals(GsFileBrowserListAdapter.VIRTUAL_STORAGE_RECENTS)) {
-            _widgetFilesList.addAll(ApplicationObject.settings().getRecentFiles());
+            _widgetFilesList.addAll(as.getRecentFiles());
         } else if (dir.equals(GsFileBrowserListAdapter.VIRTUAL_STORAGE_POPULAR)) {
-            _widgetFilesList.addAll(ApplicationObject.settings().getPopularFiles());
+            _widgetFilesList.addAll(as.getPopularFiles());
         } else if (dir.equals(GsFileBrowserListAdapter.VIRTUAL_STORAGE_FAVOURITE)) {
-            _widgetFilesList.addAll(ApplicationObject.settings().getFavouriteFiles());
+            _widgetFilesList.addAll(as.getFavouriteFiles());
         } else if (dir.exists() && dir.canRead()) {
-            final boolean showDot = as.isFileBrowserFilterShowDotFiles();
-            final File[] all = dir.listFiles(file -> showDot || !file.getName().startsWith("."));
+            final File[] all = dir.listFiles(file -> order.showDotFiles || !file.getName().startsWith("."));
             _widgetFilesList.addAll(all != null ? Arrays.asList(all) : Collections.emptyList());
         }
-        GsFileUtils.sortFiles(_widgetFilesList, as.getFileBrowserSortByType(), as.isFileBrowserSortFolderFirst(), as.isFileBrowserSortReverse());
+
+        GsFileUtils.sortFiles(_widgetFilesList, order);
     }
 
     @Override

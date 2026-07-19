@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -29,7 +29,7 @@
             android:id="@+id/document__fragment__share_into__highlighting_editor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background_2"
+            android:background="@color/background"
             android:fontFamily="sans-serif-light"
             android:gravity="top"
             android:imeOptions="flagNoExtractUi"
@@ -43,11 +43,13 @@
             tools:ignore="UnusedAttribute" />
     </ScrollView>
 
-
     <FrameLayout
         android:id="@+id/document__share_into__fragment__placeholder_fragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/background"
+        android:elevation="4dp"
+        android:translationZ="4dp"
         android:layout_weight="60" />
 
 </net.gsantner.opoc.frontend.GsLinearSplitLayout>

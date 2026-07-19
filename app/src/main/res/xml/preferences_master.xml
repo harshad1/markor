@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -91,24 +91,12 @@
 
         <PreferenceCategory android:title="@string/features">
             <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_highlight_black_24dp"
-                android:key="@string/pref_key__is_highlighting_activated"
-                android:summary="@string/highlighting_enabled_or_not__appspecific"
-                android:title="@string/syntax_highlighting" />
-            <CheckBoxPreference
-                android:defaultValue="true"
-                android:icon="@drawable/ic_highlight_black_24dp"
-                android:key="@string/pref_key__is_dynamic_highlighting_activated"
-                android:summary="@string/dynamic_highlighting_effect"
-                android:title="@string/dynamic_highlighting" />
-            <CheckBoxPreference
                 android:defaultValue="false"
                 android:icon="@drawable/ic_widgets_black_24dp"
                 android:key="@string/pref_key__is_launcher_for_special_files_enabled"
                 android:title="@string/special_documents" />
             <CheckBoxPreference
-                android:defaultValue="true"
+                android:defaultValue="false"
                 android:icon="@drawable/ic_border_outer_black_24dp"
                 android:key="@string/pref_key__is_multi_window_enabled"
                 android:summary="@string/open_new_documents_always_in_new_window"
@@ -182,81 +170,12 @@
                 android:icon="@drawable/ic_open_in_browser_black_24dp"
                 android:key="@string/pref_key__open_links_with_chrome_custom_tabs"
                 android:title="@string/chrome_custom_tabs" />
-        </PreferenceCategory>
 
-        <PreferenceCategory android:title="@string/editor">
-            <androidx.preference.SeekBarPreference
-                android:defaultValue="8"
-                android:icon="@drawable/ic_space_bar_black_24dp"
-                android:key="@string/pref_key__editor_textaction_bar_item_padding"
-                android:max="32"
-                android:summary="@string/horizontal_space_between_actionbuttons"
-                android:title="@string/actionbutton_spacing"
-                app:min="0"
-                app:showSeekBarValue="true" />
-
-            <PreferenceScreen
-                android:icon="@drawable/ic_palette_black_24dp"
-                android:summary="@string/background_foreground_color_in_editor_works_dark_light"
-                android:title="@string/basic_color_scheme">
-
-                <other.com.flask.colorpicker.ColorPickerPreference
-                    android:defaultValue="@color/background"
-                    android:icon="@drawable/ic_border_outer_black_24dp"
-                    android:key="@string/pref_key__basic_color_scheme__bg_light"
-                    android:title="BG Light" />
-
-                <other.com.flask.colorpicker.ColorPickerPreference
-                    android:defaultValue="@color/dark_grey"
-                    android:icon="@drawable/ic_text_fields_black_24dp"
-                    android:key="@string/pref_key__basic_color_scheme__fg_light"
-                    android:title="FG Light" />
-
-                <other.com.flask.colorpicker.ColorPickerPreference
-                    android:defaultValue="@color/dark_grey"
-                    android:icon="@drawable/ic_border_outer_black_24dp"
-                    android:key="@string/pref_key__basic_color_scheme__bg_dark"
-                    android:title="BG Dark" />
-
-
-                <other.com.flask.colorpicker.ColorPickerPreference
-                    android:defaultValue="@color/white"
-                    android:icon="@drawable/ic_text_fields_black_24dp"
-                    android:key="@string/pref_key__basic_color_scheme__fg_dark"
-                    android:title="FG Dark" />
-
-                <PreferenceCategory android:title="@string/preset">
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_markor"
-                        android:title="@string/editor_basic_color_scheme_markor" />
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_blackorwhite"
-                        android:title="@string/editor_basic_color_scheme_black_or_white" />
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_solarized"
-                        android:title="@string/editor_basic_color_scheme_solarized" />
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_gruvbox"
-                        android:title="@string/editor_basic_color_scheme_gruvbox" />
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_greenscale"
-                        android:title="@string/editor_basic_color_scheme_greenscale" />
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_sepia"
-                        android:title="@string/editor_basic_color_scheme_sepia" />
-                    <Preference
-                        android:icon="@drawable/ic_palette_black_24dp"
-                        android:key="@string/pref_key__basic_color_scheme_nord"
-                        android:title="@string/editor_basic_color_scheme_nord" />
-                </PreferenceCategory>
-
-            </PreferenceScreen>
+            <Preference
+                android:defaultValue="true"
+                android:icon="@drawable/ic_settings_black_24dp"
+                android:key="@string/pref_key__request_external_storage"
+                android:title="@string/storage_permission_required" />
 
         </PreferenceCategory>
 
@@ -299,7 +218,7 @@
             android:icon="@drawable/ic_format_size_black_24dp"
             android:key="@string/pref_key__editor_font_size"
             android:max="36"
-            android:min="1"
+            android:min="5"
             android:summary="@string/control_font_size_in_editor"
             android:title="@string/font_size"
             app:showSeekBarValue="true" />
@@ -314,7 +233,76 @@
             app:min="1"
             app:showSeekBarValue="true" />
 
+        <PreferenceScreen
+            android:icon="@drawable/ic_palette_black_24dp"
+            android:summary="@string/background_foreground_color_in_editor_works_dark_light"
+            android:title="@string/basic_color_scheme">
+
+            <com.rarepebble.colorpicker.ColorPreference
+                android:defaultValue="@color/background"
+                android:icon="@drawable/ic_border_outer_black_24dp"
+                android:key="@string/pref_key__basic_color_scheme__bg_light"
+                android:title="BG Light" />
+
+            <com.rarepebble.colorpicker.ColorPreference
+                android:defaultValue="@color/dark_grey"
+                android:icon="@drawable/ic_text_fields_black_24dp"
+                android:key="@string/pref_key__basic_color_scheme__fg_light"
+                android:title="FG Light" />
+
+            <com.rarepebble.colorpicker.ColorPreference
+                android:defaultValue="@color/dark__background"
+                android:icon="@drawable/ic_border_outer_black_24dp"
+                android:key="@string/pref_key__basic_color_scheme__bg_dark"
+                android:title="BG Dark" />
+
+
+            <com.rarepebble.colorpicker.ColorPreference
+                android:defaultValue="@color/white"
+                android:icon="@drawable/ic_text_fields_black_24dp"
+                android:key="@string/pref_key__basic_color_scheme__fg_dark"
+                android:title="FG Dark" />
+
+            <PreferenceCategory android:title="@string/preset">
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_markor"
+                    android:title="@string/editor_basic_color_scheme_markor" />
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_blackorwhite"
+                    android:title="@string/editor_basic_color_scheme_black_or_white" />
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_solarized"
+                    android:title="@string/editor_basic_color_scheme_solarized" />
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_gruvbox"
+                    android:title="@string/editor_basic_color_scheme_gruvbox" />
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_greenscale"
+                    android:title="@string/editor_basic_color_scheme_greenscale" />
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_sepia"
+                    android:title="@string/editor_basic_color_scheme_sepia" />
+                <Preference
+                    android:icon="@drawable/ic_palette_black_24dp"
+                    android:key="@string/pref_key__basic_color_scheme_nord"
+                    android:title="@string/editor_basic_color_scheme_nord" />
+            </PreferenceCategory>
+
+        </PreferenceScreen>
+
         <PreferenceCategory android:title="@string/syntax_highlighting">
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:icon="@drawable/ic_highlight_black_24dp"
+                android:key="@string/pref_key__is_highlighting_activated"
+                android:summary="@string/highlighting_enabled_or_not__appspecific"
+                android:title="@string/syntax_highlighting" />
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:icon="@drawable/ic_format_color_fill_black_24dp"
@@ -341,7 +329,7 @@
             <CheckBoxPreference
                 android:defaultValue="false"
                 android:icon="@drawable/ic_format_size_black_24dp"
-                android:key="@string/pref_key__editor_markdown_bigger_headings_2"
+                android:key="@string/pref_key__editor_markdown_bigger_headings_3"
                 android:summary="@string/increase_text_size_of_headings_according_to_level"
                 android:title="@string/bigger_headings" />
         </PreferenceCategory>
@@ -355,6 +343,15 @@
                 android:summary="@string/space_between_lines_in_percent"
                 android:title="@string/line_spacing"
                 app:min="50"
+                app:showSeekBarValue="true" />
+            <androidx.preference.SeekBarPreference
+                android:defaultValue="8"
+                android:icon="@drawable/ic_space_bar_black_24dp"
+                android:key="@string/pref_key__editor_textaction_bar_item_padding"
+                android:max="32"
+                android:summary="@string/horizontal_space_between_actionbuttons"
+                android:title="@string/actionbutton_spacing"
+                app:min="0"
                 app:showSeekBarValue="true" />
             <CheckBoxPreference
                 android:defaultValue="true"
@@ -370,10 +367,21 @@
                 android:title="@string/center_text" />
             <CheckBoxPreference
                 android:defaultValue="false"
+                android:icon="@drawable/ic_input_cursor_black_24dp"
+                android:key="@string/pref_key__editor_static_cursor"
+                android:summary="@string/disable_cursor_blinking"
+                android:title="@string/static_cursor" />
+            <CheckBoxPreference
+                android:defaultValue="false"
                 android:icon="@drawable/ic_vertical_align_bottom_black_24dp"
                 android:key="@string/pref_key__editor_start_editing_on_bottom"
                 android:summary="@string/start_on_bottom_when_loading_document"
                 android:title="@string/start_on_bottom" />
+            <CheckBoxPreference
+                android:defaultValue="true"
+                android:icon="@drawable/ic_keyboard_tab_black_24dp"
+                android:key="@string/pref_key__editor_tab_to_indent"
+                android:title="@string/use_tab_to_indent" />
             <ListPreference
                 android:defaultValue="-"
                 android:dialogTitle="@string/theme"
@@ -420,7 +428,7 @@
         </PreferenceCategory>
 
         <PreferenceCategory android:title="@string/text">
-            <other.com.flask.colorpicker.ColorPickerPreference
+            <com.rarepebble.colorpicker.ColorPreference
                 android:defaultValue="@color/default_link_color"
                 android:icon="@drawable/ic_format_underlined_black_24dp"
                 android:key="@string/pref_key__view_mode_link_color"

@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2018-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2018-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
@@ -36,7 +36,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.fragment.app.DialogFragment;
 
-import net.gsantner.markor.ApplicationObject;
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.FormatRegistry;
 import net.gsantner.markor.frontend.textview.HighlightingEditor;
@@ -95,32 +94,25 @@ public class NewFileDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final File file = (File) getArguments().getSerializable(EXTRA_DIR);
         final boolean allowCreateDir = getArguments().getBoolean(EXTRA_ALLOW_CREATE_DIR);
-
-        LayoutInflater inflater = LayoutInflater.from(getActivity());
-        AlertDialog.Builder dialogBuilder = makeDialog(file, allowCreateDir, inflater);
-        AlertDialog dialog = dialogBuilder.show();
-        Window w;
-        if ((w = dialog.getWindow()) != null) {
-            w.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
-        }
-        return dialog;
+        final LayoutInflater inflater = LayoutInflater.from(getActivity());
+        return makeDialog(file, allowCreateDir, inflater);
     }
 
     @SuppressLint("SetTextI18n")
-    private AlertDialog.Builder makeDialog(final File basedir, final boolean allowCreateDir, LayoutInflater inflater) {
+    private AlertDialog makeDialog(final File basedir, final boolean allowCreateDir, LayoutInflater inflater) {
         final Activity activity = getActivity();
-        final AppSettings appSettings = ApplicationObject.settings();
+        final AppSettings appSettings = AppSettings.get(activity);
         final AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(inflater.getContext(), R.style.Theme_AppCompat_DayNight_Dialog_Rounded);
         final View root = inflater.inflate(R.layout.new_file_dialog, null);
 
         final EditText titleEdit = root.findViewById(R.id.new_file_dialog__name);
         final EditText extEdit = root.findViewById(R.id.new_file_dialog__ext);
-        final CheckBox encryptCheckbox = root.findViewById(R.id.new_file_dialog__encrypt);
-        final CheckBox utf8BomCheckbox = root.findViewById(R.id.new_file_dialog__utf8_bom);
-        final Spinner typeSpinner = root.findViewById(R.id.new_file_dialog__type);
-        final Spinner templateSpinner = root.findViewById(R.id.new_file_dialog__template);
         final EditText formatEdit = root.findViewById(R.id.new_file_dialog__name_format);
         final TextView formatSpinner = root.findViewById(R.id.new_file_dialog__name_format_spinner);
+        final Spinner typeSpinner = root.findViewById(R.id.new_file_dialog__type);
+        final Spinner templateSpinner = root.findViewById(R.id.new_file_dialog__template);
+        final CheckBox utf8BomCheckbox = root.findViewById(R.id.new_file_dialog__utf8_bom);
+        final CheckBox encryptCheckbox = root.findViewById(R.id.new_file_dialog__encrypt);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && appSettings.isDefaultPasswordSet()) {
             encryptCheckbox.setChecked(appSettings.getNewFileDialogLastUsedEncryption());
@@ -161,13 +153,41 @@ public class NewFileDialog extends DialogFragment {
 
         // Setup template spinner and action
         // -----------------------------------------------------------------------------------------
-        final List<Pair<String, File>> snippets = appSettings.getSnippetFiles();
+        final List<File> snippets = appSettings.getSnippetFiles();
         final List<Pair<String, String>> templates = appSettings.getBuiltinTemplates();
         final ArrayAdapter<String> templateAdapter = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_dropdown_item);
         templateAdapter.add(activity.getString(R.string.empty_file));
-        templateAdapter.addAll(GsCollectionUtils.map(snippets, p -> p.first));
+        templateAdapter.addAll(GsCollectionUtils.map(snippets, File::getName));
         templateAdapter.addAll(GsCollectionUtils.map(templates, p -> p.first));
         templateSpinner.setAdapter(templateAdapter);
+
+        templateSpinner.setTag(0);
+        templateSpinner.setOnItemSelectedListener(new GsAndroidSpinnerOnItemSelectedAdapter(pos -> {
+            final String template = templateAdapter.getItem(pos);
+            final String format = appSettings.getTemplateTitleFormat(template);
+            formatEdit.setText(format);
+
+            int times = Integer.parseInt(templateSpinner.getTag().toString());
+            if (times < 2) { // Skip
+                templateSpinner.setTag(++times);
+            } else if (pos > 0) { // Show suggested title name when clicking template file items
+                MarkorDialogFactory.PopupWindowOption popupOption = new MarkorDialogFactory.PopupWindowOption(false, 130, -100);
+                MarkorDialogFactory.showPopupWindow(titleEdit, popupOption, template, () -> {
+                    int end = template.lastIndexOf('.');
+                    titleEdit.setText(end > 0 ? template.substring(0, end) : template);
+                    titleEdit.setSelection(titleEdit.length());
+
+                    if (end > 0 && end < template.length() - 1) {
+                        extEdit.setText(template.substring(end));
+                        if (extEdit.hasFocus()) {
+                            extEdit.setSelection(extEdit.length());
+                        }
+                    } else {
+                        extEdit.setText("");
+                    }
+                });
+            }
+        }));
 
         // Setup type / format spinner and action
         // -----------------------------------------------------------------------------------------
@@ -258,10 +278,15 @@ public class NewFileDialog extends DialogFragment {
         final MarkorContextUtils cu = new MarkorContextUtils(getContext());
         dialogBuilder.setNegativeButton(R.string.cancel, (dialogInterface, i) -> dialogInterface.dismiss());
         dialogBuilder.setPositiveButton(getString(android.R.string.ok), (dialogInterface, i) -> {
+            final FormatRegistry.Format fmt = formats.get(typeSpinner.getSelectedItemPosition());
 
             final String title = getTitle.callback();
             final String ext = extEdit.getText().toString().trim();
-            final String fileName = GsFileUtils.getFilteredFilenameWithoutDisallowedChars(title + ext);
+            String fileName = GsFileUtils.getFilteredFilenameWithoutDisallowedChars(title + ext);
+
+            if (fmt.format == FormatRegistry.FORMAT_WIKITEXT) {
+                fileName = fileName.replace(" ", "_");
+            }
 
             // Get template string
             // -------------------------------------------------------------------------------------
@@ -270,7 +295,7 @@ public class NewFileDialog extends DialogFragment {
             if (ti == 0) {
                 template = "";
             } else if (ti <= snippets.size()) {
-                template = GsFileUtils.readTextFileFast(snippets.get(ti - 1).second).first;
+                template = GsFileUtils.readTextFileFast(snippets.get(ti - 1)).first;
             } else {
                 template = templates.get(ti - snippets.size() - 1).second;
             }
@@ -286,7 +311,6 @@ public class NewFileDialog extends DialogFragment {
             // These are done even if the file isn't created
             final String titleFormat = formatEdit.getText().toString().trim();
             appSettings.setTemplateTitleFormat(templateAdapter.getItem(ti), titleFormat);
-            final FormatRegistry.Format fmt = formats.get(typeSpinner.getSelectedItemPosition());
             appSettings.setTypeTemplate(fmt.format, (String) templateSpinner.getSelectedItem());
             appSettings.setNewFileDialogLastUsedType(fmt.format);
             appSettings.setNewFileDialogLastUsedExtension(extEdit.getText().toString().trim());
@@ -295,12 +319,12 @@ public class NewFileDialog extends DialogFragment {
                 appSettings.saveTitleFormat(titleFormat, MAX_TITLE_FORMATS);
             }
 
-            if (!file.exists() || file.length() <= GsContextUtils.TEXTFILE_OVERWRITE_MIN_TEXT_LENGTH) {
+            if (!file.exists() || file.length() <= GsContextUtils.TEXT_FILE_OVERWRITE_MIN_TEXT_LENGTH) {
                 document.saveContent(activity, content.first, cu, true);
 
                 // We only make these changes if the file did not already exist
-                appSettings.setDocumentFormat(document.getPath(), fmt.format);
-                appSettings.setLastEditPosition(document.getPath(), content.second);
+                appSettings.setDocumentFormat(document.path, fmt.format);
+                appSettings.setLastEditPosition(document.path, content.second);
 
                 callback(file);
 
@@ -345,9 +369,15 @@ public class NewFileDialog extends DialogFragment {
         final List<Integer> indices = GsCollectionUtils.indices(formats, f -> f.format == lastUsedType);
         typeSpinner.setSelection(indices.isEmpty() ? 0 : indices.get(0));
 
-        titleEdit.requestFocus();
+        final AlertDialog dialog = dialogBuilder.show();
+        final Window win = dialog.getWindow();
+        if (win != null) {
+            win.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.WRAP_CONTENT);
+            win.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN | WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        }
+        titleEdit.post(titleEdit::requestFocus);
 
-        return dialogBuilder;
+        return dialog;
     }
 
     private void callback(final File file) {
@@ -364,11 +394,11 @@ public class NewFileDialog extends DialogFragment {
     private Pair<String, Integer> getTemplateContent(final String template, final String name) {
         String text = TextViewUtils.interpolateSnippet(template, name, "");
 
-        final int startingIndex = template.indexOf(HighlightingEditor.PLACE_CURSOR_HERE_TOKEN);
-        text = text.replace(HighlightingEditor.PLACE_CURSOR_HERE_TOKEN, "");
+        final int startingIndex = text.indexOf(HighlightingEditor.PLACE_CURSOR_HERE_TOKEN);
+        text = text.replaceAll(HighlightingEditor.PLACE_CURSOR_HERE_TOKEN, "");
 
         // Has no utility in a new file
-        text = text.replace(HighlightingEditor.INSERT_SELECTION_HERE_TOKEN, "");
+        text = text.replaceAll(HighlightingEditor.INSERT_SELECTION_HERE_TOKEN, "");
 
         return Pair.create(text, startingIndex);
     }

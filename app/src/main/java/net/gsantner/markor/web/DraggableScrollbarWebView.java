@@ -5,6 +5,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebView;
@@ -93,7 +94,7 @@ public class DraggableScrollbarWebView extends WebView {
         return _fastScrollEnabled;
     }
 
-    ////////
+    /// /////
     // Feature Animated Scrolling
     public void scrollAnimatedToXY(final int scrollX, final int scrollY, int... arg0Delay__arg1Duration) {
         final int delay = Math.max(1, arg0Delay__arg1Duration != null && arg0Delay__arg1Duration.length > 0 ? arg0Delay__arg1Duration[0] : 500);
@@ -105,5 +106,36 @@ public class DraggableScrollbarWebView extends WebView {
                 anim.start();
             }
         }, delay);
+    }
+
+    public interface OnDispatchKeyListener {
+        /**
+         * Override this method to implement custom keyboard shortcuts.
+         *
+         * @param keyCode the key code from DraggableScrollbarWebView
+         * @param event   the key event from DraggableScrollbarWebView
+         * @return {@code false} if the key press event was not be handled, {@code true} if it was consumed here.
+         */
+        boolean onDispatchKey(int keyCode, KeyEvent event);
+    }
+
+    private DraggableScrollbarWebView.OnDispatchKeyListener onDispatchKeyListener;
+
+    /**
+     * This method can capture complete keyboard events from DraggableScrollbarWebView.
+     *
+     * @param onDispatchKeyListener the key listener to listen to dispatch key events
+     */
+    public void setOnDispatchKeyListener(DraggableScrollbarWebView.OnDispatchKeyListener onDispatchKeyListener) {
+        this.onDispatchKeyListener = onDispatchKeyListener;
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (onDispatchKeyListener != null && onDispatchKeyListener.onDispatchKey(event.getKeyCode(), event)) {
+            return true;
+        } else {
+            return super.dispatchKeyEvent(event);
+        }
     }
 }

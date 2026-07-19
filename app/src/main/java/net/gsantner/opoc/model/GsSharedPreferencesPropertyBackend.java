@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2016-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2016-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2018-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2018-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -40,7 +40,6 @@ import android.text.TextUtils;
 import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
-import androidx.core.content.ContextCompat;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -70,15 +69,10 @@ public class GsSharedPreferencesPropertyBackend implements GsPropertyBackend<Str
     protected String _prefAppName;
     protected Context _context;
 
-    public GsSharedPreferencesPropertyBackend init(final Context context) {
-        return init(context, SHARED_PREF_APP);
-    }
-
-    public GsSharedPreferencesPropertyBackend init(final Context context, final String prefAppName) {
+    public GsSharedPreferencesPropertyBackend(final Context context, final String prefAppName) {
         _context = context;
         _prefAppName = !TextUtils.isEmpty(prefAppName) ? prefAppName : (_context.getPackageName() + "_preferences");
         _prefApp = _context.getSharedPreferences(_prefAppName, Context.MODE_PRIVATE);
-        return this;
     }
 
     //
@@ -166,7 +160,7 @@ public class GsSharedPreferencesPropertyBackend implements GsPropertyBackend<Str
     }
 
     public int rcolor(@ColorRes int resColorId) {
-        return ContextCompat.getColor(_context, resColorId);
+        return _context.getResources().getColor(resColorId);
     }
 
     public String[] rstrs(int... keyResourceIds) {
@@ -564,6 +558,14 @@ public class GsSharedPreferencesPropertyBackend implements GsPropertyBackend<Str
 
     public boolean contains(String key, final SharedPreferences... pref) {
         return gp(pref).contains(key);
+    }
+
+    public void remove(@StringRes int keyResourceId, final SharedPreferences... pref) {
+        gp(pref).edit().remove(rstr(keyResourceId)).apply();
+    }
+
+    public void remove(final String key, final SharedPreferences... pref) {
+        gp(pref).edit().remove(key).apply();
     }
 
     /**

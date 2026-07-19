@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -24,15 +25,14 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 
-import net.gsantner.markor.ApplicationObject;
 import net.gsantner.markor.R;
 import net.gsantner.markor.format.FormatRegistry;
+import net.gsantner.markor.frontend.textview.TextViewUtils;
 import net.gsantner.markor.model.AppSettings;
 import net.gsantner.markor.model.Document;
 import net.gsantner.markor.util.MarkorContextUtils;
 import net.gsantner.opoc.format.GsTextUtils;
 import net.gsantner.opoc.frontend.base.GsFragmentBase;
-import net.gsantner.opoc.frontend.filebrowser.GsFileBrowserListAdapter;
 import net.gsantner.opoc.util.GsContextUtils;
 import net.gsantner.opoc.util.GsFileUtils;
 
@@ -41,13 +41,16 @@ import java.io.File;
 import other.so.AndroidBug5497Workaround;
 
 public class DocumentActivity extends MarkorBaseActivity {
-    public static final String EXTRA_DO_PREVIEW = "EXTRA_DO_PREVIEW";
 
     private Toolbar _toolbar;
-
     private FragmentManager _fragManager;
 
-    private static boolean nextLaunchTransparentBg = false;
+    public static void launch(final Activity activity, final Intent intent) {
+        final File file = MarkorContextUtils.getIntentFile(intent);
+        final Integer lineNumber = intent.hasExtra(Document.EXTRA_FILE_LINE_NUMBER) ? intent.getIntExtra(Document.EXTRA_FILE_LINE_NUMBER, -1) : null;
+        final Boolean doPreview = intent.hasExtra(Document.EXTRA_DO_PREVIEW) ? intent.getBooleanExtra(Document.EXTRA_DO_PREVIEW, false) : null;
+        launch(activity, file, doPreview, lineNumber);
+    }
 
     public static void launch(
             final Activity activity,
@@ -79,37 +82,42 @@ public class DocumentActivity extends MarkorBaseActivity {
             return;
         }
 
-        final AppSettings as = ApplicationObject.settings();
+        final AppSettings as = AppSettings.get(activity);
 
         final Intent intent;
-        if (GsFileBrowserListAdapter.isVirtualFolder(file) || file.isDirectory()) {
+        if (GsFileUtils.isDirectory(file)) {
             intent = new Intent(activity, MainActivity.class);
         } else {
             intent = new Intent(activity, DocumentActivity.class);
+
+            final boolean lollipop = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+            final boolean fromDocumentActivity = activity instanceof DocumentActivity;
+            final boolean isMultiWindow = as.isMultiWindowEnabled();
+            if (lollipop && isMultiWindow) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            } else if (isMultiWindow) {
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+            } else if (lollipop && !fromDocumentActivity) {
+                // So we can potentially not open duplicate documents
+                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            }
+
+            if (lineNumber != null) {
+                intent.putExtra(Document.EXTRA_FILE_LINE_NUMBER, lineNumber);
+            }
+
+            if (doPreview != null) {
+                intent.putExtra(Document.EXTRA_DO_PREVIEW, doPreview);
+            }
         }
 
         intent.putExtra(Document.EXTRA_FILE, file);
 
-        if (lineNumber != null && lineNumber >= 0) {
-            intent.putExtra(Document.EXTRA_FILE_LINE_NUMBER, lineNumber);
-        }
-
-        if (doPreview != null) {
-            intent.putExtra(DocumentActivity.EXTRA_DO_PREVIEW, doPreview);
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && as.isMultiWindowEnabled()) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT | Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        } else {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        }
-
-        nextLaunchTransparentBg = (activity instanceof MainActivity);
-        GsContextUtils.instance.animateToActivity(activity, intent, false, null);
+        activity.startActivity(intent);
     }
 
     public static void askUserIfWantsToOpenFileInThisApp(final Activity activity, final File file) {
-        if (GsFileUtils.isContentsPlainText(file)) {
+        if (!FormatRegistry.isExternalFile(file) && GsFileUtils.isContentsPlainText(file)) {
             new AlertDialog.Builder(activity, R.style.Theme_AppCompat_DayNight_Dialog_Rounded)
                     .setTitle(R.string.open_with)
                     .setMessage(R.string.selected_file_may_be_a_textfile_want_to_open_in_editor)
@@ -128,10 +136,6 @@ public class DocumentActivity extends MarkorBaseActivity {
         super.onCreate(savedInstanceState);
         StoragePermissionActivity.requestPermissions(this);
         AppSettings.clearDebugLog();
-        if (nextLaunchTransparentBg) {
-            //getWindow().getDecorView().setBackgroundColor(Color.TRANSPARENT);
-            nextLaunchTransparentBg = false;
-        }
         setContentView(R.layout.document__activity);
         _toolbar = findViewById(R.id.toolbar);
 
@@ -159,26 +163,19 @@ public class DocumentActivity extends MarkorBaseActivity {
 
         // Pull the file from the intent
         // -----------------------------------------------------------------------
-        File file = (File) intent.getSerializableExtra(Document.EXTRA_FILE);
+        final File file = MarkorContextUtils.getIntentFile(intent, this);
 
         final boolean intentIsView = Intent.ACTION_VIEW.equals(intentAction);
-        final boolean intentIsSend = Intent.ACTION_SEND.equals(intentAction);
+        final boolean intentIsSend = Intent.ACTION_SEND.equals(intentAction) || Intent.ACTION_SEND_MULTIPLE.equals(intentAction);
         final boolean intentIsEdit = Intent.ACTION_EDIT.equals(intentAction);
 
-        if (intentIsSend && intent.hasExtra(Intent.EXTRA_TEXT)) {
+        if (intentIsSend) {
             showShareInto(intent);
             return;
         } else if (Intent.ACTION_PROCESS_TEXT.equals(intentAction) && intent.hasExtra(Intent.EXTRA_PROCESS_TEXT)) {
             intent.putExtra(Intent.EXTRA_TEXT, intent.getStringExtra("android.intent.extra.PROCESS_TEXT"));
             showShareInto(intent);
             return;
-        } else if (file == null && (intentIsView || intentIsEdit || intentIsSend)) {
-            file = _cu.extractFileFromIntent(this, intent);
-            if (file == null) {
-                // More permissive - file may not exist
-                // Will be filtered out in next stage
-                file = MarkorContextUtils.getIntentFile(intent, null);
-            }
         }
 
         // Decide what to do with the file
@@ -186,9 +183,9 @@ public class DocumentActivity extends MarkorBaseActivity {
         if (file == null || !_cu.canWriteFile(this, file, false, true)) {
             showNotSupportedMessage();
         } else {
+            Integer startLine = null;
             // Open in editor/viewer
             final Document doc = new Document(file);
-            Integer startLine = null;
             if (intent.hasExtra(Document.EXTRA_FILE_LINE_NUMBER)) {
                 startLine = intent.getIntExtra(Document.EXTRA_FILE_LINE_NUMBER, -1);
             } else if (intentData != null) {
@@ -200,15 +197,47 @@ public class DocumentActivity extends MarkorBaseActivity {
 
             // Start in a specific mode if required. Otherwise let the fragment decide
             Boolean startInPreview = null;
-            if (startLine != null) {
-                // If a line is requested, open in edit mode so the line is shown
-                startInPreview = false;
-            } else if (intent.getBooleanExtra(EXTRA_DO_PREVIEW, false) || file.getName().startsWith("index.")) {
+            if (intent.getBooleanExtra(Document.EXTRA_DO_PREVIEW, false) ||
+                    file.getName().startsWith("index.")
+            ) {
                 startInPreview = true;
             }
 
-            showTextEditor(doc, startLine, startInPreview);
+            // Three cases
+            // 1. We have an editor open and it is the same document - show the requested line
+            // 2. We have an editor open and it is a different document - open the new document
+            // 3. We do not have a current fragment - open the document here
+            final GsFragmentBase<?, ?> frag = getCurrentVisibleFragment();
+            if (frag != null) {
+                if (frag instanceof DocumentEditAndViewFragment) {
+                    final DocumentEditAndViewFragment editFrag = (DocumentEditAndViewFragment) frag;
+                    if (editFrag.getDocument().path.equals(doc.path)) {
+                        if (startLine != null) {
+                            // Same document requested, show the requested line
+                            TextViewUtils.selectLines(editFrag.getEditor(), startLine);
+                        }
+                    } else {
+                        // Current document is different - launch the new document
+                        launch(this, file, startInPreview, startLine);
+                    }
+                } else {
+                    // Current fragment is not an editor - launch the new document
+                    launch(this, file, startInPreview, startLine);
+                }
+            } else {
+                // No fragment open - open the document
+                showFragment(DocumentEditAndViewFragment.newInstance(doc, startLine, startInPreview));
+            }
         }
+    }
+
+    private boolean isDocumentAlreadyOpen(final Document doc) {
+        final GsFragmentBase<?, ?> frag = getCurrentVisibleFragment();
+        if (frag instanceof DocumentEditAndViewFragment) {
+            final DocumentEditAndViewFragment editFrag = (DocumentEditAndViewFragment) frag;
+            return editFrag.getDocument().path.equals(doc.path);
+        }
+        return false;
     }
 
     private void showNotSupportedMessage() {
@@ -246,7 +275,8 @@ public class DocumentActivity extends MarkorBaseActivity {
         }
         try {
             return super.dispatchTouchEvent(event);
-        } catch (IndexOutOfBoundsException ignored) {
+        } catch (Exception e) {
+            Log.e(getClass().getName(), "Error in super.dispatchTouchEvent: " + e);
             return false;
         }
     }
@@ -271,21 +301,9 @@ public class DocumentActivity extends MarkorBaseActivity {
         }
     }
 
-    public void showTextEditor(final Document document, final Integer lineNumber, final Boolean startPreview) {
-        final GsFragmentBase currentFragment = getCurrentVisibleFragment();
-
-        final boolean sameDocumentRequested = (
-                currentFragment instanceof DocumentEditAndViewFragment &&
-                        document.getPath().equals(((DocumentEditAndViewFragment) currentFragment).getDocument().getPath()));
-
-        if (!sameDocumentRequested) {
-            showFragment(DocumentEditAndViewFragment.newInstance(document, lineNumber, startPreview));
-        }
-    }
-
     public void showShareInto(Intent intent) {
         setTitle(getString(R.string.share_into));
-        showFragment(DocumentShareIntoFragment.newInstance(intent));
+        showFragment(DocumentShareIntoFragment.newInstance(intent, this));
     }
 
     @Override
@@ -297,21 +315,15 @@ public class DocumentActivity extends MarkorBaseActivity {
     @Override
     @SuppressWarnings("StatementWithEmptyBody")
     public void onBackPressed() {
-        FragmentManager fragMgr = getSupportFragmentManager();
-        GsFragmentBase top = getCurrentVisibleFragment();
-        if (top != null) {
-            if (!top.onBackPressed()) {
-                if (fragMgr.getBackStackEntryCount() == 1) {
-                    // Back action was not handled by fragment, handle in activity
-                } else if (fragMgr.getBackStackEntryCount() > 0) {
-                    // Back action was to go one fragment back
-                    fragMgr.popBackStack();
-                    return;
-                }
-            } else {
-                // Was handled by child fragment
-                return;
-            }
+        final int entryCount = _fragManager.getBackStackEntryCount();
+        final GsFragmentBase<?, ?> top = getCurrentVisibleFragment();
+
+        // We pop the stack to go back to the previous fragment
+        // if the top fragment does not handle the back press
+        // Doesn't actually get called as we have 1 fragment in the stack
+        if (top != null && !top.onBackPressed() && entryCount > 1) {
+            _fragManager.popBackStack();
+            return;
         }
 
         // Handle in this activity
@@ -324,10 +336,10 @@ public class DocumentActivity extends MarkorBaseActivity {
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        return super.onReceiveKeyPress(getCurrentVisibleFragment(), keyCode, event) ? true : super.onKeyDown(keyCode, event);
+        return super.onReceiveKeyPress(getCurrentVisibleFragment(), keyCode, event) || super.onKeyDown(keyCode, event);
     }
 
-    public GsFragmentBase showFragment(GsFragmentBase fragment) {
+    public GsFragmentBase<?, ?> showFragment(GsFragmentBase<?, ?> fragment) {
         if (fragment != getCurrentVisibleFragment()) {
             _fragManager.beginTransaction()
                     .replace(R.id.document__placeholder_fragment, fragment, fragment.getFragmentTag())
@@ -338,11 +350,11 @@ public class DocumentActivity extends MarkorBaseActivity {
         return fragment;
     }
 
-    public synchronized GsFragmentBase getExistingFragment(final String fragmentTag) {
-        return (GsFragmentBase) getSupportFragmentManager().findFragmentByTag(fragmentTag);
+    public synchronized GsFragmentBase<?, ?> getExistingFragment(final String fragmentTag) {
+        return (GsFragmentBase<?, ?>) getSupportFragmentManager().findFragmentByTag(fragmentTag);
     }
 
-    private GsFragmentBase getCurrentVisibleFragment() {
-        return (GsFragmentBase) getSupportFragmentManager().findFragmentById(R.id.document__placeholder_fragment);
+    private GsFragmentBase<?, ?> getCurrentVisibleFragment() {
+        return (GsFragmentBase<?, ?>) getSupportFragmentManager().findFragmentById(R.id.document__placeholder_fragment);
     }
 }

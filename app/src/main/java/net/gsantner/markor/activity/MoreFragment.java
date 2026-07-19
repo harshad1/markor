@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2018-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2018-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -8,6 +8,7 @@
 package net.gsantner.markor.activity;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
@@ -15,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentTransaction;
 
 import net.gsantner.markor.R;
+import net.gsantner.markor.model.AppSettings;
+import net.gsantner.markor.util.MarkorContextUtils;
 import net.gsantner.opoc.frontend.base.GsFragmentBase;
 import net.gsantner.opoc.model.GsSharedPreferencesPropertyBackend;
 import net.gsantner.opoc.util.GsContextUtils;
@@ -50,5 +53,15 @@ public class MoreFragment extends GsFragmentBase<GsSharedPreferencesPropertyBack
         } else {
             moreInfoFragment = (MoreInfoFragment) getChildFragmentManager().findFragmentByTag(MoreInfoFragment.TAG);
         }
+    }
+
+    @Override
+    public AppSettings createAppSettingsInstance(Context context) {
+        return AppSettings.get(context);
+    }
+
+    @Override
+    public MarkorContextUtils createContextUtilsInstance(Context context) {
+        return new MarkorContextUtils(context);
     }
 }

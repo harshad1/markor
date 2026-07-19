@@ -1,9 +1,9 @@
 /*#######################################################
  *
- * SPDX-FileCopyrightText: 2019-2024 Gregor Santner <gsantner AT mailbox DOT org>
+ * SPDX-FileCopyrightText: 2019-2025 Gregor Santner <gsantner AT mailbox DOT org>
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  *
- * Written 2019-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ * Written 2019-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  * To the extent possible under law, the author(s) have dedicated all copyright and related and neighboring rights to this software to the public domain worldwide. This software is distributed without any warranty.
  * You should have received a copy of the CC0 Public Domain Dedication along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 #########################################################*/
@@ -17,12 +17,17 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.net.URLDecoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -195,6 +200,19 @@ public class GsTextUtils {
         }
     }
 
+    public static String decodeUrl(final String rawLink) {
+        if (rawLink == null) {
+            return "";
+        }
+
+        try {
+            // Preserve '+' while decoding percent-encoded spaces and other characters
+            return URLDecoder.decode(rawLink.replace("+", "%2B"), "UTF-8");
+        } catch (Exception e) {
+            return rawLink.replace("%20", " ");
+        }
+    }
+
     public static byte[] fromBase64(final byte[] bytes) {
         return Base64.decode(bytes, Base64.DEFAULT);
     }
@@ -210,7 +228,7 @@ public class GsTextUtils {
     public static int tryParseInt(final String value, int defaultValue) {
         try {
             return Integer.parseInt(value);
-        } catch (NumberFormatException e) {
+        } catch (NullPointerException | NumberFormatException e) {
             return defaultValue;
         }
     }
@@ -430,7 +448,11 @@ public class GsTextUtils {
     }
 
     public static boolean isValidIndex(final CharSequence s, final int... indices) {
-        return s != null && inRange(0, s.length() - 1, indices);
+        return s != null && indices != null && inRange(0, s.length() - 1, indices);
+    }
+
+    public static boolean isValidSelection(final CharSequence s, final int... indices) {
+        return s != null && indices != null && inRange(0, s.length(), indices);
     }
 
     // Checks if all values are in [min, max] _inclusive_
@@ -440,6 +462,77 @@ public class GsTextUtils {
                 return false;
             }
         }
+        return true;
+    }
+
+    public static String mapToJsonString(final Map<String, String> map) {
+        return new JSONObject(map).toString();
+    }
+
+    public static Map<String, String> jsonStringToMap(final String jsonString) {
+        final Map<String, String> map = new LinkedHashMap<>();
+
+        if (isNullOrEmpty(jsonString)) {
+            return map;
+        }
+
+        try {
+            final JSONObject jsonObject = new JSONObject(jsonString);
+            final Iterator<String> keys = jsonObject.keys();
+
+            while (keys.hasNext()) {
+                String key = keys.next();
+                String value = jsonObject.getString(key);
+                map.put(key, value);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public static String listToJsonString(final Collection<String> list) {
+        final JSONArray jsonArray = new JSONArray(list);
+        return jsonArray.toString();
+    }
+
+    public static List<String> jsonStringToList(final String jsonString) {
+        final List<String> list = new ArrayList<>();
+        try {
+            final JSONArray jsonArray = new JSONArray(jsonString);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                list.add(jsonArray.getString(i));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public static boolean endsWith(final CharSequence text, final CharSequence suffix) {
+        if (text == null || suffix == null) {
+            return false;
+        }
+
+        if (text.length() < suffix.length()) {
+            return false;
+        }
+
+        if (suffix.length() == 0) {
+            return true;
+        }
+
+        if (text == suffix) {
+            return true;
+        }
+
+        final int offset = text.length() - suffix.length();
+        for (int i = 0; i < suffix.length(); i++) {
+            if (text.charAt(offset + i) != suffix.charAt(i)) {
+                return false;
+            }
+        }
+
         return true;
     }
 }

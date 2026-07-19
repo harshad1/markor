@@ -1,6 +1,6 @@
 /*#######################################################
  *
- *   Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+ *   Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
  *   License of this file: Apache 2.0
  *     https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -9,15 +9,18 @@ package net.gsantner.markor.format.wikitext;
 
 import android.content.Context;
 import android.os.Build;
+import android.view.KeyEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StringRes;
 
 import net.gsantner.markor.R;
 import net.gsantner.markor.activity.DocumentActivity;
+import net.gsantner.markor.activity.DocumentEditAndViewFragment;
 import net.gsantner.markor.format.ActionButtonBase;
 import net.gsantner.markor.frontend.MarkorDialogFactory;
 import net.gsantner.markor.frontend.textview.AutoTextFormatter;
+import net.gsantner.markor.frontend.textview.HighlightingEditor;
 import net.gsantner.markor.frontend.textview.TextViewUtils;
 import net.gsantner.markor.model.Document;
 
@@ -30,8 +33,6 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 
 public class WikitextActionButtons extends ActionButtonBase {
-
-    private MarkorDialogFactory.HeadlineDialogState _headlineDialogState = new MarkorDialogFactory.HeadlineDialogState();
 
     public WikitextActionButtons(@NonNull Context context, Document document) {
         super(context, document);
@@ -62,6 +63,7 @@ public class WikitextActionButtons extends ActionButtonBase {
                 new ActionItem(R.string.abid_common_deindent, R.drawable.ic_format_indent_decrease_black_24dp, R.string.deindent),
                 new ActionItem(R.string.abid_wikitext_h4, R.drawable.format_header_4, R.string.heading_4),
                 new ActionItem(R.string.abid_wikitext_h5, R.drawable.format_header_5, R.string.heading_5),
+                new ActionItem(R.string.abid_common_insert_audio, R.drawable.ic_keyboard_voice_black_24dp, R.string.audio),
                 new ActionItem(R.string.abid_common_insert_image, R.drawable.ic_image_black_24dp, R.string.insert_image),
                 new ActionItem(R.string.abid_common_insert_link, R.drawable.ic_link_black_24dp, R.string.insert_link)
         );
@@ -163,12 +165,7 @@ public class WikitextActionButtons extends ActionButtonBase {
                 return true;
             }
             case R.string.abid_wikitext_code_inline: {
-                _hlEditor.withAutoFormatDisabled(() -> {
-                    final int c = _hlEditor.setSelectionExpandWholeLines();
-                    _hlEditor.getText().insert(_hlEditor.getSelectionStart(), "\n'''\n");
-                    _hlEditor.getText().insert(_hlEditor.getSelectionEnd(), "\n'''\n");
-                    _hlEditor.setSelection(c + "\n'''\n".length());
-                });
+                _hlEditor.withAutoFormatDisabled(() -> surroundBlock(_hlEditor.getText(), "'''"));
                 return true;
             }
             default: {
@@ -176,7 +173,6 @@ public class WikitextActionButtons extends ActionButtonBase {
             }
         }
     }
-
 
     private void openLink() {
         String fullWikitextLink = tryExtractWikitextLink();
@@ -187,7 +183,7 @@ public class WikitextActionButtons extends ActionButtonBase {
             return;
         }
 
-        WikitextLinkResolver resolver = WikitextLinkResolver.resolve(fullWikitextLink, _appSettings.getNotebookDirectory(), _document.getFile(), _appSettings.isWikitextDynamicNotebookRootEnabled());
+        WikitextLinkResolver resolver = WikitextLinkResolver.resolve(fullWikitextLink, _appSettings.getNotebookDirectory(), _document.file, _appSettings.isWikitextDynamicNotebookRootEnabled());
         String resolvedLink = resolver.getResolvedLink();
         if (resolvedLink == null) {
             return;
@@ -258,6 +254,8 @@ public class WikitextActionButtons extends ActionButtonBase {
         return contents;
     }
 
+    private final HeadlineState _headlineDialogState = new HeadlineState();
+
     @Override
     public boolean runTitleClick() {
         final Matcher m = WikitextSyntaxHighlighter.HEADING.matcher("");
@@ -273,5 +271,29 @@ public class WikitextActionButtons extends ActionButtonBase {
     @Override
     protected void renumberOrderedList() {
         AutoTextFormatter.renumberOrderedList(_hlEditor.getText(), WikitextReplacePatternGenerator.formatPatterns);
+    }
+
+    @Override
+    public boolean onKeyPress(final Object source, final int keyCode, final KeyEvent event, final DocumentEditAndViewFragment fragment) {
+        if (source instanceof HighlightingEditor) {
+            if (keyCode == KeyEvent.KEYCODE_TAB && _appSettings.isIndentWithTabKey()) {
+                if (event.isShiftPressed()) {
+                    runRegexReplaceAction(WikitextReplacePatternGenerator.deindentOneTab());
+                } else {
+                    runRegexReplaceAction(WikitextReplacePatternGenerator.indentOneTab());
+                }
+                runRenumberOrderedListIfRequired();
+                return true;
+            }
+
+            if (event.isCtrlPressed()) { // Ctrl
+                if (keyCode == KeyEvent.KEYCODE_I) {
+                    onActionClick(R.string.abid_wikitext_italic);
+                    return true;
+                }
+            }
+        }
+
+        return super.onKeyPress(source, keyCode, event, fragment);
     }
 }

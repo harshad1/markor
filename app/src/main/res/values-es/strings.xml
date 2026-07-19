@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-Maintained 2017-2024 by Gregor Santner <gsantner AT mailbox DOT org>
+Maintained 2017-2025 by Gregor Santner <gsantner AT mailbox DOT org>
 
 To the extent possible under law, the person who associated CC0 with
 this file has waived all copyright and related or neighboring rights
@@ -68,6 +68,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="hide_statusbar">Ocultar la barra de estado</string>
     <string name="name">Ordenar por nombre</string>
     <string name="url_or_path">URL / Ruta</string>
+    <string name="insert_link">Insertar enlace</string>
+    <string name="format_link">Formato de enlace</string>
     <string name="insert_image">Insertar imagen</string>
     <string name="contributors">Colaboradores</string>
     <string name="save_location">Guardar ubicación</string>
@@ -80,7 +82,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="show_third_party_licenses">Mostrar licencias de terceras partes</string>
     <string name="language_change_restart_description">Cambiar el idioma de esta aplicación. Reinicie la aplicación para que los cambios surtan efecto</string>
     <string name="language">Idioma</string>
-    <string name="storage_permission_required">Permiso de Almacenamiento necesario para leer y escribir archivos</string>
+    <string name="storage_permission_required">Se requiere permiso de almacenamiento para leer y escribir archivos</string>
     <string name="open_with">Abrir con</string>
     <string name="sort_by">Ordenar por</string>
     <string name="date">Fecha</string>
@@ -120,7 +122,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_not_in_current_folder_do_copy__appspecific">El archivo no está ubicado en la carpeta actual. ¿Desea copiarlo a la carpeta actual? Esto sobreescribirá cualquier archivo existente con el mismo nombre.</string>
     <string name="files_and_folders">Archivos y carpetas</string>
     <string name="document_browser">Navegador de documentos</string>
-    <string name="file_browser">Explorador de archivos</string>
     <string name="set_due_date">Fecha límite</string>
     <string name="insert_replace_date">Insertar fecha</string>
     <string name="create_note" needed="false">Crear nota</string>
@@ -136,12 +137,9 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="main_view">Vista principal</string>
     <string name="overall_theme_used_in_app">El tema principal usado en la app</string>
     <string name="remember_last_directory">Recordar última carpeta</string>
-    <string name="syntax_highlighting">Resaltado de sintaxis</string>
-    <string name="dynamic_highlighting">Resaltado dinámico</string>
     <string name="highlighting_delay">Retraso para resaltar</string>
     <string name="highlighting_delay_lower_value_more_battery_drain_description__appspecific">Retraso en milisegundos para refrescar el resaltado. Un valor menor iniciará el énfasis pronto, pero afectará a la batería y al desempeño en equipos antiguos.</string>
     <string name="highlighting_enabled_or_not__appspecific">Controla si el texto ingresado debe ser resaltado o no</string>
-    <string name="dynamic_highlighting_effect">El resaltado dinámico mejora el rendimiento. Puede producir la aparición de artefactos.</string>
     <string name="control_font_size_in_editor">Edita el tamaño de fuente usada en el editor</string>
     <string name="textactions_show_useful_actions_description__appspecific">Muestra una barra con funciones útiles para insertar módulos de texto comúnmente usados</string>
     <string name="load_last_opened_folder_at_startup">Cargar la última carpeta abierta al iniciar</string>
@@ -176,17 +174,8 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="sort_tasks_by_selected_order">Ordenar tareas por orden seleccionado</string>
     <string name="special_key">Tecla especial</string>
     <string name="asciidoc_special_key">Contenido especial AsciiDoc</string>
-    <string name="key_page_up">Página anterior (Page Up)</string>
-    <string name="key_page_down">Siguiente página (Page Down)</string>
-    <string name="move_text_one_line_up">Mover texto una línea arriba</string>
-    <string name="move_text_one_line_down">Mover texto una línea hacia abajo</string>
-    <string name="start_new_line_below">Empezar nueva línea a continuación</string>
-    <string name="key_pos_1">Inicio de línea (Pos Home)</string>
-    <string name="key_pos_end">Fin de línea (Pos End)</string>
-    <string name="key_pos_1_document">Inicio de documento</string>
-    <string name="key_pos_end_document">Fin de documento</string>
     <string name="key_ctrl_a">Seleccionar todo (Ctrl + A)</string>
-    <string name="key_tab">Tabulador</string>
+    <string name="em_space">Espacio eme (&amp;emsp;)</string>
     <string name="start_on_bottom">Iniciar desde abajo</string>
     <string name="start_on_bottom_when_loading_document">Al abrir un documento, posicionar el cursor al final del documento</string>
     <string name="unordered_list_character">Carácter para lista desordenada</string>
@@ -215,11 +204,13 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="clipboard">Portapapeles</string>
     <string name="select_existing_document">Seleccionar documento existente</string>
     <string name="select_create_document">Seleccionar o crear un documento</string>
+    <string name="select_create_folder">Seleccionar o crear carpeta</string>
     <string name="open_source_licenses">Licencias de código abierto</string>
     <string name="rate_this_app">Califica esta aplicación</string>
     <string name="translate">Traducir</string>
     <string name="more_info_and_help">Ayuda y más información sobre esta aplicación</string>
     <string name="report_bugs">Informar de fallos</string>
+    <string name="do_you_have_a_question_or_problem">¿Tienes alguna pregunta o algún problema?</string>
     <string name="join_community">Únete a la comunidad</string>
     <string name="bug_reports_suggest_improvements">Da tu opinión, reporta errores o sugiere mejoras</string>
     <string name="help_translating_this_app">Traduce esta aplicación a otros idiomas</string>
@@ -227,6 +218,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="project_license">Licencia del proyecto</string>
     <string name="contribute_code_to_this_project_anybody_welcome">Colabora con el proyecto. Cualquiera puede hacerlo, incluso los que usan la aplicación desde hace poco</string>
     <string name="project_team">El equipo tras el proyecto</string>
+    <string name="community">Comunidad</string>
     <string name="contributors_public_add_yourself_description">Muestra información pública sobre los colaboradores. Estos pueden decidir si su información debe ser incluida con sus colaboraciones</string>
     <string name="descending">descendente</string>
     <string name="ascending">ascendente</string>
@@ -255,7 +247,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="no_calendar_app_is_installed">¡No hay una aplicación de calendario instalada!</string>
     <string name="popular_documents">Documentos populares</string>
     <string name="color">Color</string>
-    <string name="zero_width_space">Espacio de ancho cero</string>
     <string name="basic_color_scheme">Esquema básico de color</string>
     <string name="background_foreground_color_in_editor_works_dark_light">Cambia el color de fondo y el primer plano del editor de texto. Se ajusta al tema de la aplicación y está disponible para el tema claro y oscuro. Los colores de resaltado de la sintaxis permanecen iguales.</string>
     <string name="preset">Preajuste</string>
@@ -273,7 +264,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="pick_date">Elegir fecha</string>
     <string name="pick_time">Elegir hora</string>
     <string name="get_format_instead_date_or_time">Cambiar formato de fecha y hora</string>
-    <string name="always_use_current_date_and_time">Utilizar siempre la fecha actual &amp; hora</string>
+    <string name="use_current_date_and_time">Utilizar fecha y hora actual</string>
     <string name="result">Resultado</string>
     <string name="just_time">Sólo hora</string>
     <string name="just_date">Sólo fecha</string>
@@ -298,8 +289,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="black">Negro</string>
     <string name="white">Blanco</string>
     <string name="view">Ver</string>
-    <string name="view_mode">Modo de vista</string>
-    <string name="edit_mode">Modo edición</string>
     <string name="mount_storage">Montar el almacenamiento</string>
     <string name="application_needs_access_to_storage_mount_it">Se requiere permiso para acceder a este almacenamiento. Monta el almacenamiento para dar acceso. Confirma este diálogo para obtener un ventana emergente. Selecciona el almacenamiento allí y presiona seleccionar.</string>
     <string name="share_into">Compartir en</string>
@@ -312,8 +301,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="selected_file_may_be_a_textfile_want_to_open_in_editor">El archivo seleccionado puede ser un archivo de texto plano. ¿Desea abrirlo en el editor, o en otra aplicación?\n\nNo intente abrir archivos binarios. Si no está seguro, abra con otra aplicación.</string>
     <string name="list_in_recent_files">Lista de archivos recientes</string>
     <string name="reload">Refrescar</string>
-    <string name="wrap_words">Cambio de línea</string>
-    <string name="line_numbers">Número de línea</string>
     <string name="soft_break_if_not_fit_to_width_else_enable_horizontal_scrolling">Desliza suavemente si el texto no se ajusta al ancho de pantalla. De lo contrario, activa el desplazamiento horizontal.</string>
     <string name="recursive_search_in_location">Búsqueda recursiva en %s</string>
     <string name="always_open_with_this_app">Siempre abierto con esta aplicación</string>
@@ -328,6 +315,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="current">Actual</string>
     <string name="record_audio">Grabar audio</string>
     <string name="attach">Adjuntar</string>
+    <string name="attachment">Adjunto</string>
     <string name="copy_file">Copiar archivo</string>
     <string name="page">Página</string>
     <string name="experimental_features">Características experimentales</string>
@@ -391,7 +379,6 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="file_description_format">Formato de descripción de archivo</string>
     <string name="file_description_format_dialog">Formato para la descripción bajo cada archivo en el navegador de archivos. Siga las reglas de SimpleDateFormat, con la adición de FS para mostrar el tamaño del archivo. Deje en blanco para usar el formato predeterminado para su ubicación.\n\nEjemplo de entrada:\nFS yyyy MMM dd hh:mm:ss aa\nFormato de salida:\n30KB 2020 Mar 20 11:24:52 PM</string>
     <string name="loading_default_value">Cargando valor por defecto</string>
-    <string name="file_settings">Ajustes de archivo</string>
     <string name="search_and_replace">Buscar / Reemplazar</string>
     <string name="search_for">Buscar por</string>
     <string name="replace_with">Reemplazar por</string>
@@ -440,7 +427,7 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="match_all">Coincidir todos</string>
     <string name="dynamic_notebook_root_links">Búsqueda dinámica de la raíz del cuaderno</string>
     <string name="search_dynamically_for_notebook_root">Para seguir los enlaces de la wiki, busque dinámicamente el archivo notebook.zim para identificar el directorio raíz del cuaderno actual. Marque esta opción si utiliza múltiples cuadernos zim o el directorio de cuadernos establecido en la aplicación no corresponde a su cuaderno zim.</string>
-    <string name="share_into_format_prefix_for_text_shared">Formato/prefijo para el texto compartido en Markor. Sigue las reglas de SimpleDateFormat.\n\nUtilice el marcador de posición \'{{text}}\' (rodeado por comillas simples) para colocar el texto compartido. Si no se especifica, el texto compartido es añadido y el formato utilizado es el de prefijo.</string>
+    <string name="share_into_format_prefix_for_text_shared">Formato/prefijo para el texto compartido en Markor. Sigue las reglas SimpleDateFormat de Android.\n\nUse el marcador de posición {{text}} para ubicar el texto compartido. Si no se especifica, se agrega el texto compartido y se usa el formato como prefijo.</string>
     <string name="share_into_format">Compartir en - Formato</string>
     <string name="attachment_folder_name">Nombre de la carpeta adjunta</string>
     <string name="attachment_folder_name_desc">Subcarpeta debajo de la carpeta actual donde se guardarán los accesorios. Si se deja en blanco, los accesorios se guardarán en la carpeta actual.</string>
@@ -449,7 +436,10 @@ work. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
     <string name="snippet_directory">Directorio de fragmentos/plantillas</string>
     <string name="error_could_not_open_file">Error: No se pudo abrir el archivo.</string>
     <string name="document_error_clip">Error encontrado: Texto copiado al portapapeles.</string>
-    <string name="wont_save_min_length">Archivos con menos de %d caracteres no guardados automáticamente, para prevenir la perdida de datos.</string>
+    <string name="wont_save_min_length">Los archivos con menos de %d caracteres no se guardan automáticamente para evitar la pérdida de datos.</string>
     <string name="advanced_filtering_help"><![CDATA[<small><a href="https://www.github.com/gsantner/markor/discussions/1940">Sintaxis de filtrado avanzado</a></small>]]></string>
     <string name="filter">Filtro</string>
+    <string name="text_case">Mayúscula/minúscula</string>
+    <string name="use_tab_to_indent">Sangrar líneas con la tecla TAB</string>
+    <string name="folder_local">Carpeta local</string>
 </resources>
