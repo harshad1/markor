@@ -112,7 +112,7 @@
             android:gravity="center"
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
-            android:textColor="@color/light_grey"
+            android:textColor="@color/secondary_text"
             android:textSize="24sp"
             android:textStyle="bold" />
 
@@ -122,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:background="@color/background"
-            android:divider="@color/grey"
+            android:divider="@color/divider"
             android:dividerHeight="0.5dp" />
     </RelativeLayout>
 </RelativeLayout>

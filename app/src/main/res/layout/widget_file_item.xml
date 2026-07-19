@@ -37,6 +37,6 @@
         android:textColor="@color/primary_text"
         android:textSize="16sp"
         android:drawablePadding="4dp"
-        app:drawableStartCompat="@drawable/ic_file_gray_24dp"
-        app:drawableLeftCompat="@drawable/ic_file_gray_24dp" />
+        app:drawableStartCompat="@drawable/ic_widget_file_24dp"
+        app:drawableLeftCompat="@drawable/ic_widget_file_24dp" />
 </LinearLayout>
