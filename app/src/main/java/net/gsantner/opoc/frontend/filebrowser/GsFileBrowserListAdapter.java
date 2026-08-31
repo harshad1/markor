@@ -530,9 +530,9 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
 
         boolean clickHandled = false;
         if (data.file != null &&
-                _currentFolder != null &&
-                !data.file.equals(_goUpFile) &&
-                !_virtualMapping.containsKey(data.file)) {
+            _currentFolder != null &&
+            !data.file.equals(_goUpFile) &&
+            !_virtualMapping.containsKey(data.file)) {
             if (_currentSelection.contains(data.file)) {
                 // Single selection
                 _currentSelection.remove(data.file);
@@ -565,8 +565,7 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
     public boolean goBack() {
         if (!_backStack.isEmpty()) {
             File show = _currentFolder;
-            if (VIRTUAL_STORAGE_ROOT.equals(_backStack.peek()) ||
-                    VIRTUAL_STORAGE_SYSTEM.equals(_backStack.peek())) {
+            if (VIRTUAL_STORAGE_ROOT.equals(_backStack.peek()) || VIRTUAL_STORAGE_SYSTEM.equals(_backStack.peek())) {
                 show = GsCollectionUtils.reverseSearch(_virtualMapping, _currentFolder);
             }
             loadFolder(GO_BACK_SIGNIFIER, show);
@@ -754,8 +753,7 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
         // Make sure /storage/emulated/0 is browsable, even though filesystem says it's not accessible
         if (_currentFolder.equals(new File("/"))) {
             newData.add(VIRTUAL_STORAGE_ROOT);
-        } else if (_currentFolder.equals(VIRTUAL_STORAGE_ROOT) ||
-                _currentFolder.equals(VIRTUAL_STORAGE_SYSTEM)) {
+        } else if (_currentFolder.equals(VIRTUAL_STORAGE_ROOT) || _currentFolder.equals(VIRTUAL_STORAGE_SYSTEM)) {
             addVirtualChildren(newData, _currentFolder);
 
             // SD Card and other external storage directories that are also not listable
@@ -781,9 +779,9 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
         }
 
         if (!VIRTUAL_STORAGE_ROOT.equals(_currentFolder) &&
-                !VIRTUAL_STORAGE_SYSTEM.equals(_currentFolder) &&
-                _currentFolder.isDirectory() &&
-                _currentFolder.canRead()) {
+            !VIRTUAL_STORAGE_SYSTEM.equals(_currentFolder) &&
+            _currentFolder.isDirectory() &&
+            _currentFolder.canRead()) {
             GsCollectionUtils.addAll(newData, _currentFolder.listFiles());
         }
 
@@ -971,10 +969,10 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
     // Is the folder a virtual folder - does it contain links or other special items
     public static boolean isVirtualFolder(final File file) {
         return VIRTUAL_STORAGE_RECENTS.equals(file) ||
-                VIRTUAL_STORAGE_FAVOURITE.equals(file) ||
-                VIRTUAL_STORAGE_POPULAR.equals(file) ||
-                VIRTUAL_STORAGE_SYSTEM.equals(file) ||
-                VIRTUAL_STORAGE_ROOT.equals(file);
+               VIRTUAL_STORAGE_FAVOURITE.equals(file) ||
+               VIRTUAL_STORAGE_POPULAR.equals(file) ||
+               VIRTUAL_STORAGE_SYSTEM.equals(file) ||
+               VIRTUAL_STORAGE_ROOT.equals(file);
     }
 
     public void showFileAfterNextLoad(final File file) {
@@ -993,9 +991,9 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
 
     public boolean isCurrentFolderSortable() {
         return _currentFolder != null &&
-                !VIRTUAL_STORAGE_ROOT.equals(_currentFolder) &&
-                !VIRTUAL_STORAGE_SYSTEM.equals(_currentFolder) &&
-                !VIRTUAL_STORAGE_RECENTS.equals(_currentFolder);
+               !VIRTUAL_STORAGE_ROOT.equals(_currentFolder) &&
+               !VIRTUAL_STORAGE_SYSTEM.equals(_currentFolder) &&
+               !VIRTUAL_STORAGE_RECENTS.equals(_currentFolder);
     }
 
     public File resolveVirtualFile(final File file) {
