@@ -582,9 +582,7 @@ public class GsFileBrowserListAdapter extends RecyclerView.Adapter<GsFileBrowser
         }
 
         final File virtualAlias = GsCollectionUtils.reverseSearch(_virtualMapping, _currentFolder);
-        if (virtualAlias != null &&
-                (VIRTUAL_STORAGE_SYSTEM.equals(virtualAlias) ||
-                        VIRTUAL_STORAGE_SYSTEM.equals(virtualAlias.getParentFile()))) {
+        if (virtualAlias != null && (VIRTUAL_STORAGE_SYSTEM.equals(virtualAlias) || VIRTUAL_STORAGE_SYSTEM.equals(virtualAlias.getParentFile()))) {
             return virtualAlias.getParentFile();
         }
 
